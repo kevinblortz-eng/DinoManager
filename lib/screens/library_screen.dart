@@ -1,0 +1,1049 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../providers/dino_provider.dart';
+import '../models/dino.dart';
+import 'backup_screen.dart';
+import '../theme/app_theme.dart';
+import '../widgets/dino_image_widget.dart';
+import 'dino_detail_screen.dart';
+import 'add_edit_dino_screen.dart';
+
+class LibraryScreen extends StatefulWidget {
+  const LibraryScreen({super.key});
+
+  @override
+  State<LibraryScreen> createState() => _LibraryScreenState();
+}
+
+class _LibraryScreenState extends State<LibraryScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _activeRoleFilter = '';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DinoProvider>().loadDinos();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.bgPrimary,
+      body: Column(
+        children: [
+          _buildHeader(context),
+          _buildSearchBar(),
+          _buildRoleFilterChips(),
+          Expanded(child: _buildDinoList()),
+        ],
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // HEADER FLAME GRADIENT
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _buildHeader(BuildContext context) {
+    return Consumer<DinoProvider>(
+      builder: (context, provider, _) {
+        final total = provider.allDinos.length;
+        return Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF1A0A00),
+                Color(0xFF0D1117),
+                Color(0xFF0A1628),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0xFF000000),
+                blurRadius: 12,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(18, 14, 14, 16),
+              child: Row(
+                children: [
+                  // ── Icône flamme ────────────────────────────────────────
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0xFFFF9500), Color(0xFFFF4500)],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF6B00).withValues(alpha: 0.5),
+                          blurRadius: 12,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Text('🦖', style: TextStyle(fontSize: 26)),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  // ── Titre ───────────────────────────────────────────────
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ShaderMask(
+                          shaderCallback: (bounds) => const LinearGradient(
+                            colors: [Color(0xFFFF6B00), Color(0xFFFFAA00)],
+                          ).createShader(bounds),
+                          child: Text(
+                            'DINO MANAGER',
+                            style: GoogleFonts.cinzelDecorative(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'ARK Survival Ascended  ·  $total dinos',
+                          style: GoogleFonts.exo2(
+                            color: const Color(0xFF6B7A8D),
+                            fontSize: 11,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // ── Bouton settings semi-transparent ────────────────────
+                  _SettingsButton(provider: provider),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // BARRE DE RECHERCHE
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _buildSearchBar() {
+    return Container(
+      color: const Color(0xFF0D1117),
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 42,
+              decoration: BoxDecoration(
+                color: const Color(0xFF161B22),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF21304A), width: 1.2),
+              ),
+              child: TextField(
+                controller: _searchController,
+                style: GoogleFonts.exo2(
+                  color: AppTheme.textPrimary,
+                  fontSize: 14,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Rechercher un dino...',
+                  hintStyle: GoogleFonts.exo2(
+                    color: const Color(0xFF4A5568),
+                    fontSize: 14,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: Color(0xFF4A5568),
+                    size: 20,
+                  ),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.close_rounded,
+                              color: Color(0xFF4A5568), size: 18),
+                          onPressed: () {
+                            _searchController.clear();
+                            context.read<DinoProvider>().setSearchQuery('');
+                            setState(() {});
+                          },
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                ),
+                onChanged: (v) {
+                  context.read<DinoProvider>().setSearchQuery(v);
+                  setState(() {});
+                },
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Bouton filtre avancé
+          Consumer<DinoProvider>(
+            builder: (_, provider, __) => GestureDetector(
+              onTap: () => _showFilterSheet(context, provider),
+              child: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: provider.hasActiveFilters
+                      ? AppTheme.accentPrimary.withValues(alpha: 0.2)
+                      : const Color(0xFF161B22),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: provider.hasActiveFilters
+                        ? AppTheme.accentPrimary.withValues(alpha: 0.5)
+                        : const Color(0xFF21304A),
+                    width: 1.2,
+                  ),
+                ),
+                child: Icon(
+                  Icons.tune_rounded,
+                  color: provider.hasActiveFilters
+                      ? AppTheme.accentPrimary
+                      : const Color(0xFF4A5568),
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // FILTER CHIPS (rôles rapides)
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _buildRoleFilterChips() {
+    // Utilise les tags comme filtres rapides
+    final tags = ['Boss', 'Breed', 'PvP', 'Farm', 'Volant', 'Aquatique', 'Sauvage'];
+    return Container(
+      color: const Color(0xFF0D1117),
+      padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+      child: SizedBox(
+        height: 32,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: tags.length + 1, // +1 pour "Tous"
+          itemBuilder: (context, i) {
+            final label = i == 0 ? 'Tous' : tags[i - 1];
+            final val = i == 0 ? '' : tags[i - 1];
+            final isActive = _activeRoleFilter == val;
+            return GestureDetector(
+              onTap: () {
+                setState(() => _activeRoleFilter = val);
+                // Filtre par tag plutôt que par rôle
+                context.read<DinoProvider>().setFilterTag(val);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                margin: const EdgeInsets.only(right: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                decoration: BoxDecoration(
+                  gradient: isActive
+                      ? const LinearGradient(
+                          colors: [Color(0xFFFF6B00), Color(0xFFFF9500)])
+                      : null,
+                  color: isActive ? null : const Color(0xFF161B22),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isActive
+                        ? Colors.transparent
+                        : const Color(0xFF21304A),
+                    width: 1.2,
+                  ),
+                ),
+                child: Text(
+                  label,
+                  style: GoogleFonts.exo2(
+                    color: isActive ? Colors.white : const Color(0xFF6B7A8D),
+                    fontSize: 12,
+                    fontWeight:
+                        isActive ? FontWeight.w700 : FontWeight.w500,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // LISTE DES DINOS
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _buildDinoList() {
+    return Consumer<DinoProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: CircularProgressIndicator(
+                    color: AppTheme.accentPrimary,
+                    strokeWidth: 3,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Chargement...',
+                  style: GoogleFonts.exo2(
+                    color: const Color(0xFF4A5568),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (provider.dinos.isEmpty) {
+          return _buildEmptyState(provider.hasActiveFilters, context);
+        }
+
+        return RefreshIndicator(
+          color: AppTheme.accentPrimary,
+          backgroundColor: AppTheme.bgCard,
+          onRefresh: () => provider.loadDinos(),
+          child: ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(14, 4, 14, 100),
+            itemCount: provider.dinos.length,
+            itemBuilder: (context, i) {
+              final dino = provider.dinos[i];
+              return _ArkDinoCard(
+                dino: dino,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => DinoDetailScreen(dino: dino)),
+                ).then((_) => provider.loadDinos()),
+                onEdit: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => AddEditDinoScreen(dino: dino)),
+                ).then((_) => provider.loadDinos()),
+                onDelete: () => _confirmDelete(context, provider, dino),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState(bool hasFilters, BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('🦕', style: TextStyle(fontSize: 72)),
+            const SizedBox(height: 20),
+            Text(
+              hasFilters ? 'Aucun résultat' : 'Aucun dino enregistré',
+              style: GoogleFonts.cinzelDecorative(
+                color: AppTheme.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              hasFilters
+                  ? 'Modifiez vos filtres'
+                  : 'Appuyez sur + pour ajouter votre premier dino',
+              style: GoogleFonts.exo2(
+                color: const Color(0xFF4A5568),
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (!hasFilters) ...[
+              const SizedBox(height: 24),
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddEditDinoScreen()),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 28, vertical: 14),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF6B00), Color(0xFFFF9500)],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF6B00).withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'Ajouter un dino',
+                    style: GoogleFonts.exo2(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showFilterSheet(BuildContext context, DinoProvider provider) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF161B22),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _FilterSheet(provider: provider),
+    );
+  }
+
+  void _confirmDelete(
+      BuildContext context, DinoProvider provider, Dino dino) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.bgCard,
+        title: Text('Supprimer ${dino.nom} ?',
+            style: TextStyle(color: AppTheme.textPrimary)),
+        content: Text('Cette action est irréversible.',
+            style: TextStyle(color: AppTheme.textSecondary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Annuler',
+                style: TextStyle(color: AppTheme.textSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              provider.deleteDino(dino.id!);
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.danger),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CARTE DINO ARK STYLE
+// ══════════════════════════════════════════════════════════════════════════════
+class _ArkDinoCard extends StatelessWidget {
+  final Dino dino;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _ArkDinoCard({
+    required this.dino,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF111827),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: dino.roleColor.withValues(alpha: 0.25),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.4),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: Stack(
+            children: [
+              // Gradient de fond subtil côté gauche selon rôle
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: 100,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        dino.roleColor.withValues(alpha: 0.12),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Contenu principal
+              Row(
+                children: [
+                  // ── Image dino ───────────────────────────────────────
+                  SizedBox(
+                    width: 100,
+                    height: 80,
+                    child: DinoImageWidget(
+                      species: dino.espece,
+                      regionColors: dino.colorRegions,
+                      width: 100,
+                      height: 80,
+                      fit: BoxFit.contain,
+                      showColorBand: false,
+                      alignment: Alignment.center,
+                    ),
+                  ),
+                  // ── Infos ────────────────────────────────────────────
+                  Expanded(
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(6, 9, 8, 6),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Nom + badges
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  dino.nom,
+                                  style: GoogleFonts.exo2(
+                                    color: const Color(0xFFE8DCC8),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.2,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              _sexeBadge(),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          // Espèce · Niveau
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  '${dino.espece}  ·  Lvl ${dino.niveau}',
+                                  style: GoogleFonts.exo2(
+                                    color: const Color(0xFF6B7A8D),
+                                    fontSize: 10.5,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              _roleBadge(),
+                            ],
+                          ),
+                          const SizedBox(height: 7),
+                          // Stats bars
+                          _statBar('❤️', dino.hp, 20000,
+                              const Color(0xFFEF4444)),
+                          const SizedBox(height: 4),
+                          _statBar('⚔️',
+                              dino.degats.toInt(), 1000,
+                              AppTheme.accentPrimary),
+                          const SizedBox(height: 6),
+                          // Bande de couleurs
+                          _colorStrip(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // ── Chevron ──────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Icon(
+                      Icons.chevron_right_rounded,
+                      color: const Color(0xFF2D3748),
+                      size: 22,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sexeBadge() {
+    if (dino.sexe == 'Inconnu') return const SizedBox.shrink();
+    final symbol = dino.sexeSymbol;
+    return Container(
+      margin: const EdgeInsets.only(left: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: dino.sexeColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+            color: dino.sexeColor.withValues(alpha: 0.35), width: 1),
+      ),
+      child: Text(
+        symbol,
+        style: TextStyle(
+          color: dino.sexeColor,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  Widget _roleBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: dino.roleColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+            color: dino.roleColor.withValues(alpha: 0.3), width: 1),
+      ),
+      child: Text(
+        dino.role,
+        style: TextStyle(
+          color: dino.roleColor,
+          fontSize: 9.5,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  Widget _statBar(String icon, int value, int max, Color color) {
+    final ratio = (value / max).clamp(0.0, 1.0);
+    return Row(
+      children: [
+        Text(icon, style: const TextStyle(fontSize: 9)),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Stack(
+            children: [
+              Container(
+                height: 4,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              FractionallySizedBox(
+                widthFactor: ratio,
+                child: Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [color.withValues(alpha: 0.7), color],
+                    ),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          value.toString(),
+          style: GoogleFonts.exo2(
+            color: color,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _colorStrip() {
+    final colors = dino.colorRegions;
+    return SizedBox(
+      height: 5,
+      child: Row(
+        children: List.generate(6, (i) {
+          final hex = i < colors.length ? colors[i] : null;
+          final isGray = hex == null ||
+              hex == '#808080' ||
+              hex == '#7F7F7F';
+          final color = isGray
+              ? const Color(0xFF1C2333)
+              : _parseHex(hex) ?? const Color(0xFF1C2333);
+          return Expanded(
+            child: Container(
+              height: 5,
+              margin: const EdgeInsets.symmetric(horizontal: 1),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Color? _parseHex(String? hex) {
+    if (hex == null || hex.isEmpty) return null;
+    try {
+      final h = hex.replaceAll('#', '');
+      if (h.length == 6) return Color(int.parse('FF$h', radix: 16));
+    } catch (_) {}
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BOUTON SETTINGS
+// ══════════════════════════════════════════════════════════════════════════════
+class _SettingsButton extends StatelessWidget {
+  final DinoProvider provider;
+  const _SettingsButton({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showStatsDialog(context),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+              color: Colors.white.withValues(alpha: 0.1), width: 1),
+        ),
+        child: Icon(
+          Icons.bar_chart_rounded,
+          color: Colors.white.withValues(alpha: 0.7),
+          size: 20,
+        ),
+      ),
+    );
+  }
+
+  void _showStatsDialog(BuildContext context) {
+    final dinos = provider.allDinos;
+
+    // Statistiques basées sur les tags
+    final tagStats = <String, int>{};
+    for (final dino in dinos) {
+      for (final tag in dino.tags) {
+        tagStats[tag] = (tagStats[tag] ?? 0) + 1;
+      }
+    }
+
+    // Tags prioritaires à afficher en premier
+    const priorityTags = ['Boss', 'Breed', 'PvP', 'Farm', 'Volant', 'Aquatique', 'Solide'];
+    final sortedTags = [...priorityTags.where((t) => tagStats.containsKey(t)),
+      ...tagStats.keys.where((t) => !priorityTags.contains(t)).toList()..sort()];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF111827),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true,
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: ShaderMask(
+                    shaderCallback: (b) => const LinearGradient(
+                      colors: [Color(0xFFFF6B00), Color(0xFFFFAA00)],
+                    ).createShader(b),
+                    child: Text(
+                      'STATISTIQUES',
+                      style: GoogleFonts.cinzelDecorative(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+                // Bouton sauvegarde
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const BackupScreen()),
+                    );
+                  },
+                  icon: Icon(Icons.save_alt, size: 16, color: AppTheme.accentSecondary),
+                  label: Text('Sauvegarder',
+                      style: TextStyle(color: AppTheme.accentSecondary, fontSize: 12)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Total
+            _statTile('🦖', '${dinos.length}', 'Total', AppTheme.accentPrimary),
+            const SizedBox(height: 4),
+            if (sortedTags.isEmpty)
+              Text('Aucun tag utilisé',
+                  style: TextStyle(color: AppTheme.textMuted, fontSize: 12))
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: sortedTags.map((tag) {
+                  final count = tagStats[tag] ?? 0;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.bgCard,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppTheme.borderColor),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('$count', style: TextStyle(
+                          color: AppTheme.accentPrimary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        )),
+                        const SizedBox(width: 5),
+                        Text(tag, style: TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 12,
+                        )),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Ligne stat unique (total)
+  Widget _statTile(String emoji, String count, String label, Color color) {
+    return Row(
+      children: [
+        Text(emoji, style: const TextStyle(fontSize: 20)),
+        const SizedBox(width: 8),
+        Text(count, style: GoogleFonts.exo2(
+          color: color, fontSize: 22, fontWeight: FontWeight.w900)),
+        const SizedBox(width: 6),
+        Text(label, style: GoogleFonts.exo2(
+          color: AppTheme.textMuted, fontSize: 12)),
+      ],
+    );
+  }
+
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BOTTOM SHEET FILTRES
+// ══════════════════════════════════════════════════════════════════════════════
+class _FilterSheet extends StatelessWidget {
+  final DinoProvider provider;
+  const _FilterSheet({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFF2D3748),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'FILTRES',
+            style: GoogleFonts.cinzelDecorative(
+              color: AppTheme.accentSecondary,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _filterRow(context, 'Sexe', ['', ...Dino.sexesDisponibles],
+              provider.filterSexe, provider.setFilterSexe),
+          const SizedBox(height: 12),
+          _filterRow(context, 'Espèce',
+              ['', ...Dino.especesDisponibles.take(12).toList()],
+              provider.filterEspece, provider.setFilterEspece),
+          const SizedBox(height: 12),
+          if (provider.hasActiveFilters) ...[
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () {
+                provider.clearFilters();
+                Navigator.pop(context);
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppTheme.danger.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                      color: AppTheme.danger.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  'Réinitialiser les filtres',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.exo2(
+                    color: AppTheme.danger,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _filterRow(
+    BuildContext context,
+    String label,
+    List<String> opts,
+    String current,
+    Function(String) onChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: GoogleFonts.exo2(
+              color: const Color(0xFF6B7A8D),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
+            )),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: opts.take(10).map((opt) {
+            final isActive = current == opt;
+            return GestureDetector(
+              onTap: () {
+                onChanged(isActive ? '' : opt);
+                Navigator.pop(context);
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  gradient: isActive
+                      ? const LinearGradient(
+                          colors: [Color(0xFFFF6B00), Color(0xFFFF9500)])
+                      : null,
+                  color: isActive ? null : const Color(0xFF1C2333),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isActive
+                        ? Colors.transparent
+                        : const Color(0xFF2D3748),
+                  ),
+                ),
+                child: Text(
+                  opt.isEmpty ? 'Tous' : opt,
+                  style: GoogleFonts.exo2(
+                    color: isActive
+                        ? Colors.white
+                        : const Color(0xFF6B7A8D),
+                    fontSize: 12,
+                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
