@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/ark_species_data.dart';
 import '../models/dino.dart';
+
 
 /// Widget affichant le dino PNG officiel ARK avec coloration régionale correcte.
 ///
@@ -395,7 +395,9 @@ class _DinoImageWidgetState extends State<DinoImageWidget> {
     if (l.contains('pteranodon') ||
         l.contains('argentavis') ||
         l.contains('quetz') ||
-        l.contains('ptero')) return '🦅';
+        l.contains('ptero')) {
+      return '🦅';
+    }
     if (l.contains('ankylo') || l.contains('stego')) return '🪨';
     if (l.contains('megalodon') || l.contains('shark')) return '🦈';
     if (l.contains('mammoth') || l.contains('woolly')) return '🦣';

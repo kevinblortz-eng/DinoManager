@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../models/ark_color_palette.dart';
 import '../theme/app_theme.dart';
 
-/// Sélecteur de couleur ARK avec palette officielle (IDs 1-254)
-/// Affiche une grille de toutes les couleurs disponibles
+/// Sélecteur de couleur ARK avec palette officielle.
+/// Ajoute aussi l'option "aucune couleur" (ID 0).
 class ArkColorPicker extends StatefulWidget {
   final int selectedId;
   final String selectedHex;
@@ -26,21 +27,27 @@ class ArkColorPicker extends StatefulWidget {
 }
 
 class _ArkColorPickerState extends State<ArkColorPicker> {
+  static const String _emptyHex = '#808080';
+
   late TextEditingController _searchCtrl;
   late TextEditingController _idCtrl;
+
   List<ArkColor> _filtered = [];
   int _selectedId = 0;
-  String _selectedHex = '#808080';
+  String _selectedHex = _emptyHex;
+  bool _showEmptyTile = true;
 
   @override
   void initState() {
     super.initState();
     _selectedId = widget.selectedId;
-    _selectedHex = widget.selectedHex;
+    _selectedHex = widget.selectedHex.isEmpty ? _emptyHex : widget.selectedHex;
+
     _searchCtrl = TextEditingController();
     _idCtrl = TextEditingController(
       text: _selectedId > 0 ? _selectedId.toString() : '',
     );
+
     _filtered = ArkColorPalette.allColors;
   }
 
@@ -53,15 +60,22 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
 
   void _filterColors(String query) {
     setState(() {
-      if (query.isEmpty) {
+      if (query.trim().isEmpty) {
         _filtered = ArkColorPalette.allColors;
+        _showEmptyTile = true;
       } else {
-        final lower = query.toLowerCase();
-        _filtered = ArkColorPalette.allColors.where((c) =>
-          c.name.toLowerCase().contains(lower) ||
-          c.id.toString().contains(lower) ||
-          c.hex.toLowerCase().contains(lower)
-        ).toList();
+        final lower = query.toLowerCase().trim();
+
+        _showEmptyTile = 'aucune'.contains(lower) ||
+            'none'.contains(lower) ||
+            '0'.contains(lower) ||
+            'vide'.contains(lower);
+
+        _filtered = ArkColorPalette.allColors.where((c) {
+          return c.name.toLowerCase().contains(lower) ||
+              c.id.toString().contains(lower) ||
+              c.hex.toLowerCase().contains(lower);
+        }).toList();
       }
     });
   }
@@ -74,8 +88,23 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
     });
   }
 
+  void _selectNoColor() {
+    setState(() {
+      _selectedId = 0;
+      _selectedHex = _emptyHex;
+      _idCtrl.text = '';
+    });
+  }
+
   void _applyIdInput(String val) {
-    final id = int.tryParse(val);
+    final trimmed = val.trim();
+
+    if (trimmed.isEmpty || trimmed == '0') {
+      _selectNoColor();
+      return;
+    }
+
+    final id = int.tryParse(trimmed);
     if (id != null) {
       final color = ArkColorPalette.fromId(id);
       if (color != null) {
@@ -93,316 +122,432 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
         ? ArkColorPalette.fromId(_selectedId)
         : null;
 
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
-      decoration: BoxDecoration(
-        color: AppTheme.bgSecondary,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        children: [
-          // ─── Handle + Titre ───
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(top: 12, bottom: 8),
-            decoration: BoxDecoration(
-              color: AppTheme.borderColor,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Row(
-              children: [
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: AppTheme.accentPrimary.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${widget.regionIndex}',
-                      style: TextStyle(
-                        color: AppTheme.accentPrimary,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Région ${widget.regionIndex} — ${widget.regionName}',
-                        style: TextStyle(
-                          color: AppTheme.textPrimary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                        ),
-                      ),
-                      Text(
-                        '${ArkColorPalette.count} couleurs ARK disponibles',
-                        style: TextStyle(color: AppTheme.textMuted, fontSize: 11),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+    final bottomInset = MediaQuery.of(context).padding.bottom;
 
-          // ─── Couleur sélectionnée + ID direct ───
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.bgCard,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.borderColor),
+    return SafeArea(
+      top: false,
+      bottom: true,
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: BoxDecoration(
+          color: AppTheme.bgSecondary,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // ─── Handle + Titre ───
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              decoration: BoxDecoration(
+                color: AppTheme.borderColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-            child: Row(
-              children: [
-                // Grande pastille couleur sélectionnée
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: currentColor?.color ?? Colors.grey,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.3),
-                      width: 2,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: AppTheme.accentPrimary.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (currentColor?.color ?? Colors.grey).withValues(alpha: 0.4),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        currentColor?.name ?? 'Aucune couleur',
-                        style: TextStyle(
-                          color: AppTheme.textPrimary,
-                          fontWeight: FontWeight.w700,
+                    child: Center(
+                      child: Text(
+                        '${widget.regionIndex}',
+                        style: const TextStyle(
+                          color: AppTheme.accentPrimary,
+                          fontWeight: FontWeight.w800,
                           fontSize: 14,
                         ),
                       ),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppTheme.accentPrimary.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Région ${widget.regionIndex} — ${widget.regionName}',
+                          style: const TextStyle(
+                            color: AppTheme.textPrimary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                        Text(
+                          '${ArkColorPalette.count} couleurs ARK disponibles',
+                          style: const TextStyle(
+                            color: AppTheme.textMuted,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ─── Couleur sélectionnée + ID direct ───
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.bgCard,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.borderColor),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: currentColor?.color ?? Colors.grey,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (currentColor?.color ?? Colors.grey)
+                              .withOpacity(0.4),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: currentColor == null
+                        ? const Center(
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.white70,
+                              size: 20,
                             ),
-                            child: Text(
-                              _selectedId > 0 ? 'ID: $_selectedId' : 'Aucun',
-                              style: TextStyle(
-                                color: AppTheme.accentPrimary,
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          currentColor?.name ?? 'Aucune couleur',
+                          style: const TextStyle(
+                            color: AppTheme.textPrimary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.accentPrimary.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                _selectedId > 0 ? 'ID: $_selectedId' : 'Aucun',
+                                style: const TextStyle(
+                                  color: AppTheme.accentPrimary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _selectedHex,
+                              style: const TextStyle(
+                                color: AppTheme.textMuted,
                                 fontSize: 12,
-                                fontWeight: FontWeight.w700,
                                 fontFamily: 'monospace',
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _selectedHex,
-                            style: TextStyle(
-                              color: AppTheme.textMuted,
-                              fontSize: 12,
-                              fontFamily: 'monospace',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // Saisie ID direct
-                SizedBox(
-                  width: 72,
-                  child: TextFormField(
-                    controller: _idCtrl,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    style: TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      labelText: 'ID ARK',
-                      labelStyle: TextStyle(color: AppTheme.textMuted, fontSize: 10),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      isDense: true,
-                    ),
-                    onChanged: _applyIdInput,
-                    onFieldSubmitted: _applyIdInput,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // ─── Barre de recherche ───
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: TextField(
-              controller: _searchCtrl,
-              style: TextStyle(color: AppTheme.textPrimary),
-              decoration: InputDecoration(
-                hintText: 'Rechercher par nom, ID ou code hex...',
-                prefixIcon: Icon(Icons.search, color: AppTheme.accentSecondary, size: 20),
-                suffixIcon: _searchCtrl.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(Icons.clear, color: AppTheme.textMuted, size: 18),
-                        onPressed: () {
-                          _searchCtrl.clear();
-                          _filterColors('');
-                        },
-                      )
-                    : null,
-                contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                isDense: true,
-              ),
-              onChanged: _filterColors,
-            ),
-          ),
-
-          // ─── Grille des couleurs ───
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 8,
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
-                childAspectRatio: 0.85,
-              ),
-              itemCount: _filtered.length,
-              itemBuilder: (context, index) {
-                final c = _filtered[index];
-                final isSelected = c.id == _selectedId;
-                return GestureDetector(
-                  onTap: () => _selectColor(c),
-                  child: Tooltip(
-                    message: '${c.id}: ${c.name}\n${c.hex}',
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      decoration: BoxDecoration(
-                        color: c.color,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: isSelected
-                              ? Colors.white
-                              : Colors.white.withValues(alpha: 0.1),
-                          width: isSelected ? 2.5 : 0.5,
+                          ],
                         ),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: c.color.withValues(alpha: 0.6),
-                                  blurRadius: 6,
-                                  spreadRadius: 1,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (isSelected)
-                            const Icon(Icons.check, color: Colors.white, size: 10),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 1),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.5),
-                              borderRadius: const BorderRadius.only(
-                                bottomLeft: Radius.circular(5),
-                                bottomRight: Radius.circular(5),
-                              ),
-                            ),
-                            child: Text(
-                              '${c.id}',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 7,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
-                );
-              },
+                  SizedBox(
+                    width: 72,
+                    child: TextFormField(
+                      controller: _idCtrl,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      style: const TextStyle(
+                        color: AppTheme.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: TextAlign.center,
+                      decoration: const InputDecoration(
+                        labelText: 'ID ARK',
+                        labelStyle: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 10,
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        isDense: true,
+                      ),
+                      onChanged: _applyIdInput,
+                      onFieldSubmitted: _applyIdInput,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          // ─── Bouton Appliquer ───
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppTheme.borderColor),
-                      foregroundColor: AppTheme.textSecondary,
-                    ),
-                    child: const Text('Annuler'),
+            // ─── Barre de recherche ───
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: TextField(
+                controller: _searchCtrl,
+                style: const TextStyle(color: AppTheme.textPrimary),
+                decoration: InputDecoration(
+                  hintText: 'Rechercher par nom, ID ou code hex...',
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: AppTheme.accentSecondary,
+                    size: 20,
                   ),
+                  suffixIcon: _searchCtrl.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(
+                            Icons.clear,
+                            color: AppTheme.textMuted,
+                            size: 18,
+                          ),
+                          onPressed: () {
+                            _searchCtrl.clear();
+                            _filterColors('');
+                          },
+                        )
+                      : null,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                  isDense: true,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      widget.onColorSelected((id: _selectedId, hex: _selectedHex));
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accentPrimary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    icon: const Icon(Icons.check, size: 18),
-                    label: Text(
-                      'Appliquer (ID: $_selectedId)',
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
-              ],
+                onChanged: (value) {
+                  _filterColors(value);
+                  setState(() {});
+                },
+              ),
             ),
-          ),
-        ],
+
+            // ─── Grille des couleurs ───
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 8,
+                  crossAxisSpacing: 4,
+                  mainAxisSpacing: 4,
+                  childAspectRatio: 0.85,
+                ),
+                itemCount: _filtered.length + (_showEmptyTile ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (_showEmptyTile && index == 0) {
+                    final isSelected = _selectedId == 0;
+                    return GestureDetector(
+                      onTap: _selectNoColor,
+                      child: Tooltip(
+                        message: 'Aucune couleur\nID: 0\n$_emptyHex',
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF808080),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.white.withOpacity(0.2),
+                              width: isSelected ? 2.5 : 1,
+                            ),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.white.withOpacity(0.25),
+                                      blurRadius: 6,
+                                      spreadRadius: 1,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Center(
+                                  child: Icon(
+                                    isSelected ? Icons.check : Icons.close,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: double.infinity,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.45),
+                                  borderRadius: const BorderRadius.only(
+                                    bottomLeft: Radius.circular(5),
+                                    bottomRight: Radius.circular(5),
+                                  ),
+                                ),
+                                child: const Text(
+                                  '0',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 7,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final colorIndex = _showEmptyTile ? index - 1 : index;
+                  final c = _filtered[colorIndex];
+                  final isSelected = c.id == _selectedId;
+
+                  return GestureDetector(
+                    onTap: () => _selectColor(c),
+                    child: Tooltip(
+                      message: '${c.id}: ${c.name}\n${c.hex}',
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        decoration: BoxDecoration(
+                          color: c.color,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.1),
+                            width: isSelected ? 2.5 : 0.5,
+                          ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: c.color.withOpacity(0.6),
+                                    blurRadius: 6,
+                                    spreadRadius: 1,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (isSelected)
+                              const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 10,
+                              ),
+                            Container(
+                              width: double.infinity,
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 1),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.5),
+                                borderRadius: const BorderRadius.only(
+                                  bottomLeft: Radius.circular(5),
+                                  bottomRight: Radius.circular(5),
+                                ),
+                              ),
+                              child: Text(
+                                '${c.id}',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 7,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // ─── Boutons bas protégés par safe area ───
+            Container(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, bottomInset + 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.borderColor),
+                        foregroundColor: AppTheme.textSecondary,
+                      ),
+                      child: const Text('Annuler'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        widget.onColorSelected((
+                          id: _selectedId,
+                          hex: _selectedHex,
+                        ));
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accentPrimary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      icon: const Icon(Icons.check, size: 18),
+                      label: Text(
+                        _selectedId > 0
+                            ? 'Appliquer (ID: $_selectedId)'
+                            : 'Appliquer (aucune)',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// Bouton compact pour afficher la couleur d'une région (utilisé dans les listes)
+/// Badge compact couleur
 class ArkColorBadge extends StatelessWidget {
   final int arkId;
   final String hex;
@@ -423,7 +568,7 @@ class ArkColorBadge extends StatelessWidget {
     return Tooltip(
       message: arkId > 0
           ? 'ID: $arkId\n${ArkColorPalette.fromId(arkId)?.name ?? ""}\n$hex'
-          : hex,
+          : 'Aucune couleur\n$hex',
       child: Container(
         width: size,
         height: size,
@@ -431,12 +576,12 @@ class ArkColorBadge extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(4),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.25),
+            color: Colors.white.withOpacity(0.25),
             width: 0.8,
           ),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.3),
+              color: color.withOpacity(0.3),
               blurRadius: 3,
             ),
           ],
@@ -452,7 +597,15 @@ class ArkColorBadge extends StatelessWidget {
                   ),
                 ),
               )
-            : null,
+            : arkId == 0
+                ? Center(
+                    child: Icon(
+                      Icons.close,
+                      size: size * 0.45,
+                      color: Colors.white70,
+                    ),
+                  )
+                : null,
       ),
     );
   }
@@ -466,6 +619,8 @@ class ArkColorBadge extends StatelessWidget {
   }
 
   bool _isLight(Color c) {
-    return (c.r * 0.299 + c.g * 0.587 + c.b * 0.114) > 0.5;
+    final brightness =
+        (c.red * 0.299 + c.green * 0.587 + c.blue * 0.114);
+    return brightness > 186;
   }
 }

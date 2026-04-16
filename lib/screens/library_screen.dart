@@ -3,9 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/dino_provider.dart';
 import '../models/dino.dart';
-import 'backup_screen.dart';
+import '../widgets/ark_dino_card.dart';
 import '../theme/app_theme.dart';
-import '../widgets/dino_image_widget.dart';
 import 'dino_detail_screen.dart';
 import 'add_edit_dino_screen.dart';
 
@@ -46,6 +45,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
           Expanded(child: _buildDinoList()),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddEditDinoScreen()),
+          );
+          if (!mounted) return;
+          context.read<DinoProvider>().loadDinos();
+        },
+        backgroundColor: AppTheme.accentPrimary,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
   }
 
@@ -82,7 +93,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
               padding: const EdgeInsets.fromLTRB(18, 14, 14, 16),
               child: Row(
                 children: [
-                  // ── Icône flamme ────────────────────────────────────────
                   Container(
                     width: 48,
                     height: 48,
@@ -95,7 +105,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFF6B00).withValues(alpha: 0.5),
+                          color: const Color(0xFFFF6B00).withOpacity(0.5),
                           blurRadius: 12,
                           offset: const Offset(0, 3),
                         ),
@@ -106,7 +116,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     ),
                   ),
                   const SizedBox(width: 14),
-                  // ── Titre ───────────────────────────────────────────────
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +146,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       ],
                     ),
                   ),
-                  // ── Bouton settings semi-transparent ────────────────────
                   _SettingsButton(provider: provider),
                 ],
               ),
@@ -205,7 +213,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          // Bouton filtre avancé
           Consumer<DinoProvider>(
             builder: (_, provider, __) => GestureDetector(
               onTap: () => _showFilterSheet(context, provider),
@@ -214,12 +221,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 height: 42,
                 decoration: BoxDecoration(
                   color: provider.hasActiveFilters
-                      ? AppTheme.accentPrimary.withValues(alpha: 0.2)
+                      ? AppTheme.accentPrimary.withOpacity(0.2)
                       : const Color(0xFF161B22),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: provider.hasActiveFilters
-                        ? AppTheme.accentPrimary.withValues(alpha: 0.5)
+                        ? AppTheme.accentPrimary.withOpacity(0.5)
                         : const Color(0xFF21304A),
                     width: 1.2,
                   ),
@@ -240,11 +247,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // FILTER CHIPS (rôles rapides)
+  // FILTER CHIPS
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildRoleFilterChips() {
-    // Utilise les tags comme filtres rapides
-    final tags = ['Boss', 'Breed', 'PvP', 'Farm', 'Volant', 'Aquatique', 'Sauvage'];
+    final tags = ['Boss', 'Breed', 'Solid', 'Farm', 'Volant', 'Aquatique'];
     return Container(
       color: const Color(0xFF0D1117),
       padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
@@ -252,7 +258,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         height: 32,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: tags.length + 1, // +1 pour "Tous"
+          itemCount: tags.length + 1,
           itemBuilder: (context, i) {
             final label = i == 0 ? 'Tous' : tags[i - 1];
             final val = i == 0 ? '' : tags[i - 1];
@@ -260,7 +266,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
             return GestureDetector(
               onTap: () {
                 setState(() => _activeRoleFilter = val);
-                // Filtre par tag plutôt que par rôle
                 context.read<DinoProvider>().setFilterTag(val);
               },
               child: AnimatedContainer(
@@ -301,7 +306,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // LISTE DES DINOS
+  // LISTE DES DINOS - ✅ AVEC PROTECTION COMPLÈTE BARRE SYSTÈME
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildDinoList() {
     return Consumer<DinoProvider>(
@@ -336,17 +341,26 @@ class _LibraryScreenState extends State<LibraryScreen> {
           return _buildEmptyState(provider.hasActiveFilters, context);
         }
 
+        // ✅ PROTECTION BARRE SYSTÈME : Calcul dynamique du padding
+        final bottomPadding = MediaQuery.of(context).padding.bottom;
+
         return RefreshIndicator(
           color: AppTheme.accentPrimary,
           backgroundColor: AppTheme.bgCard,
           onRefresh: () => provider.loadDinos(),
           child: ListView.builder(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(14, 4, 14, 100),
+            // ✅ CORRECTION CRITIQUE : Padding adaptatif
+            padding: EdgeInsets.fromLTRB(
+              14,
+              4,
+              14,
+              100 + bottomPadding, // 100px pour FAB + hauteur barre système
+            ),
             itemCount: provider.dinos.length,
             itemBuilder: (context, i) {
               final dino = provider.dinos[i];
-              return _ArkDinoCard(
+              return ArkDinoCard(
                 dino: dino,
                 onTap: () => Navigator.push(
                   context,
@@ -401,7 +415,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const AddEditDinoScreen()),
-                ),
+                ).then((_) => context.read<DinoProvider>().loadDinos()),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 28, vertical: 14),
@@ -412,7 +426,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF6B00).withValues(alpha: 0.4),
+                        color: const Color(0xFFFF6B00).withOpacity(0.4),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -435,9 +449,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
+  // ✅ PROTECTION MODALS : useSafeArea pour éviter la barre système
   void _showFilterSheet(BuildContext context, DinoProvider provider) {
     showModalBottomSheet(
       context: context,
+      useSafeArea: true, // ✅ PROTECTION IMPORTANTE
       backgroundColor: const Color(0xFF161B22),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -452,20 +468,25 @@ class _LibraryScreenState extends State<LibraryScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.bgCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         title: Text('Supprimer ${dino.nom} ?',
-            style: TextStyle(color: AppTheme.textPrimary)),
-        content: Text('Cette action est irréversible.',
+            style: const TextStyle(color: AppTheme.textPrimary)),
+        content: const Text('Cette action est irréversible.',
             style: TextStyle(color: AppTheme.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Annuler',
+            child: const Text('Annuler',
                 style: TextStyle(color: AppTheme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
-              provider.deleteDino(dino.id!);
+              if (dino.id != null) {
+                provider.deleteDino(dino.id!);
+              }
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.danger),
@@ -474,286 +495,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
         ],
       ),
     );
-  }
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// CARTE DINO ARK STYLE
-// ══════════════════════════════════════════════════════════════════════════════
-class _ArkDinoCard extends StatelessWidget {
-  final Dino dino;
-  final VoidCallback onTap;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
-  const _ArkDinoCard({
-    required this.dino,
-    required this.onTap,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFF111827),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: dino.roleColor.withValues(alpha: 0.25),
-            width: 1.2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Stack(
-            children: [
-              // Gradient de fond subtil côté gauche selon rôle
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: 100,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        dino.roleColor.withValues(alpha: 0.12),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // Contenu principal
-              Row(
-                children: [
-                  // ── Image dino ───────────────────────────────────────
-                  SizedBox(
-                    width: 100,
-                    height: 80,
-                    child: DinoImageWidget(
-                      species: dino.espece,
-                      regionColors: dino.colorRegions,
-                      width: 100,
-                      height: 80,
-                      fit: BoxFit.contain,
-                      showColorBand: false,
-                      alignment: Alignment.center,
-                    ),
-                  ),
-                  // ── Infos ────────────────────────────────────────────
-                  Expanded(
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.fromLTRB(6, 9, 8, 6),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Nom + badges
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  dino.nom,
-                                  style: GoogleFonts.exo2(
-                                    color: const Color(0xFFE8DCC8),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.2,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              _sexeBadge(),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          // Espèce · Niveau
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  '${dino.espece}  ·  Lvl ${dino.niveau}',
-                                  style: GoogleFonts.exo2(
-                                    color: const Color(0xFF6B7A8D),
-                                    fontSize: 10.5,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              _roleBadge(),
-                            ],
-                          ),
-                          const SizedBox(height: 7),
-                          // Stats bars
-                          _statBar('❤️', dino.hp, 20000,
-                              const Color(0xFFEF4444)),
-                          const SizedBox(height: 4),
-                          _statBar('⚔️',
-                              dino.degats.toInt(), 1000,
-                              AppTheme.accentPrimary),
-                          const SizedBox(height: 6),
-                          // Bande de couleurs
-                          _colorStrip(),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // ── Chevron ──────────────────────────────────────────
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Icon(
-                      Icons.chevron_right_rounded,
-                      color: const Color(0xFF2D3748),
-                      size: 22,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _sexeBadge() {
-    if (dino.sexe == 'Inconnu') return const SizedBox.shrink();
-    final symbol = dino.sexeSymbol;
-    return Container(
-      margin: const EdgeInsets.only(left: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      decoration: BoxDecoration(
-        color: dino.sexeColor.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-            color: dino.sexeColor.withValues(alpha: 0.35), width: 1),
-      ),
-      child: Text(
-        symbol,
-        style: TextStyle(
-          color: dino.sexeColor,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-
-  Widget _roleBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: dino.roleColor.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-            color: dino.roleColor.withValues(alpha: 0.3), width: 1),
-      ),
-      child: Text(
-        dino.role,
-        style: TextStyle(
-          color: dino.roleColor,
-          fontSize: 9.5,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-
-  Widget _statBar(String icon, int value, int max, Color color) {
-    final ratio = (value / max).clamp(0.0, 1.0);
-    return Row(
-      children: [
-        Text(icon, style: const TextStyle(fontSize: 9)),
-        const SizedBox(width: 4),
-        Expanded(
-          child: Stack(
-            children: [
-              Container(
-                height: 4,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              FractionallySizedBox(
-                widthFactor: ratio,
-                child: Container(
-                  height: 4,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [color.withValues(alpha: 0.7), color],
-                    ),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          value.toString(),
-          style: GoogleFonts.exo2(
-            color: color,
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _colorStrip() {
-    final colors = dino.colorRegions;
-    return SizedBox(
-      height: 5,
-      child: Row(
-        children: List.generate(6, (i) {
-          final hex = i < colors.length ? colors[i] : null;
-          final isGray = hex == null ||
-              hex == '#808080' ||
-              hex == '#7F7F7F';
-          final color = isGray
-              ? const Color(0xFF1C2333)
-              : _parseHex(hex) ?? const Color(0xFF1C2333);
-          return Expanded(
-            child: Container(
-              height: 5,
-              margin: const EdgeInsets.symmetric(horizontal: 1),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-  Color? _parseHex(String? hex) {
-    if (hex == null || hex.isEmpty) return null;
-    try {
-      final h = hex.replaceAll('#', '');
-      if (h.length == 6) return Color(int.parse('FF$h', radix: 16));
-    } catch (_) {}
-    return null;
   }
 }
 
@@ -772,14 +513,14 @@ class _SettingsButton extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.06),
+          color: Colors.white.withOpacity(0.06),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1), width: 1),
+              color: Colors.white.withOpacity(0.1), width: 1),
         ),
         child: Icon(
           Icons.bar_chart_rounded,
-          color: Colors.white.withValues(alpha: 0.7),
+          color: Colors.white.withOpacity(0.7),
           size: 20,
         ),
       ),
@@ -789,7 +530,6 @@ class _SettingsButton extends StatelessWidget {
   void _showStatsDialog(BuildContext context) {
     final dinos = provider.allDinos;
 
-    // Statistiques basées sur les tags
     final tagStats = <String, int>{};
     for (final dino in dinos) {
       for (final tag in dino.tags) {
@@ -797,13 +537,13 @@ class _SettingsButton extends StatelessWidget {
       }
     }
 
-    // Tags prioritaires à afficher en premier
-    const priorityTags = ['Boss', 'Breed', 'PvP', 'Farm', 'Volant', 'Aquatique', 'Solide'];
+    const priorityTags = ['Boss', 'Breed', 'Solid', 'Farm', 'Volant', 'Aquatique'];
     final sortedTags = [...priorityTags.where((t) => tagStats.containsKey(t)),
       ...tagStats.keys.where((t) => !priorityTags.contains(t)).toList()..sort()];
 
     showModalBottomSheet(
       context: context,
+      useSafeArea: true, // ✅ PROTECTION IMPORTANTE
       backgroundColor: const Color(0xFF111827),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -833,27 +573,24 @@ class _SettingsButton extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Bouton sauvegarde
                 TextButton.icon(
                   onPressed: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const BackupScreen()),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Fonctionnalité bientôt disponible')),
                     );
                   },
-                  icon: Icon(Icons.save_alt, size: 16, color: AppTheme.accentSecondary),
-                  label: Text('Sauvegarder',
+                  icon: const Icon(Icons.save_alt, size: 16, color: AppTheme.accentSecondary),
+                  label: const Text('Sauvegarder',
                       style: TextStyle(color: AppTheme.accentSecondary, fontSize: 12)),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            // Total
             _statTile('🦖', '${dinos.length}', 'Total', AppTheme.accentPrimary),
             const SizedBox(height: 4),
             if (sortedTags.isEmpty)
-              Text('Aucun tag utilisé',
+              const Text('Aucun tag utilisé',
                   style: TextStyle(color: AppTheme.textMuted, fontSize: 12))
             else
               Wrap(
@@ -871,13 +608,13 @@ class _SettingsButton extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('$count', style: TextStyle(
+                        Text('$count', style: const TextStyle(
                           color: AppTheme.accentPrimary,
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
                         )),
                         const SizedBox(width: 5),
-                        Text(tag, style: TextStyle(
+                        Text(tag, style: const TextStyle(
                           color: AppTheme.textSecondary,
                           fontSize: 12,
                         )),
@@ -893,7 +630,6 @@ class _SettingsButton extends StatelessWidget {
     );
   }
 
-  // Ligne stat unique (total)
   Widget _statTile(String emoji, String count, String label, Color color) {
     return Row(
       children: [
@@ -907,7 +643,6 @@ class _SettingsButton extends StatelessWidget {
       ],
     );
   }
-
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -950,7 +685,7 @@ class _FilterSheet extends StatelessWidget {
               provider.filterSexe, provider.setFilterSexe),
           const SizedBox(height: 12),
           _filterRow(context, 'Espèce',
-              ['', ...Dino.especesDisponibles.take(12).toList()],
+              ['', ...Dino.especesDisponibles.take(12)],
               provider.filterEspece, provider.setFilterEspece),
           const SizedBox(height: 12),
           if (provider.hasActiveFilters) ...[
@@ -964,10 +699,10 @@ class _FilterSheet extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppTheme.danger.withValues(alpha: 0.15),
+                  color: AppTheme.danger.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                      color: AppTheme.danger.withValues(alpha: 0.3)),
+                      color: AppTheme.danger.withOpacity(0.3)),
                 ),
                 child: Text(
                   'Réinitialiser les filtres',

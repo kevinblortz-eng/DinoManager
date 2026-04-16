@@ -94,8 +94,7 @@ class Dino {
   ];
 
   static const List<String> rolesDisponibles = [
-    'Boss', 'Breed', 'PvP', 'Farm', 'Transport',
-    'Soins', 'Collection', 'Combat', 'Autre',
+    'Boss', 'Breed', 'Solid', 'Farm', 'Collection', 'Combat', 'Autre',
   ];
 
   /// Les valeurs possibles pour le sexe (peuvent être combinées : 'Mâle+Femelle').
@@ -111,11 +110,11 @@ class Dino {
 
   // Tags par défaut (en mémoire, extensibles via shared_prefs ou Hive)
   static const List<String> tagsParDefaut = [
-    'Boss', 'Farm', 'Aquatique', 'Volant', 'Sauvage',
+    'Boss', 'Breeding',
   ];
   // Pour la compat ascendante
   static const List<String> tagsDisponibles = [
-    'Boss', 'Farm', 'Aquatique', 'Volant', 'Sauvage',
+    'Boss', 'Breeding',
   ];
 
   static List<String> _parseTags(Map<String, dynamic> map) {
@@ -224,10 +223,12 @@ class Dino {
     return Colors.grey;
   }
 
+  /// Convertit une Color Flutter en string hex #RRGGBB
+  /// Compatible Flutter 3.27+ (sans .red/.green/.blue dépréciés)
   static String colorToHex(Color color) {
-    final r = (color.r * 255).round().toRadixString(16).padLeft(2, '0');
-    final g = (color.g * 255).round().toRadixString(16).padLeft(2, '0');
-    final b = (color.b * 255).round().toRadixString(16).padLeft(2, '0');
+    final r = (color.r * 255.0).round().clamp(0, 255).toRadixString(16).padLeft(2, '0');
+    final g = (color.g * 255.0).round().clamp(0, 255).toRadixString(16).padLeft(2, '0');
+    final b = (color.b * 255.0).round().clamp(0, 255).toRadixString(16).padLeft(2, '0');
     return '#$r$g$b'.toUpperCase();
   }
 
@@ -260,12 +261,9 @@ class Dino {
     switch (role) {
       case 'Boss': return const Color(0xFFFF4444);
       case 'Breed': return const Color(0xFF4CAF50);
-      case 'PvP': return const Color(0xFFFF6B00);
+      case 'Solid': return const Color(0xFFFF6B00);
       case 'Farm': return const Color(0xFFFFD700);
-      case 'Transport': return const Color(0xFF2196F3);
-      case 'Soins': return const Color(0xFF9C27B0);
       case 'Collection': return const Color(0xFF00BCD4);
-      case 'Combat': return const Color(0xFFE91E63);
       default: return const Color(0xFF9E9E9E);
     }
   }
@@ -287,6 +285,38 @@ class Dino {
       case 'Mâle+Femelle': return '♂♀';
       default: return '';
     }
+  }
+
+  // ─── COMPARAISON DE STATS POUR VARIANTES ─────────────────────────────────────
+
+  /// Signature unique des stats pour identifier les dinos identiques
+  String get statsSignature =>
+      '$espece|$niveau|$hp|$stamina|$oxygene|$nourriture|$poids|${degats.toStringAsFixed(1)}|${vitesse.toStringAsFixed(1)}';
+
+  /// Vérifie si deux dinos ont exactement les mêmes stats (candidats pour variantes couleurs)
+  bool hasSameStats(Dino other) {
+    return espece == other.espece &&
+           niveau == other.niveau &&
+           hp == other.hp &&
+           stamina == other.stamina &&
+           oxygene == other.oxygene &&
+           nourriture == other.nourriture &&
+           poids == other.poids &&
+           (degats - other.degats).abs() < 0.1 &&
+           (vitesse - other.vitesse).abs() < 0.1;
+  }
+
+  /// Vérifie si c'est une vraie variante de couleur (stats identiques, couleurs différentes)
+  bool isColorVariantOf(Dino other) {
+    if (!hasSameStats(other)) return false;
+
+    // Vérifier qu'au moins une couleur est différente
+    return colorId0 != other.colorId0 ||
+           colorId1 != other.colorId1 ||
+           colorId2 != other.colorId2 ||
+           colorId3 != other.colorId3 ||
+           colorId4 != other.colorId4 ||
+           colorId5 != other.colorId5;
   }
 
   // ─── Sérialisation ────────────────────────────────────────────────────────
@@ -344,7 +374,6 @@ class Dino {
       poids: map['poids'] as int? ?? 0,
       degats: (map['degats'] as num?)?.toDouble() ?? 0.0,
       vitesse: (map['vitesse'] as num?)?.toDouble() ?? 0.0,
-      // Points (peuvent être absents dans l'ancienne DB)
       hpPoints: map['hp_points'] as int? ?? 0,
       staminaPoints: map['stamina_points'] as int? ?? 0,
       oxygenePoints: map['oxygene_points'] as int? ?? 0,
@@ -355,7 +384,6 @@ class Dino {
       mutations: map['mutations'] as String? ?? '0/0',
       mutationsMaternal: map['mutations_maternal'] as int? ?? 0,
       mutationsPaternal: map['mutations_paternal'] as int? ?? 0,
-      // Couleurs : support ancien format (#hex) et nouveau (ID:HEX)
       couleur0: map['couleur0'] as String? ?? '0:#808080',
       couleur1: map['couleur1'] as String? ?? '0:#808080',
       couleur2: map['couleur2'] as String? ?? '0:#808080',
@@ -372,6 +400,47 @@ class Dino {
     );
   }
 
+  /// Crée une copie indépendante pour duplication (nouveau dino sans ID)
+  Dino duplicate({String? newName}) {
+    return Dino(
+      id: null,
+      espece: espece,
+      nom: newName ?? '$nom (copie)',
+      sexe: sexe,
+      niveau: niveau,
+      role: role,
+      hp: hp,
+      stamina: stamina,
+      oxygene: oxygene,
+      nourriture: nourriture,
+      poids: poids,
+      degats: degats,
+      vitesse: vitesse,
+      hpPoints: hpPoints,
+      staminaPoints: staminaPoints,
+      oxygenePoints: oxygenePoints,
+      nourriturePoints: nourriturePoints,
+      poidsPoints: poidsPoints,
+      degatsPoints: degatsPoints,
+      vitessePoints: vitessePoints,
+      mutations: mutations,
+      mutationsMaternal: mutationsMaternal,
+      mutationsPaternal: mutationsPaternal,
+      couleur0: couleur0,
+      couleur1: couleur1,
+      couleur2: couleur2,
+      couleur3: couleur3,
+      couleur4: couleur4,
+      couleur5: couleur5,
+      tagVersion: tagVersion,
+      tags: List<String>.from(tags),
+      image: image,
+      notes: notes,
+      dateAjout: DateTime.now(),
+    );
+  }
+
+  /// Crée une copie du dino avec des champs modifiés
   Dino copyWith({
     int? id,
     String? nom,
@@ -439,7 +508,7 @@ class Dino {
       couleur4: couleur4 ?? this.couleur4,
       couleur5: couleur5 ?? this.couleur5,
       tagVersion: tagVersion ?? this.tagVersion,
-      tags: tags ?? this.tags,
+      tags: tags ?? List<String>.from(this.tags),
       image: image ?? this.image,
       notes: notes ?? this.notes,
       dateAjout: dateAjout ?? this.dateAjout,

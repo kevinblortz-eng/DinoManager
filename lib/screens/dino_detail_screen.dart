@@ -1,11 +1,22 @@
+// lib/screens/dino_detail_screen.dart
+import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import '../models/dino.dart';
-import '../models/ark_color_palette.dart';
 import '../theme/app_theme.dart';
 import '../providers/dino_provider.dart';
 import '../widgets/dino_image_widget.dart';
+import '../widgets/common/dino_stat_grid.dart';
+import '../widgets/common/dino_color_strip.dart';
+import '../widgets/dino_multi_select_bottom_sheet.dart';
+import '../utils/dino_helpers.dart';
 import 'add_edit_dino_screen.dart';
+import 'dino_variant_screen.dart';
 
 class DinoDetailScreen extends StatefulWidget {
   final Dino dino;
@@ -18,570 +29,847 @@ class DinoDetailScreen extends StatefulWidget {
 class _DinoDetailScreenState extends State<DinoDetailScreen> {
   late Dino _dino;
 
+  /// Clé pour capturer la carte en PNG
+  final GlobalKey _cardRepaintKey = GlobalKey();
+
+  bool _isCapturing = false;
+
   @override
   void initState() {
     super.initState();
     _dino = widget.dino;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.bgPrimary,
-      appBar: AppBar(
-        backgroundColor: AppTheme.bgSecondary,
-        foregroundColor: AppTheme.textPrimary,
-        elevation: 0,
-        title: Text(
-          _dino.espece,
-          style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.w700,
-            fontSize: 16,
-          ),
-        ),
-        actions: [
-          // Modifier
-          IconButton(
-            icon: Icon(Icons.edit_rounded, color: AppTheme.accentSecondary),
-            tooltip: 'Modifier',
-            onPressed: _editDino,
-          ),
-          // Dupliquer
-          IconButton(
-            icon: Icon(Icons.copy_all_rounded, color: AppTheme.accentGreen),
-            tooltip: 'Dupliquer',
-            onPressed: _duplicateDino,
-          ),
-          // Supprimer
-          IconButton(
-            icon: Icon(Icons.delete_outline_rounded, color: AppTheme.danger),
-            tooltip: 'Supprimer',
-            onPressed: _confirmDelete,
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildDinoCard(),
-            const SizedBox(height: 16),
-            if (_dino.notes.isNotEmpty) _buildNotesCard(),
-            const SizedBox(height: 80),
-          ],
-        ),
-      ),
-    );
-  }
+  // ─────────────── CAPTURE PNG ───────────────
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // CARTE PRINCIPALE DINO (format "partage")
-  // ══════════════════════════════════════════════════════════════════════════
-  Widget _buildDinoCard() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppTheme.bgCard,
-            AppTheme.bgSecondary.withValues(alpha: 0.9),
-          ],
+    Future<void> _captureAndShare() async {
+    if (_isCapturing) return;
+    setState(() => _isCapturing = true);
+
+    try {
+      // ── Dimensions cibles ──
+      const double targetWidth = 1080;
+      const double targetHeight = 1350;
+
+      // ── Construire le widget carte à la taille exacte, hors écran ──
+      final widget = MediaQuery(
+        data: const MediaQueryData(
+          size: Size(targetWidth, targetHeight),
+          devicePixelRatio: 1.0,
+          padding: EdgeInsets.zero,
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: _dino.roleColor.withValues(alpha: 0.4),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: _dino.roleColor.withValues(alpha: 0.12),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Ligne 1 : Espèce (adaptative) ──────────────────────────────
-          _buildSpeciesHeader(),
-          // ── Ligne 2 : Nom personnel ─────────────────────────────────────
-          _buildNameRow(),
-          // ── Ligne 3 : Image + Couleurs régionales ───────────────────────
-          _buildImageAndColors(),
-          // ── Ligne 4 : Stats ─────────────────────────────────────────────
-          _buildStatsSection(),
-          // ── Boutons d'action ────────────────────────────────────────────
-          _buildActionButtons(),
-        ],
-      ),
-    );
-  }
-
-  // ── Espèce (première ligne, taille adaptative) ──────────────────────────
-  Widget _buildSpeciesHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            _dino.roleColor.withValues(alpha: 0.18),
-            Colors.transparent,
-          ],
-        ),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(15),
-          topRight: Radius.circular(15),
-        ),
-      ),
-      child: Row(
-        children: [
-          // Espèce — taille de police qui s'adapte
-          Expanded(
-            child: Text(
-              _dino.espece,
-              style: TextStyle(
-                color: AppTheme.textPrimary,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              // FittedBox adapte la taille de police pour tenir sur 1 ligne
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Niveau
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppTheme.accentPrimary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppTheme.accentPrimary.withValues(alpha: 0.3)),
-            ),
-            child: Text(
-              'Lvl ${_dino.niveau}',
-              style: TextStyle(
-                color: AppTheme.accentPrimary,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          // Rôle badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: _dino.roleColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: _dino.roleColor.withValues(alpha: 0.35)),
-            ),
-            child: Text(
-              _dino.role,
-              style: TextStyle(
-                color: _dino.roleColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          // Sexe
-          if (_dino.sexe != 'Inconnu') ...[
-            const SizedBox(width: 6),
-            Text(
-              _dino.sexeSymbol,
-              style: TextStyle(
-                color: _dino.sexeColor,
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // ── Nom personnel ──────────────────────────────────────────────────────
-  Widget _buildNameRow() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-      child: Text(
-        _dino.nom,
-        style: TextStyle(
-          color: AppTheme.accentSecondary,
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-          fontStyle: FontStyle.italic,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  // ── Image + Couleurs régionales côte à côte ──────────────────────────
-  Widget _buildImageAndColors() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image du dino avec couleurs dynamiques
-          Expanded(
-            flex: 5,
-            child: Container(
-              height: 160,
-              decoration: BoxDecoration(
-                color: AppTheme.bgPrimary.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.borderColor.withValues(alpha: 0.4)),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: DinoImageWidget(
-                species: _dino.espece,
-                regionColors: _dino.colorRegions,
-                width: double.infinity,
-                height: 160,
-                showColorBand: false,
-                alignment: Alignment.center,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          // Couleurs régionales avec numéros ARK
-          Expanded(
-            flex: 4,
-            child: _buildColorRegions(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildColorRegions() {
-    final regionLabels = ['Corps', 'Tête', 'Dos', 'Ventre', 'Pattes', 'Queue'];
-    final ids = _dino.colorIds;
-    final hexes = _dino.colorRegions;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: List.generate(6, (i) {
-        final id = i < ids.length ? ids[i] : 0;
-        final hex = i < hexes.length ? hexes[i] : null;
-        final isActive = id > 0 && hex != null && hex != '#808080' && hex != '#7F7F7F';
-        final arkColor = isActive ? ArkColorPalette.fromId(id) : null;
-        final color = isActive ? _parseHex(hex) : null;
-
-        return Container(
-          margin: const EdgeInsets.only(bottom: 6),
-          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-          decoration: BoxDecoration(
-            color: isActive
-                ? color!.withValues(alpha: 0.12)
-                : AppTheme.bgPrimary.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(7),
-            border: Border.all(
-              color: isActive
-                  ? color!.withValues(alpha: 0.5)
-                  : AppTheme.borderColor.withValues(alpha: 0.2),
-              width: isActive ? 1.2 : 0.8,
-            ),
-          ),
-          child: Row(
-            children: [
-              // Carré de couleur
-              Container(
-                width: 18, height: 18,
-                decoration: BoxDecoration(
-                  color: isActive ? color : AppTheme.bgSecondary,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: isActive
-                        ? color!.withValues(alpha: 0.8)
-                        : AppTheme.borderColor.withValues(alpha: 0.3),
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: isActive
-                    ? null
-                    : Icon(Icons.block, size: 10, color: AppTheme.textMuted.withValues(alpha: 0.3)),
-              ),
-              const SizedBox(width: 6),
-              // Infos
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      regionLabels[i],
-                      style: TextStyle(
-                        color: isActive ? AppTheme.textSecondary : AppTheme.textMuted,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (isActive)
-                      Text(
-                        '#$id${arkColor != null ? ' · ${arkColor.name}' : ''}',
-                        style: TextStyle(
-                          color: color!.withValues(alpha: 0.9),
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      )
-                    else
-                      Text(
-                        'Inactif',
-                        style: TextStyle(color: AppTheme.textMuted, fontSize: 9),
-                      ),
-                  ],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData.dark(),
+          home: Scaffold(
+            backgroundColor: const Color(0xFF0A0E1A),
+            body: Center(
+              child: SizedBox(
+                width: targetWidth,
+                height: targetHeight,
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: _buildExportCard(),
                 ),
               ),
-            ],
+            ),
+          ),
+        ),
+      );
+
+      // ── Rendre hors écran avec un pipeline custom ──
+      final repaintBoundary = RenderRepaintBoundary();
+
+      final renderView = RenderView(
+        view: View.of(context),
+        child: RenderPositionedBox(
+          alignment: Alignment.center,
+          child: repaintBoundary,
+        ),
+        configuration: ViewConfiguration(
+          logicalConstraints: const BoxConstraints(
+            maxWidth: targetWidth,
+            maxHeight: targetHeight,
+          ),
+          devicePixelRatio: 1.0,
+        ),
+      );
+
+      final pipelineOwner = PipelineOwner();
+      pipelineOwner.rootNode = renderView;
+      renderView.prepareInitialFrame();
+
+      final buildOwner = BuildOwner(focusManager: FocusManager());
+      final rootElement = RenderObjectToWidgetAdapter<RenderBox>(
+        container: repaintBoundary,
+        debugShortDescription: 'DinoCardExport',
+        child: widget,
+      ).attachToRenderTree(buildOwner);
+
+      buildOwner.buildScope(rootElement);
+      pipelineOwner.flushLayout();
+      pipelineOwner.flushCompositingBits();
+      pipelineOwner.flushPaint();
+
+      // ── Capturer en PNG ──
+      final image = await repaintBoundary.toImage(
+        pixelRatio: 1.0, // Déjà à 1080x1350
+      );
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+
+      // Nettoyer
+      buildOwner.finalizeTree();
+
+      if (byteData == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erreur lors de la génération de l\'image'),
+              backgroundColor: AppTheme.danger,
+            ),
+          );
+        }
+        return;
+      }
+
+      // ── Sauvegarder et partager ──
+      final tempDir = await getTemporaryDirectory();
+      final fileName =
+          '${_dino.espece.replaceAll(' ', '_')}_${_dino.nom.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.png';
+      final file = File('${tempDir.path}/$fileName');
+      await file.writeAsBytes(byteData.buffer.asUint8List());
+
+      if (!mounted) return;
+
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text:
+            '${_dino.espece} — ${_dino.nom} (Lvl ${_dino.niveau}) #DinoManager',
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: AppTheme.danger,
           ),
         );
-      }),
+      }
+    } finally {
+      if (mounted) setState(() => _isCapturing = false);
+    }
+  }
+
+  // ─────────────── BUILD ───────────────
+  /// Carte optimisée pour l'export PNG 1080x1350
+  Widget _buildExportCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF5A5A5A), width: 4),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.8),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+          ),
+          BoxShadow(
+            color: _dino.roleColor.withOpacity(0.4),
+            blurRadius: 20,
+            spreadRadius: -3,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          children: [
+            // ── Image (environ 40% de la hauteur) ──
+            Expanded(
+              flex: 40,
+              child: _buildExportVisualSection(),
+            ),
+            // ── Titre ──
+            _buildExportTitleSection(),
+            // ── Stats ──
+            Expanded(
+              flex: 30,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: DinoStatGrid(dino: _dino),
+              ),
+            ),
+            // ── Couleurs ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: DinoColorStrip(dino: _dino),
+            ),
+            // ── Watermark ──
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.6),
+                border: const Border(
+                  top: BorderSide(color: Color(0xFF5A5A5A), width: 1),
+                ),
+              ),
+              child: Text(
+                'DINO MANAGER',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.exo2(
+                  color: Colors.white.withOpacity(0.3),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 4,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  // ── Stats ──────────────────────────────────────────────────────────────
-  Widget _buildStatsSection() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppTheme.bgPrimary.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.borderColor.withValues(alpha: 0.4)),
+  Widget _buildExportVisualSection() {
+    final hasCustomImage = _dino.image != null && _dino.image!.isNotEmpty;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.center,
+          radius: 1.2,
+          colors: [
+            _dino.roleColor.withOpacity(0.25),
+            const Color(0xFF0F1115),
+          ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Titre section
-            Text(
-              'STATS',
-              style: TextStyle(
-                color: AppTheme.accentSecondary,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.5,
+        border: const Border(
+          bottom: BorderSide(color: Color(0xFF5A5A5A), width: 2),
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: hasCustomImage
+                  ? Image.file(
+                      File(_dino.image!),
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => DinoImageWidget(
+                        species: _dino.espece,
+                        regionColors: _dino.colorRegions,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.contain,
+                        showColorBand: false,
+                      ),
+                    )
+                  : DinoImageWidget(
+                      species: _dino.espece,
+                      regionColors: _dino.colorRegions,
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.contain,
+                      showColorBand: false,
+                    ),
+            ),
+          ),
+          // Badge niveau
+          Positioned(
+            top: 20,
+            left: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.85),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: DinoHelpers.getCardRarityColor(_dino.niveau),
+                    width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: DinoHelpers.getCardRarityColor(_dino.niveau)
+                        .withOpacity(0.5),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: Text(
+                'LVL ${_dino.niveau}',
+                style: GoogleFonts.exo2(
+                  color: DinoHelpers.getCardRarityColor(_dino.niveau),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
-            const SizedBox(height: 10),
-            // Grid 2 colonnes – toutes les 7 stats
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          // Badge sexe
+          if (_dino.sexe != 'Inconnu')
+            Positioned(
+              top: 20,
+              right: 20,
+              child: Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.85),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: _dino.sexeColor, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                        color: _dino.sexeColor.withOpacity(0.5),
+                        blurRadius: 10)
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  _dino.sexeSymbol,
+                  style: TextStyle(
+                      color: _dino.sexeColor,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w900),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExportTitleSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.black.withOpacity(0.5), Colors.transparent],
+        ),
+        border: const Border(
+            bottom: BorderSide(color: Color(0xFF5A5A5A), width: 1)),
+      ),
+      child: Column(
+        children: [
+          ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+            ).createShader(bounds),
+            child: Text(
+              DinoHelpers.toTitleCase(_dino.espece),
+              style: GoogleFonts.cinzelDecorative(
+                color: Colors.white,
+                fontSize: 36,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 3,
+                shadows: [
+                  const Shadow(
+                      color: Colors.black,
+                      blurRadius: 8,
+                      offset: Offset(2, 2))
+                ],
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                  color: _dino.roleColor.withOpacity(0.6), width: 1),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Colonne gauche : HP, Énergie, Nourriture, Vitesse
-                Expanded(
-                  child: Column(
-                    children: [
-                      _statRow('❤️', 'Vie', _dino.hp, _dino.hpPoints, AppTheme.danger),
-                      const SizedBox(height: 6),
-                      _statRow('⚡', 'Stamina', _dino.stamina, _dino.staminaPoints, const Color(0xFFFFD700)),
-                      const SizedBox(height: 6),
-                      _statRow('🍗', 'Nourriture', _dino.nourriture, _dino.nourriturePoints, const Color(0xFF8BC34A)),
-                      const SizedBox(height: 6),
-                      _statRowDouble('💨', 'Vitesse', _dino.vitesse, _dino.vitessePoints, const Color(0xFF00E5FF), suffix: '%'),
-                    ],
+                Flexible(
+                  child: Text(
+                    _dino.nom,
+                    style: GoogleFonts.exo2(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 20,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Container(width: 1, height: 110, color: AppTheme.borderColor.withValues(alpha: 0.3),
-                    margin: const EdgeInsets.symmetric(horizontal: 10)),
-                // Colonne droite : Attaque, Poids, Oxygène
-                Expanded(
-                  child: Column(
-                    children: [
-                      _statRowDouble('⚔️', 'Attaque', _dino.degats, _dino.degatsPoints, AppTheme.danger, suffix: '%'),
-                      const SizedBox(height: 6),
-                      _statRow('🎒', 'Poids', _dino.poids, _dino.poidsPoints, const Color(0xFF2196F3)),
-                      const SizedBox(height: 6),
-                      _statRow('🌊', 'Oxygène', _dino.oxygene, _dino.oxygenePoints, const Color(0xFF00BCD4)),
-                    ],
+                const SizedBox(width: 14),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: _dino.roleColor.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: _dino.roleColor, width: 1),
+                  ),
+                  child: Text(
+                    _dino.role.toUpperCase(),
+                    style: TextStyle(
+                      color: _dino.roleColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A0E1A),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.6),
+            shape: BoxShape.circle,
+            border:
+                Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        actions: [
+          // ── Bouton capture / partage ──
+          Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.6),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFF00E5FF).withOpacity(0.4),
+                width: 1,
+              ),
+            ),
+            child: IconButton(
+              icon: _isCapturing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF00E5FF),
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Icon(Icons.share_rounded,
+                      color: Color(0xFF00E5FF)),
+              tooltip: 'Partager la DinoCard',
+              onPressed: _isCapturing ? null : _captureAndShare,
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        bottom: true,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
+          child: Column(
+            children: [
+              // ── La carte encapsulée dans RepaintBoundary ──
+              RepaintBoundary(
+                key: _cardRepaintKey,
+                child: _buildArkCard(),
+              ),
+              const SizedBox(height: 20),
+              _buildActionButtons(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _statRow(String icon, String label, int value, int points, Color color) {
-    return _buildStatLine(icon, label, '$value', points, color);
+  // ═══════════════════════════════════════════════
+  // ARK CARD
+  // ═══════════════════════════════════════════════
+
+  Widget _buildArkCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF5A5A5A), width: 3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.8),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+          BoxShadow(
+            color: _dino.roleColor.withOpacity(0.3),
+            blurRadius: 15,
+            spreadRadius: -2,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildVisualSection(),
+          _buildTitleSection(),
+          DinoStatGrid(dino: _dino),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: DinoColorStrip(dino: _dino),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
   }
 
-  Widget _statRowDouble(String icon, String label, double value, int points, Color color, {String suffix = ''}) {
-    return _buildStatLine(icon, label, '${value.toStringAsFixed(1)}$suffix', points, color);
-  }
+  Widget _buildVisualSection() {
+    final hasCustomImage = _dino.image != null && _dino.image!.isNotEmpty;
 
-  Widget _buildStatLine(String icon, String label, String value, int points, Color color) {
-    return Row(
-      children: [
-        Text(icon, style: const TextStyle(fontSize: 13)),
-        const SizedBox(width: 4),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w500),
+    return Container(
+      height: 280,
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.center,
+          radius: 1.2,
+          colors: [
+            _dino.roleColor.withOpacity(0.2),
+            const Color(0xFF0F1115),
+          ],
+        ),
+        border: const Border(
+          bottom: BorderSide(color: Color(0xFF5A5A5A), width: 2),
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Hero(
+                tag: 'dino_${_dino.id}',
+                child: hasCustomImage
+                    ? Image.file(
+                        File(_dino.image!),
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => _buildSpeciesImage(),
+                      )
+                    : _buildSpeciesImage(),
               ),
-              Row(
-                children: [
-                  Text(
-                    value,
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  // Points investis – toujours affichés
-                  const SizedBox(width: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: points > 0
-                          ? AppTheme.accentGreen.withValues(alpha: 0.12)
-                          : AppTheme.borderColor.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(3),
-                      border: Border.all(
-                        color: points > 0
-                            ? AppTheme.accentGreen.withValues(alpha: 0.25)
-                            : AppTheme.borderColor.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: Text(
-                      '${points}pts',
-                      style: TextStyle(
-                        color: points > 0 ? AppTheme.accentGreen : AppTheme.textMuted,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+            ),
+          ),
+          Positioned(
+            top: 16,
+            left: 16,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                    color: DinoHelpers.getCardRarityColor(_dino.niveau),
+                    width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: DinoHelpers.getCardRarityColor(_dino.niveau)
+                        .withOpacity(0.5),
+                    blurRadius: 8,
                   ),
                 ],
               ),
-            ],
+              child: Text(
+                'LVL ${_dino.niveau}',
+                style: GoogleFonts.exo2(
+                  color: DinoHelpers.getCardRarityColor(_dino.niveau),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
           ),
+          if (_dino.sexe != 'Inconnu')
+            Positioned(
+              top: 16,
+              right: 16,
+              child: _buildSexBadge(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSexBadge() {
+    final isBoth = _dino.sexe.contains('Mâle+Femelle');
+
+    if (isBoth) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.purple, width: 2),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('♂',
+                style: TextStyle(
+                    color: Colors.blue[300],
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900)),
+            const SizedBox(width: 4),
+            Text('♀',
+                style: TextStyle(
+                    color: Colors.pink[300],
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900)),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.8),
+        shape: BoxShape.circle,
+        border: Border.all(color: _dino.sexeColor, width: 2),
+        boxShadow: [
+          BoxShadow(
+              color: _dino.sexeColor.withOpacity(0.5), blurRadius: 8)
+        ],
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        _dino.sexeSymbol,
+        style: TextStyle(
+            color: _dino.sexeColor,
+            fontSize: 22,
+            fontWeight: FontWeight.w900),
+      ),
+    );
+  }
+
+  Widget _buildSpeciesImage() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.bgPrimary.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border:
+            Border.all(color: _dino.roleColor.withOpacity(0.2), width: 1),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: DinoImageWidget(
+        species: _dino.espece,
+        regionColors: _dino.colorRegions,
+        width: double.infinity,
+        height: 280,
+        fit: BoxFit.contain,
+        showColorBand: false,
+        alignment: Alignment.center,
+      ),
+    );
+  }
+
+  Widget _buildTitleSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.black.withOpacity(0.4), Colors.transparent],
+        ),
+        border: const Border(
+            bottom: BorderSide(color: Color(0xFF5A5A5A), width: 1)),
+      ),
+      child: Column(
+        children: [
+          ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+            ).createShader(bounds),
+            child: Text(
+              DinoHelpers.toTitleCase(_dino.espece),
+              style: GoogleFonts.cinzelDecorative(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2.5,
+                shadows: [
+                  const Shadow(
+                      color: Colors.black,
+                      blurRadius: 6,
+                      offset: Offset(2, 2))
+                ],
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                  color: _dino.roleColor.withOpacity(0.6), width: 1),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    _dino.nom,
+                    style: GoogleFonts.exo2(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 16,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: _dino.roleColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: _dino.roleColor, width: 1),
+                  ),
+                  child: Text(
+                    _dino.role.toUpperCase(),
+                    style: TextStyle(
+                      color: _dino.roleColor,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════
+  // BOUTONS D'ACTION
+  // ═══════════════════════════════════════════════
+
+  Widget _buildActionButtons() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+                child: _buildActionButton(
+              icon: Icons.edit_rounded,
+              label: 'MODIFIER',
+              color: AppTheme.accentSecondary,
+              onPressed: _editDino,
+            )),
+            const SizedBox(width: 12),
+            Expanded(
+                child: _buildActionButton(
+              icon: Icons.copy_all_rounded,
+              label: 'DUPLIQUER',
+              color: AppTheme.accentGreen,
+              onPressed: _duplicateDino,
+            )),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+                child: _buildActionButton(
+              icon: Icons.delete_outline_rounded,
+              label: 'SUPPRIMER',
+              color: AppTheme.danger,
+              onPressed: _confirmDelete,
+            )),
+            const SizedBox(width: 12),
+            Expanded(
+                child: _buildActionButton(
+              icon: Icons.palette_outlined,
+              label: 'VARIANTES',
+              color: const Color(0xFF9C27B0),
+              onPressed: _viewVariants,
+            )),
+          ],
         ),
       ],
     );
   }
 
-  // ── Boutons d'action ──────────────────────────────────────────────────
-  Widget _buildActionButtons() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 14),
-      child: Row(
-        children: [
-          // Modifier
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _editDino,
-              icon: Icon(Icons.edit_rounded, size: 16, color: AppTheme.accentSecondary),
-              label: Text(
-                'Modifier',
-                style: TextStyle(color: AppTheme.accentSecondary, fontSize: 13),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppTheme.accentSecondary.withValues(alpha: 0.4)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          // Dupliquer
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _duplicateDino,
-              icon: Icon(Icons.copy_all_rounded, size: 16, color: AppTheme.accentGreen),
-              label: Text(
-                'Dupliquer',
-                style: TextStyle(color: AppTheme.accentGreen, fontSize: 13),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppTheme.accentGreen.withValues(alpha: 0.4)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          // Partager (placeholder)
-          OutlinedButton(
-            onPressed: () => _showComingSoon(context, 'Partage'),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppTheme.accentPrimary.withValues(alpha: 0.4)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            ),
-            child: Icon(Icons.share_rounded, size: 18, color: AppTheme.accentPrimary),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Notes ─────────────────────────────────────────────────────────────
-  Widget _buildNotesCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.borderColor.withValues(alpha: 0.4)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.6), width: 2),
+            boxShadow: [
+              BoxShadow(
+                  color: color.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4)),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.notes_rounded, size: 14, color: AppTheme.accentSecondary),
-              const SizedBox(width: 6),
+              Icon(icon, color: color, size: 20),
+              const SizedBox(width: 8),
               Text(
-                'NOTES',
-                style: TextStyle(
-                  color: AppTheme.accentSecondary,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.5,
-                ),
+                label,
+                style: GoogleFonts.exo2(
+                    color: color,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            _dino.notes,
-            style: TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 13,
-              height: 1.5,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════
   // ACTIONS
-  // ══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════
 
   Future<void> _editDino() async {
     final updated = await Navigator.push<Dino>(
@@ -594,17 +882,17 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
   }
 
   Future<void> _duplicateDino() async {
-    // Crée une copie sans ID (nouveau dino) avec nom modifié
-    final copy = _dino.copyWith(
-      id: null,
-      nom: '${_dino.nom} (copie)',
-      dateAjout: DateTime.now(),
-    );
+    final copy = _dino.duplicate(newName: '${_dino.nom} (copie)');
     if (!mounted) return;
+
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => AddEditDinoScreen(dino: copy, isDuplicate: true)),
-    );
+      MaterialPageRoute(builder: (_) => AddEditDinoScreen(dino: copy)),
+    ).then((_) {
+      if (mounted) {
+        Provider.of<DinoProvider>(context, listen: false).loadDinos();
+      }
+    });
   }
 
   Future<void> _confirmDelete() async {
@@ -612,20 +900,22 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.bgCard,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text('Supprimer ${_dino.nom}?',
-            style: TextStyle(color: AppTheme.textPrimary)),
-        content: Text(
-          'Cette action est irréversible.',
-          style: TextStyle(color: AppTheme.textSecondary),
-        ),
+            style: const TextStyle(color: AppTheme.textPrimary)),
+        content: const Text('Cette action est irréversible.',
+            style: TextStyle(color: AppTheme.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Annuler', style: TextStyle(color: AppTheme.textMuted)),
+            child: const Text('Annuler',
+                style: TextStyle(color: AppTheme.textMuted)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text('Supprimer', style: TextStyle(color: AppTheme.danger)),
+            child: const Text('Supprimer',
+                style: TextStyle(color: AppTheme.danger)),
           ),
         ],
       ),
@@ -633,28 +923,54 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
 
     if (confirm == true && mounted) {
       if (_dino.id != null) {
-        await Provider.of<DinoProvider>(context, listen: false).deleteDino(_dino.id!);
+        await Provider.of<DinoProvider>(context, listen: false)
+            .deleteDino(_dino.id!);
       }
       if (mounted) Navigator.pop(context);
     }
   }
 
-  void _showComingSoon(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$feature — Disponible prochainement'),
-        backgroundColor: AppTheme.bgCard,
-        behavior: SnackBarBehavior.floating,
+  Future<void> _viewVariants() async {
+    final provider = Provider.of<DinoProvider>(context, listen: false);
+    final sameSpecies =
+        provider.dinos.where((dino) => dino.espece == _dino.espece).toList();
+
+    if (sameSpecies.length <= 1) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Aucun autre dinosaure de cette espèce trouvé'),
+          backgroundColor: AppTheme.bgCard,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    final selectedDinos = await showModalBottomSheet<List<Dino>>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DinoMultiSelectBottomSheet(
+        availableDinos: sameSpecies,
+        referenceDino: _dino,
+        preSelectedDinos: const [],
       ),
     );
-  }
 
-  Color? _parseHex(String? hex) {
-    if (hex == null || hex.isEmpty) return null;
-    try {
-      final h = hex.replaceAll('#', '');
-      if (h.length == 6) return Color(int.parse('FF$h', radix: 16));
-    } catch (_) {}
-    return null;
+    if (selectedDinos != null && selectedDinos.isNotEmpty && mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => DinoVariantsScreen(
+            baseDino: _dino,
+            selectedVariants: selectedDinos,
+          ),
+        ),
+      );
+    }
   }
 }

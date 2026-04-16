@@ -23,4 +23,6 @@ Thumbs.db
 *.temp
 
 # Keep lib/ directory for source code!
+android/key.properties
+*.jks
 

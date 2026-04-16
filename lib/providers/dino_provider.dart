@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/dino.dart';
+
 import '../database/database_helper.dart';
+import '../models/dino.dart';
 
 class DinoProvider extends ChangeNotifier {
   final DatabaseHelper _db = DatabaseHelper();
@@ -35,9 +36,9 @@ class DinoProvider extends ChangeNotifier {
 
   // Tous les tags disponibles = défaut + personnalisés
   List<String> get allTags => [
-    ...Dino.tagsParDefaut,
-    ..._customTags.where((t) => !Dino.tagsParDefaut.contains(t)),
-  ];
+        ...Dino.tagsParDefaut,
+        ..._customTags.where((t) => !Dino.tagsParDefaut.contains(t)),
+      ];
 
   bool get hasActiveFilters =>
       _searchQuery.isNotEmpty ||
@@ -63,6 +64,48 @@ class DinoProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> replaceAllData({
+    required List<Dino> dinos,
+    required List<String> customTags,
+  }) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      // Nettoyer les tags custom :
+      // - trim
+      // - supprimer vides
+      // - retirer ceux déjà présents dans tagsParDefaut
+      // - unicité
+      final cleanCustomTags = customTags
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty && !Dino.tagsParDefaut.contains(e))
+          .toSet()
+          .toList()
+        ..sort();
+
+      // Sauvegarde des tags custom
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList('custom_tags', cleanCustomTags);
+
+      // Remplacement complet en base
+      await _db.replaceAllDinos(dinos);
+
+      // Rechargement depuis les sources réelles
+      _customTags = cleanCustomTags;
+      _dinos = await _db.getAllDinos();
+
+      _applyFilters();
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> _loadCustomTags() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -74,11 +117,14 @@ class DinoProvider extends ChangeNotifier {
     final trimmed = tag.trim();
     if (trimmed.isEmpty) return;
     if (allTags.contains(trimmed)) return;
+
     _customTags.add(trimmed);
+
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList('custom_tags', _customTags);
     } catch (_) {}
+
     notifyListeners();
   }
 
@@ -177,10 +223,23 @@ class DinoProvider extends ChangeNotifier {
           return false;
         }
       }
-      if (_filterEspece.isNotEmpty && dino.espece != _filterEspece) return false;
-      if (_filterSexe.isNotEmpty && dino.sexe != _filterSexe) return false;
-      if (_filterRole.isNotEmpty && dino.role != _filterRole) return false;
-      if (_filterTag.isNotEmpty && !dino.tags.contains(_filterTag)) return false;
+
+      if (_filterEspece.isNotEmpty && dino.espece != _filterEspece) {
+        return false;
+      }
+
+      if (_filterSexe.isNotEmpty && dino.sexe != _filterSexe) {
+        return false;
+      }
+
+      if (_filterRole.isNotEmpty && dino.role != _filterRole) {
+        return false;
+      }
+
+      if (_filterTag.isNotEmpty && !dino.tags.contains(_filterTag)) {
+        return false;
+      }
+
       return true;
     }).toList();
   }

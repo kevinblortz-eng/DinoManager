@@ -1,209 +1,226 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' ;
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:file_picker/file_picker.dart';
+
 import '../models/dino.dart';
+import '../models/species_tracker.dart';
 
-/// Service de sauvegarde et restauration des données de l'application.
-///
-/// Fonctionnement :
-///   - Export : sérialise tous les dinos en JSON et partage le fichier
-///     via le système Android (partage vers Google Drive, Email, etc.)
-///   - Import : permet de choisir un fichier .json sauvegardé et
-///     restaure les données depuis ce fichier.
-///
-/// Format du fichier de sauvegarde :
-/// {
-///   "version": 2,
-///   "exportDate": "2024-01-15T10:30:00Z",
-///   "appName": "ARK Dino Manager",
-///   "dinos": [ {...}, {...} ],
-///   "customTags": [ "tag1", "tag2" ]
-/// }
 class BackupService {
-  static const int _backupVersion = 2;
+  static const int _backupVersion = 3;
   static const String _appName = 'ARK Dino Manager';
+  static const String _backupType = 'full_backup';
 
-  /// Exporte tous les dinos vers un fichier JSON et ouvre le menu
-  /// de partage Android (Google Drive, Email, Bluetooth, etc.).
-  ///
-  /// Retourne null si succès, ou un message d'erreur.
-  static Future<String?> exportDinos({
+  static Future<String?> exportData({
     required List<Dino> dinos,
     required List<String> customTags,
+    required List<SpeciesTracker> trackers,
   }) async {
     try {
-      // Construire l'objet de sauvegarde
       final backupData = {
         'version': _backupVersion,
+        'type': _backupType,
         'exportDate': DateTime.now().toUtc().toIso8601String(),
         'appName': _appName,
         'dinoCount': dinos.length,
+        'trackerCount': trackers.length,
         'dinos': dinos.map((d) => d.toMap()).toList(),
         'customTags': customTags,
+        'trackers': trackers.map((t) => t.toMap()).toList(),
       };
 
-      final jsonString =
-          const JsonEncoder.withIndent('  ').convert(backupData);
+      final jsonString = const JsonEncoder.withIndent('  ').convert(backupData);
 
       if (kIsWeb) {
-        // Sur le web, on ne peut pas accéder au système de fichiers
         return 'Export non disponible sur le web — utilisez l\'application mobile.';
       }
 
-      // Écrire dans un fichier temporaire
       final tempDir = await getTemporaryDirectory();
       final timestamp = DateTime.now()
           .toIso8601String()
           .replaceAll(':', '-')
           .replaceAll('.', '-')
           .substring(0, 19);
-      final fileName = 'ark_dino_backup_$timestamp.json';
+
+      final fileName = 'ark_dino_full_backup_$timestamp.json';
       final file = File('${tempDir.path}/$fileName');
       await file.writeAsString(jsonString, encoding: utf8);
 
-      // Partager via le système Android
       await Share.shareXFiles(
         [XFile(file.path, mimeType: 'application/json')],
-        subject: '[$_appName] Sauvegarde — $timestamp',
-        text: 'Sauvegarde ARK Dino Manager\n'
-            '${dinos.length} dino(s) exporté(s)\n'
+        subject: '[$_appName] Sauvegarde complète — $timestamp',
+        text: 'Sauvegarde complète ARK Dino Manager\n'
+            '${dinos.length} dino(s)\n'
+            '${trackers.length} tracker(s)\n'
             'Date : $timestamp',
       );
 
-      return null; // succès
+      return null;
     } catch (e) {
       return 'Erreur lors de l\'export : $e';
     }
   }
 
-  /// Importe des dinos depuis un fichier JSON choisi par l'utilisateur.
-  ///
-  /// Retourne un [BackupResult] avec la liste des dinos importés,
-  /// les tags personnalisés et éventuellement un message d'erreur.
-  static Future<BackupResult> importDinos() async {
+  static Future<BackupImportResult> importData() async {
     try {
       if (kIsWeb) {
-        return BackupResult.error(
-            'Import non disponible sur le web — utilisez l\'application mobile.');
+        return BackupImportResult.error(
+          'Import non disponible sur le web — utilisez l\'application mobile.',
+        );
       }
 
-      // Ouvrir le sélecteur de fichiers
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        withData: true,
-      );
+     // ✅ APRÈS
+final result = await FilePicker.pickFiles(
+  type: FileType.custom,
+  allowedExtensions: ['json'],
+);
 
       if (result == null || result.files.isEmpty) {
-        return BackupResult.cancelled();
+        return BackupImportResult.cancelled();
       }
 
-      final fileBytes = result.files.first.bytes;
-      if (fileBytes == null) {
-        // Essayer de lire depuis le chemin
-        final path = result.files.first.path;
-        if (path == null) {
-          return BackupResult.error('Impossible de lire le fichier.');
-        }
+      final pickedFile = result.files.first;
+
+      // Priorité au path (Android / iOS / Desktop)
+      final path = pickedFile.path;
+      if (path != null) {
         final content = await File(path).readAsString(encoding: utf8);
         return _parseBackupJson(content);
       }
 
-      final content = utf8.decode(fileBytes);
-      return _parseBackupJson(content);
+      // Fallback sur les bytes en mémoire
+      final fileBytes = pickedFile.bytes;
+      if (fileBytes != null) {
+        final content = utf8.decode(fileBytes);
+        return _parseBackupJson(content);
+      }
+
+      return BackupImportResult.error('Impossible de lire le fichier.');
     } catch (e) {
-      return BackupResult.error('Erreur lors de l\'import : $e');
+      return BackupImportResult.error('Erreur lors de l\'import : $e');
     }
   }
 
-  static BackupResult _parseBackupJson(String jsonString) {
+  static BackupImportResult _parseBackupJson(String jsonString) {
     try {
       final Map<String, dynamic> data = jsonDecode(jsonString);
 
-      // Vérifier la structure minimale
       if (!data.containsKey('dinos')) {
-        return BackupResult.error(
-            'Format de fichier invalide : clé "dinos" manquante.');
+        return BackupImportResult.error(
+          'Format invalide : clé "dinos" manquante.',
+        );
       }
 
       final version = data['version'] as int? ?? 1;
+      final type = data['type'] as String? ?? 'legacy';
+
       final dinosRaw = data['dinos'] as List<dynamic>;
       final tagsRaw = data['customTags'] as List<dynamic>? ?? [];
+      final trackersRaw = data['trackers'] as List<dynamic>? ?? [];
 
       final dinos = <Dino>[];
-      final errors = <String>[];
+      final trackers = <SpeciesTracker>[];
+      final warnings = <String>[];
 
       for (int i = 0; i < dinosRaw.length; i++) {
         try {
-          final map = dinosRaw[i] as Map<String, dynamic>;
+          final map = Map<String, dynamic>.from(dinosRaw[i] as Map);
           dinos.add(Dino.fromMap(map));
         } catch (e) {
-          errors.add('Dino #$i ignoré (format invalide) : $e');
+          warnings.add('Dino #$i ignoré : $e');
         }
       }
 
-      final tags = tagsRaw.map((t) => t.toString()).toList();
+      for (int i = 0; i < trackersRaw.length; i++) {
+        try {
+          final map = Map<String, dynamic>.from(trackersRaw[i] as Map);
+          trackers.add(SpeciesTracker.fromMap(map));
+        } catch (e) {
+          warnings.add('Tracker #$i ignoré : $e');
+        }
+      }
 
-      return BackupResult.success(
+      final tags = tagsRaw
+          .map((t) => t.toString().trim())
+          .where((t) => t.isNotEmpty)
+          .toSet()
+          .toList();
+      tags.sort();
+
+      return BackupImportResult.success(
         dinos: dinos,
         customTags: tags,
+        trackers: trackers,
         version: version,
-        warnings: errors,
+        backupType: type,
+        warnings: warnings,
       );
     } on FormatException catch (e) {
-      return BackupResult.error('JSON invalide : $e');
+      return BackupImportResult.error('JSON invalide : $e');
     } catch (e) {
-      return BackupResult.error('Erreur d\'analyse : $e');
+      return BackupImportResult.error('Erreur d\'analyse : $e');
     }
   }
 }
 
-/// Résultat d'un import de sauvegarde
-class BackupResult {
+class BackupImportResult {
   final bool success;
   final bool cancelled;
   final String? error;
   final List<Dino> dinos;
   final List<String> customTags;
+  final List<SpeciesTracker> trackers;
   final int version;
+  final String backupType;
   final List<String> warnings;
 
-  const BackupResult._({
+  const BackupImportResult._({
     required this.success,
     required this.cancelled,
     this.error,
     this.dinos = const [],
     this.customTags = const [],
+    this.trackers = const [],
     this.version = 1,
+    this.backupType = 'legacy',
     this.warnings = const [],
   });
 
-  factory BackupResult.success({
+  factory BackupImportResult.success({
     required List<Dino> dinos,
     required List<String> customTags,
+    required List<SpeciesTracker> trackers,
     required int version,
+    required String backupType,
     List<String> warnings = const [],
-  }) =>
-      BackupResult._(
-        success: true,
-        cancelled: false,
-        dinos: dinos,
-        customTags: customTags,
-        version: version,
-        warnings: warnings,
-      );
+  }) {
+    return BackupImportResult._(
+      success: true,
+      cancelled: false,
+      dinos: dinos,
+      customTags: customTags,
+      trackers: trackers,
+      version: version,
+      backupType: backupType,
+      warnings: warnings,
+    );
+  }
 
-  factory BackupResult.error(String message) => BackupResult._(
-        success: false,
-        cancelled: false,
-        error: message,
-      );
+  factory BackupImportResult.error(String message) {
+    return BackupImportResult._(
+      success: false,
+      cancelled: false,
+      error: message,
+    );
+  }
 
-  factory BackupResult.cancelled() => BackupResult._(
-        success: false,
-        cancelled: true,
-      );
+  factory BackupImportResult.cancelled() {
+    return BackupImportResult._(
+      success: false,
+      cancelled: true,
+    );
+  }
 }

@@ -3,33 +3,39 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // ─── Palette de couleurs principale ───
-  // Style 1 (Dark Tribal) + touches Style 3 (earthy/nature)
-  static const Color bgPrimary = Color(0xFF0D1117);      // Fond principal noir-bleu profond
-  static const Color bgSecondary = Color(0xFF161B22);    // Fond secondaire
-  static const Color bgCard = Color(0xFF1C2333);         // Fond des cartes
-  static const Color bgCardHover = Color(0xFF21273B);    // Cartes hover
+  static const Color bgPrimary = Color(0xFF0D1117);
+  static const Color bgSecondary = Color(0xFF161B22);
+  static const Color bgCard = Color(0xFF1C2333);
+  static const Color bgCardHover = Color(0xFF21273B);
 
-  // Accents chauds (Style 3 sur base Style 1)
-  static const Color accentPrimary = Color(0xFFFF6B00);  // Orange ARK
-  static const Color accentSecondary = Color(0xFFD4A853); // Or/ambre doux (style 3)
-  static const Color accentGreen = Color(0xFF5A8A4A);    // Vert forêt (style 3)
-  static const Color accentCream = Color(0xFFE8DCC8);    // Crème/beige clair (style 3)
-  static const Color accentBrown = Color(0xFF8B6540);    // Brun chaleureux (style 3)
+  // Accents chauds
+  static const Color accentPrimary = Color(0xFFFF6B00);
+  static const Color accentSecondary = Color(0xFFD4A853);
+  static const Color accentGreen = Color(0xFF5A8A4A);
+  static const Color accentCream = Color(0xFFE8DCC8);
+  static const Color accentBrown = Color(0xFF8B6540);
 
   // Texte
-  static const Color textPrimary = Color(0xFFE8DCC8);    // Texte principal crème
-  static const Color textSecondary = Color(0xFF9BA8BC);  // Texte secondaire gris-bleu
-  static const Color textMuted = Color(0xFF6B7A8D);      // Texte atténué
+  static const Color textPrimary = Color(0xFFE8DCC8);
+  static const Color textSecondary = Color(0xFF9BA8BC);
+  static const Color textMuted = Color(0xFF6B7A8D);
 
   // Bordures et séparateurs
   static const Color borderColor = Color(0xFF2D3748);
-  static const Color borderAccent = Color(0xFF4A3728);   // Brun pour bordures accent
+  static const Color borderAccent = Color(0xFF4A3728);
 
   // Statuts
   static const Color success = Color(0xFF4CAF50);
   static const Color warning = Color(0xFFFFD700);
   static const Color danger = Color(0xFFEF4444);
   static const Color info = Color(0xFF4FC3F7);
+
+  // ─── Aliases de compatibilité ───
+  static const Color backgroundColor = bgPrimary;
+  static const Color surfaceColor = bgSecondary;
+  static const Color cardColor = bgCard;
+  static const Color accentColor = accentPrimary;
+  static const Color primaryColor = accentPrimary;
 
   // ─── Gradients ───
   static const LinearGradient headerGradient = LinearGradient(
@@ -191,7 +197,7 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: bgSecondary,
-        selectedColor: accentPrimary.withValues(alpha: 0.3),
+        selectedColor: const Color(0x4DFF6B00), // accentPrimary avec alpha 0.30
         secondarySelectedColor: accentPrimary,
         labelStyle: GoogleFonts.exo2(color: textPrimary, fontSize: 12),
         secondaryLabelStyle: GoogleFonts.exo2(color: Colors.white, fontSize: 12),
@@ -211,4 +217,6 @@ class AppTheme {
       ),
     );
   }
+
+  static ThemeData get darkTheme => theme;
 }
