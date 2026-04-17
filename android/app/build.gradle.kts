@@ -22,7 +22,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.dinomanager.asa"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "28.2.13676358"
+    ndkVersion = flutter.ndkVersion
 
 
     compileOptions {
