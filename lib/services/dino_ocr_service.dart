@@ -20,8 +20,8 @@ class DinoOcrResult {
   final OcrStat? food;
   final OcrStat? weight;
   final OcrStat? melee;
-  final OcrStat? speed;
-  final OcrStat? torpor;
+  final OcrStat? speed; // Conservé pour le parsing, non utilisé dans l'app
+  final OcrStat? torpor; // Conservé pour le parsing, non utilisé dans l'app
 
   final int? mutationsMale;
   final int? mutationsFemale;
@@ -58,7 +58,7 @@ class DinoOcrResult {
       species != null || level != null || hp != null || melee != null;
 
   /// Stats corrigées à 0% imprint.
-  /// L'imprint ajoute +20% sur HP, Stamina, Weight, Melee (pas Food, Oxygen, Speed).
+  /// L'imprint ajoute +20% sur HP, Stamina, Weight, Melee (pas Food, Oxygen).
   /// Formule: statBase = statAffichée / (1 + 0.2 * imprint/100)
   double _removeImprintBonus(double value, bool isAffectedByImprint) {
     if (!isAffectedByImprint) return value;
@@ -68,6 +68,11 @@ class DinoOcrResult {
     return value / multiplier;
   }
 
+  /// Convertit le résultat OCR en Dino.
+  /// Les points sont stockés dans le format [PTS:hp=base/muta/perso,...] dans les notes.
+  /// - wildPoints → base (points wild / de base)
+  /// - mutPoints → muta (points de mutation)
+  /// - tamePoints → perso (points investis manuellement / level up)
   Dino toDino({bool removeImprint = true}) {
     final ids = List<int>.from(colorIds);
     while (ids.length < 6) {
@@ -107,15 +112,23 @@ class DinoOcrResult {
     double foodVal = food?.maxValue ?? 0;
     double weightVal = weight?.maxValue ?? 0;
     double meleeVal = melee?.maxValue ?? 0;
-    double speedVal = speed?.maxValue ?? 100;
 
     if (removeImprint && (imprintPercent ?? 0) > 0) {
       hpVal = _removeImprintBonus(hpVal, true);
       stamVal = _removeImprintBonus(stamVal, true);
       weightVal = _removeImprintBonus(weightVal, true);
       meleeVal = _removeImprintBonus(meleeVal, true);
-      // Food, Oxygen, Speed ne sont PAS affectés par l'imprint
+      // Food, Oxygen ne sont PAS affectés par l'imprint
     }
+
+    // Construire le bloc [PTS:...] avec base/muta/perso
+    final ptsBlock = _buildPointsBlock();
+    final notesText = _buildNotes();
+    final finalNotes =
+        ptsBlock.isNotEmpty ? '$notesText\n$ptsBlock' : notesText;
+
+    // Total points pour compatibilité avec les champs existants du modèle
+    int totalPts(OcrStat? stat) => stat?.totalPoints ?? 0;
 
     return Dino(
       nom: name ?? '',
@@ -129,14 +142,14 @@ class DinoOcrResult {
       nourriture: foodVal.round(),
       poids: weightVal.round(),
       degats: meleeVal,
-      vitesse: speedVal,
-      hpPoints: hp?.totalPoints ?? 0,
-      staminaPoints: stamina?.totalPoints ?? 0,
-      oxygenePoints: oxygen?.totalPoints ?? 0,
-      nourriturePoints: food?.totalPoints ?? 0,
-      poidsPoints: weight?.totalPoints ?? 0,
-      degatsPoints: melee?.totalPoints ?? 0,
-      vitessePoints: speed?.totalPoints ?? 0,
+      vitesse: 100.0,
+      hpPoints: totalPts(hp),
+      staminaPoints: totalPts(stamina),
+      oxygenePoints: totalPts(oxygen),
+      nourriturePoints: totalPts(food),
+      poidsPoints: totalPts(weight),
+      degatsPoints: totalPts(melee),
+      vitessePoints: 0,
       couleur0: Dino.encodeColor(ids[0], hexes[0]),
       couleur1: Dino.encodeColor(ids[1], hexes[1]),
       couleur2: Dino.encodeColor(ids[2], hexes[2]),
@@ -145,11 +158,12 @@ class DinoOcrResult {
       couleur5: Dino.encodeColor(ids[5], hexes[5]),
       tagVersion: '',
       tags: _buildAutoTags(),
-      notes: _buildNotes(),
+      notes: finalNotes,
       dateAjout: DateTime.now(),
     );
   }
 
+  /// Retourne l'affichage des points pour le dialog de scan
   String pointsDisplayFor(OcrStat? stat) {
     if (stat == null) return '0';
     if (stat.wildPoints != null && stat.tamePoints != null) {
@@ -159,6 +173,44 @@ class DinoOcrResult {
       return '${stat.wildPoints}+${stat.tamePoints}';
     }
     return '${stat.totalPoints}';
+  }
+
+  /// Retourne les 3 valeurs séparées : base, muta, perso
+  /// - base = wildPoints (points wild / de base)
+  /// - muta = mutPoints (points de mutation)
+  /// - perso = tamePoints (points investis manuellement)
+  ({int base, int muta, int perso}) pointsBreakdownFor(OcrStat? stat) {
+    if (stat == null) return (base: 0, muta: 0, perso: 0);
+    return (
+      base: stat.wildPoints ?? 0,
+      muta: stat.mutPoints ?? 0,
+      perso: stat.tamePoints ?? 0,
+    );
+  }
+
+  /// Construit le bloc [PTS:hp=base/muta/perso,...] pour les notes
+  String _buildPointsBlock() {
+    final entries = <String>[];
+
+    void addStat(String key, OcrStat? stat) {
+      if (stat == null) return;
+      final b = stat.wildPoints ?? 0;
+      final m = stat.mutPoints ?? 0;
+      final p = stat.tamePoints ?? 0;
+      if (b > 0 || m > 0 || p > 0) {
+        entries.add('$key=$b/$m/$p');
+      }
+    }
+
+    addStat('hp', hp);
+    addStat('stamina', stamina);
+    addStat('oxygene', oxygen);
+    addStat('nourriture', food);
+    addStat('poids', weight);
+    addStat('degats', melee);
+
+    if (entries.isEmpty) return '';
+    return '[PTS:${entries.join(',')}]';
   }
 
   List<String> _buildAutoTags() {
@@ -179,11 +231,13 @@ class DinoOcrResult {
     final parts = <String>[];
     parts.add('Import OCR (${sourceType.label})');
     if ((imprintPercent ?? 0) > 0) {
-      parts.add('Imprint: ${imprintPercent!.toStringAsFixed(1)}%${imprinter != null ? ' - $imprinter' : ''}');
-      parts.add('⚠️ Stats corrigées à 0% imprint (HP, Stam, Weight, Melee)');
+      parts.add(
+          'Imprint: ${imprintPercent!.toStringAsFixed(1)}%${imprinter != null ? ' - $imprinter' : ''}');
+      parts.add('⚠️ Stats HP/Stam/Weight/Melee corrigées à 0% imprint');
     }
     if (mutationsMale != null || mutationsFemale != null) {
-      parts.add('Mutations: ♂${mutationsMale ?? '?'} ♀${mutationsFemale ?? '?'}');
+      parts.add(
+          'Mutations: ♂${mutationsMale ?? '?'} ♀${mutationsFemale ?? '?'}');
     }
     return parts.join('\n');
   }
@@ -193,9 +247,9 @@ class DinoOcrResult {
 class OcrStat {
   final double? currentValue;
   final double? maxValue;
-  final int? wildPoints;
-  final int? tamePoints;
-  final int? mutPoints;
+  final int? wildPoints;  // → base
+  final int? tamePoints;  // → perso (points investis)
+  final int? mutPoints;   // → muta
   final bool isPercent;
 
   OcrStat({
@@ -481,9 +535,12 @@ class DinoOcrService {
     final statusParts = <String>[];
     for (final line in lines) {
       final lower = line.toLowerCase();
-      if (lower.contains('tamed') && !statusParts.contains('Tamed')) statusParts.add('Tamed');
-      if (lower.contains('wild') && !statusParts.contains('Wild')) statusParts.add('Wild');
-      if (lower.contains('badass') && !statusParts.contains('Badass')) statusParts.add('Badass');
+      if (lower.contains('tamed') && !statusParts.contains('Tamed'))
+        statusParts.add('Tamed');
+      if (lower.contains('wild') && !statusParts.contains('Wild'))
+        statusParts.add('Wild');
+      if (lower.contains('badass') && !statusParts.contains('Badass'))
+        statusParts.add('Badass');
     }
     if (statusParts.isNotEmpty) status = statusParts.join(' ');
 
@@ -516,8 +573,6 @@ class DinoOcrService {
         continue;
       }
 
-      // Détecter l'imprint dans les stats
-      // Format: "0.0% - vMaRo" ou "0%" ou "100.0% - PlayerName"
       if (_isImprintLine(line)) {
         final impMatch = RegExp(r'([\d.]+)\s*%').firstMatch(line);
         if (impMatch != null) {
@@ -598,7 +653,7 @@ class DinoOcrService {
     if (pctStats.isNotEmpty) melee = _toOcrStat(pctStats[0]);
     if (pctStats.length > 1) speed = _toOcrStat(pctStats[1]);
 
-    // ── 5. Couleurs (amélioré) ──
+    // ── 5. Couleurs ──
     colorIds = _extractColorIds(lines, fullText);
 
     // ── 6. Mutations ──
@@ -630,20 +685,14 @@ class DinoOcrService {
     );
   }
 
-  /// Détecte si une ligne est la ligne d'imprint (dernière stat %)
-  /// L'imprint est toujours la DERNIÈRE ligne avec un %, souvent "0%" ou "X% - NomJoueur"
-  /// Il faut la distinguer du melee% et speed%
   bool _isImprintLine(String line) {
     final lower = line.toLowerCase();
-    // Contient un nom de joueur après le %
     if (RegExp(r'[\d.]+\s*%\s*[-–]\s*\w').hasMatch(line)) return true;
-    // Contient "imprint"
     if (lower.contains('imprint')) return true;
-    // C'est exactement "0%" ou similaire avec une icône de flèche vers le bas
-    if (RegExp(r'^\s*[↓⬇🔽]?\s*[\d.]+\s*%\s*[-–]?\s*\w*\s*$').hasMatch(line)) {
+    if (RegExp(r'^\s*[↓⬇🔽]?\s*[\d.]+\s*%\s*[-–]?\s*\w*\s*$')
+        .hasMatch(line)) {
       final pct = double.tryParse(
           RegExp(r'([\d.]+)\s*%').firstMatch(line)?.group(1) ?? '');
-      // L'imprint est toujours entre 0 et 100
       if (pct != null && pct <= 100) return true;
     }
     return false;
@@ -755,11 +804,11 @@ class DinoOcrService {
       if (lower.contains('imprint') || lower.contains('mutation')) continue;
       if (dualRegex.hasMatch(line)) continue;
 
-      // Vérifier si c'est la ligne d'imprint
       if (_isImprintLine(line)) {
         final impMatch = pctRegex.firstMatch(line);
         if (impMatch != null) {
-          imprintPercent = double.tryParse(impMatch.group(1)!.replaceAll(',', ''));
+          imprintPercent =
+              double.tryParse(impMatch.group(1)!.replaceAll(',', ''));
         }
         final nameMatch = RegExp(r'%\s*[-–]\s*(\S+)').firstMatch(line);
         if (nameMatch != null) imprinter = nameMatch.group(1);
@@ -772,7 +821,9 @@ class DinoOcrService {
         if (val != null) {
           if (val > 100 && melee == null) {
             melee = OcrStat(maxValue: val, isPercent: true);
-          } else speed ??= OcrStat(maxValue: val, isPercent: true);
+          } else {
+            speed ??= OcrStat(maxValue: val, isPercent: true);
+          }
         }
       }
     }
@@ -823,37 +874,22 @@ class DinoOcrService {
   }
 
   // ═══════════════════════════════════════════════════════
-  // EXTRACTION DES COULEURS (amélioré)
+  // EXTRACTION DES COULEURS
   // ═══════════════════════════════════════════════════════
 
-  /// Extrait les color IDs depuis les lignes OCR.
-  /// Les couleurs ARK apparaissent comme des petites cases colorées
-  /// avec un nombre à l'intérieur (1-100). Elles sont groupées sur
-  /// une ou deux lignes, avec parfois des cases vides (région non utilisée).
-  ///
-  /// Formats observés:
-  ///   Tek: [4] [63] [39] [] [4] [32]  — 5 couleurs, case 4 vide
-  ///   Cryo: [5] [5] [5] [5] [5] [5]   — 6 couleurs identiques
-  ///   Cryo Gloon: [1] [3] [2] [0] [1] [1]
-  ///   OCR brut: "4 63 39 4 32" ou "1 3 2 0 1 1" ou "5 2 6 1 3"
   List<int> _extractColorIds(List<String> lines, String fullText) {
     final colorIds = [0, 0, 0, 0, 0, 0];
 
-    // Méthode 1: Chercher une ligne APRÈS les stats (après % ou après /) et
-    //            AVANT les mutations, qui contient des petits nombres
     final colorCandidates = <List<int>>[];
 
     bool pastStats = false;
-    bool pastImprint = false;
 
     for (final line in lines) {
       final lower = line.toLowerCase();
 
-      // Détecter la fin des stats
       if (line.contains('%') && !line.contains('|') && !line.contains('/')) {
         pastStats = true;
-        // Si c'est la ligne d'imprint (dernier %), on est passé les stats
-        if (_isImprintLine(line)) pastImprint = true;
+        if (_isImprintLine(line)) continue;
         continue;
       }
       if (line.contains('/') && RegExp(r'\d').hasMatch(line)) {
@@ -861,23 +897,25 @@ class DinoOcrService {
         continue;
       }
 
-      // Stopper aux mutations
       if (lower.contains('mutation')) break;
 
-      // Ignorer les lignes qui sont clairement des stats
-      if (line.contains('|') || lower.contains('lvl') ||
-          lower.contains('level') || lower.contains('tamed') ||
-          lower.contains('wild') || lower.contains('badass') ||
-          lower.contains('cryopod') || lower.contains('deploy') ||
-          lower.contains('charge') || lower.contains('weight')) {
+      if (line.contains('|') ||
+          lower.contains('lvl') ||
+          lower.contains('level') ||
+          lower.contains('tamed') ||
+          lower.contains('wild') ||
+          lower.contains('badass') ||
+          lower.contains('cryopod') ||
+          lower.contains('deploy') ||
+          lower.contains('charge') ||
+          lower.contains('weight')) {
         continue;
       }
 
-      // Chercher les petits nombres sur cette ligne
       final nums = RegExp(r'\b(\d{1,3})\b')
           .allMatches(line)
           .map((m) => int.parse(m.group(1)!))
-          .where((n) => n >= 0 && n <= 100) // 0 = case vide
+          .where((n) => n >= 0 && n <= 100)
           .toList();
 
       if (nums.length >= 2 && nums.length <= 6) {
@@ -885,9 +923,7 @@ class DinoOcrService {
       }
     }
 
-    // Choisir le meilleur candidat
     if (colorCandidates.isNotEmpty) {
-      // Préférer la ligne avec exactement 5-6 nombres
       final best = colorCandidates.firstWhere(
         (c) => c.length >= 5,
         orElse: () => colorCandidates.firstWhere(
@@ -901,15 +937,15 @@ class DinoOcrService {
       if (colorIds.any((c) => c > 0)) return colorIds;
     }
 
-    // Méthode 2: Chercher sur TOUTES les lignes (pas seulement après stats)
-    // utile quand l'OCR mélange l'ordre
     for (final line in lines) {
       if (line.contains('/') || line.contains('|') || line.contains('%')) {
         continue;
       }
       final lower = line.toLowerCase();
-      if (lower.contains('mutation') || lower.contains('lvl') ||
-          lower.contains('cryopod') || lower.contains('deploy') ||
+      if (lower.contains('mutation') ||
+          lower.contains('lvl') ||
+          lower.contains('cryopod') ||
+          lower.contains('deploy') ||
           lower.contains('charge')) {
         continue;
       }
@@ -928,7 +964,6 @@ class DinoOcrService {
       }
     }
 
-    // Méthode 3: Agréger les petits nombres de lignes consécutives
     final allColorNums = <int>[];
     bool inColorZone = false;
 
@@ -936,7 +971,6 @@ class DinoOcrService {
       final lower = line.toLowerCase();
       if (lower.contains('mutation')) break;
 
-      // Après l'imprint ou la dernière stat
       if (line.contains('%') && !line.contains('|')) {
         inColorZone = true;
         continue;

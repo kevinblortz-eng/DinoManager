@@ -1,17 +1,20 @@
+// lib/widgets/ark_color_picker.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import '../models/ark_color_palette.dart';
 import '../theme/app_theme.dart';
+import 'common/dino_region_preview.dart';
 
-/// Sélecteur de couleur ARK avec palette officielle.
-/// Ajoute aussi l'option "aucune couleur" (ID 0).
 class ArkColorPicker extends StatefulWidget {
   final int selectedId;
   final String selectedHex;
   final ValueChanged<({int id, String hex})> onColorSelected;
   final String regionName;
   final int regionIndex;
+
+  // ── Nouveaux paramètres pour le preview ──
+  final String species;
+  final List<String?> currentColors;
 
   const ArkColorPicker({
     super.key,
@@ -20,6 +23,8 @@ class ArkColorPicker extends StatefulWidget {
     required this.onColorSelected,
     required this.regionName,
     required this.regionIndex,
+    required this.species,
+    required this.currentColors,
   });
 
   @override
@@ -37,17 +42,23 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
   String _selectedHex = _emptyHex;
   bool _showEmptyTile = true;
 
+  // Couleur prévisualisée en temps réel sur le dino
+  String? _previewHex;
+
   @override
   void initState() {
     super.initState();
     _selectedId = widget.selectedId;
-    _selectedHex = widget.selectedHex.isEmpty ? _emptyHex : widget.selectedHex;
+    _selectedHex =
+        widget.selectedHex.isEmpty ? _emptyHex : widget.selectedHex;
+
+    // Preview initial = couleur déjà sélectionnée
+    _previewHex = _selectedId > 0 ? _selectedHex : null;
 
     _searchCtrl = TextEditingController();
     _idCtrl = TextEditingController(
       text: _selectedId > 0 ? _selectedId.toString() : '',
     );
-
     _filtered = ArkColorPalette.allColors;
   }
 
@@ -65,12 +76,10 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
         _showEmptyTile = true;
       } else {
         final lower = query.toLowerCase().trim();
-
         _showEmptyTile = 'aucune'.contains(lower) ||
             'none'.contains(lower) ||
             '0'.contains(lower) ||
             'vide'.contains(lower);
-
         _filtered = ArkColorPalette.allColors.where((c) {
           return c.name.toLowerCase().contains(lower) ||
               c.id.toString().contains(lower) ||
@@ -84,6 +93,7 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
     setState(() {
       _selectedId = color.id;
       _selectedHex = color.hex;
+      _previewHex = color.hex; // ← mise à jour preview temps réel
       _idCtrl.text = color.id.toString();
     });
   }
@@ -92,18 +102,17 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
     setState(() {
       _selectedId = 0;
       _selectedHex = _emptyHex;
+      _previewHex = null; // ← reset preview
       _idCtrl.text = '';
     });
   }
 
   void _applyIdInput(String val) {
     final trimmed = val.trim();
-
     if (trimmed.isEmpty || trimmed == '0') {
       _selectNoColor();
       return;
     }
-
     final id = int.tryParse(trimmed);
     if (id != null) {
       final color = ArkColorPalette.fromId(id);
@@ -111,6 +120,7 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
         setState(() {
           _selectedId = color.id;
           _selectedHex = color.hex;
+          _previewHex = color.hex; // ← mise à jour preview
         });
       }
     }
@@ -118,24 +128,23 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final currentColor = _selectedId > 0
-        ? ArkColorPalette.fromId(_selectedId)
-        : null;
-
+    final currentColor =
+        _selectedId > 0 ? ArkColorPalette.fromId(_selectedId) : null;
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return SafeArea(
       top: false,
       bottom: true,
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.85,
+        height: MediaQuery.of(context).size.height * 0.92,
         decoration: BoxDecoration(
           color: AppTheme.bgSecondary,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius:
+              const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           children: [
-            // ─── Handle + Titre ───
+            // ─── Handle ───
             Container(
               width: 40,
               height: 4,
@@ -145,8 +154,11 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
+
+            // ─── Titre région ───
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 children: [
                   Container(
@@ -194,120 +206,167 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
               ),
             ),
 
-            // ─── Couleur sélectionnée + ID direct ───
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.bgCard,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.borderColor),
-              ),
+            // ─── Zone principale : preview + sélection côte à côte ───
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: currentColor?.color ?? Colors.grey,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: (currentColor?.color ?? Colors.grey)
-                              .withOpacity(0.4),
-                          blurRadius: 8,
-                          spreadRadius: 2,
-                        ),
-                      ],
+                  // ── Mini dino preview (gauche) ──
+                  SizedBox(
+                    width: 160,
+                    child: DinoRegionPreview(
+                      species: widget.species,
+                      currentColors: widget.currentColors,
+                      activeRegion: widget.regionIndex,
+                      previewColor: _previewHex,
                     ),
-                    child: currentColor == null
-                        ? const Center(
-                            child: Icon(
-                              Icons.close,
-                              color: Colors.white70,
-                              size: 20,
-                            ),
-                          )
-                        : null,
                   ),
                   const SizedBox(width: 12),
+                  // ── Couleur sélectionnée + ID (droite) ──
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          currentColor?.name ?? 'Aucune couleur',
-                          style: const TextStyle(
-                            color: AppTheme.textPrimary,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.bgCard,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.borderColor),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Carré couleur + nom
+                          Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: currentColor?.color ?? Colors.grey,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color:
+                                        Colors.white.withOpacity(0.3),
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: (currentColor?.color ??
+                                              Colors.grey)
+                                          .withOpacity(0.4),
+                                      blurRadius: 8,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: currentColor == null
+                                    ? const Center(
+                                        child: Icon(
+                                          Icons.close,
+                                          color: Colors.white70,
+                                          size: 18,
+                                        ),
+                                      )
+                                    : null,
                               ),
-                              decoration: BoxDecoration(
-                                color: AppTheme.accentPrimary.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                _selectedId > 0 ? 'ID: $_selectedId' : 'Aucun',
-                                style: const TextStyle(
-                                  color: AppTheme.accentPrimary,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'monospace',
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      currentColor?.name ??
+                                          'Aucune couleur',
+                                      style: const TextStyle(
+                                        color: AppTheme.textPrimary,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding:
+                                              const EdgeInsets.symmetric(
+                                            horizontal: 5,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.accentPrimary
+                                                .withOpacity(0.15),
+                                            borderRadius:
+                                                BorderRadius.circular(
+                                                    4),
+                                          ),
+                                          child: Text(
+                                            _selectedId > 0
+                                                ? 'ID: $_selectedId'
+                                                : 'Aucun',
+                                            style: const TextStyle(
+                                              color:
+                                                  AppTheme.accentPrimary,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              fontFamily: 'monospace',
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: Text(
+                                            _selectedHex,
+                                            style: const TextStyle(
+                                              color: AppTheme.textMuted,
+                                              fontSize: 10,
+                                              fontFamily: 'monospace',
+                                            ),
+                                            overflow:
+                                                TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          // Saisie ID directe
+                          TextFormField(
+                            controller: _idCtrl,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            style: const TextStyle(
+                              color: AppTheme.textPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _selectedHex,
-                              style: const TextStyle(
+                            textAlign: TextAlign.center,
+                            decoration: const InputDecoration(
+                              labelText: 'ID ARK',
+                              labelStyle: TextStyle(
                                 color: AppTheme.textMuted,
-                                fontSize: 12,
-                                fontFamily: 'monospace',
+                                fontSize: 10,
                               ),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 8,
+                              ),
+                              isDense: true,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: 72,
-                    child: TextFormField(
-                      controller: _idCtrl,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      style: const TextStyle(
-                        color: AppTheme.textPrimary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                            onChanged: _applyIdInput,
+                            onFieldSubmitted: _applyIdInput,
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
-                        labelText: 'ID ARK',
-                        labelStyle: TextStyle(
-                          color: AppTheme.textMuted,
-                          fontSize: 10,
-                        ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 8,
-                        ),
-                        isDense: true,
-                      ),
-                      onChanged: _applyIdInput,
-                      onFieldSubmitted: _applyIdInput,
                     ),
                   ),
                 ],
@@ -316,7 +375,8 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
 
             // ─── Barre de recherche ───
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: TextField(
                 controller: _searchCtrl,
                 style: const TextStyle(color: AppTheme.textPrimary),
@@ -340,7 +400,8 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                           },
                         )
                       : null,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 8),
                   isDense: true,
                 ),
                 onChanged: (value) {
@@ -353,14 +414,17 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
             // ─── Grille des couleurs ───
             Expanded(
               child: GridView.builder(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                padding:
+                    const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 8,
                   crossAxisSpacing: 4,
                   mainAxisSpacing: 4,
                   childAspectRatio: 0.85,
                 ),
-                itemCount: _filtered.length + (_showEmptyTile ? 1 : 0),
+                itemCount:
+                    _filtered.length + (_showEmptyTile ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (_showEmptyTile && index == 0) {
                     final isSelected = _selectedId == 0;
@@ -382,7 +446,8 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                             boxShadow: isSelected
                                 ? [
                                     BoxShadow(
-                                      color: Colors.white.withOpacity(0.25),
+                                      color: Colors.white
+                                          .withOpacity(0.25),
                                       blurRadius: 6,
                                       spreadRadius: 1,
                                     ),
@@ -390,12 +455,15 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                                 : null,
                           ),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: Center(
                                   child: Icon(
-                                    isSelected ? Icons.check : Icons.close,
+                                    isSelected
+                                        ? Icons.check
+                                        : Icons.close,
                                     color: Colors.white,
                                     size: 14,
                                   ),
@@ -403,10 +471,11 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                               ),
                               Container(
                                 width: double.infinity,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 1),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 1),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.45),
+                                  color:
+                                      Colors.black.withOpacity(0.45),
                                   borderRadius: const BorderRadius.only(
                                     bottomLeft: Radius.circular(5),
                                     bottomRight: Radius.circular(5),
@@ -429,7 +498,8 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                     );
                   }
 
-                  final colorIndex = _showEmptyTile ? index - 1 : index;
+                  final colorIndex =
+                      _showEmptyTile ? index - 1 : index;
                   final c = _filtered[colorIndex];
                   final isSelected = c.id == _selectedId;
 
@@ -469,8 +539,8 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                               ),
                             Container(
                               width: double.infinity,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 1),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 1),
                               decoration: BoxDecoration(
                                 color: Colors.black.withOpacity(0.5),
                                 borderRadius: const BorderRadius.only(
@@ -497,16 +567,18 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
               ),
             ),
 
-            // ─── Boutons bas protégés par safe area ───
+            // ─── Boutons bas ───
             Container(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, bottomInset + 16),
+              padding: EdgeInsets.fromLTRB(
+                  16, 8, 16, bottomInset + 16),
               child: Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppTheme.borderColor),
+                        side: const BorderSide(
+                            color: AppTheme.borderColor),
                         foregroundColor: AppTheme.textSecondary,
                       ),
                       child: const Text('Annuler'),
@@ -526,14 +598,16 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.accentPrimary,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14),
                       ),
                       icon: const Icon(Icons.check, size: 18),
                       label: Text(
                         _selectedId > 0
                             ? 'Appliquer (ID: $_selectedId)'
                             : 'Appliquer (aucune)',
-                        style: const TextStyle(fontWeight: FontWeight.w700),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),
@@ -547,7 +621,7 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
   }
 }
 
-/// Badge compact couleur
+/// Badge compact couleur — inchangé
 class ArkColorBadge extends StatelessWidget {
   final int arkId;
   final String hex;
@@ -591,7 +665,8 @@ class ArkColorBadge extends StatelessWidget {
                 child: Text(
                   '$arkId',
                   style: TextStyle(
-                    color: _isLight(color) ? Colors.black87 : Colors.white,
+                    color:
+                        _isLight(color) ? Colors.black87 : Colors.white,
                     fontSize: size * 0.3,
                     fontWeight: FontWeight.w800,
                   ),
@@ -619,8 +694,7 @@ class ArkColorBadge extends StatelessWidget {
   }
 
   bool _isLight(Color c) {
-    final brightness =
-        (c.red * 0.299 + c.green * 0.587 + c.blue * 0.114);
+    final brightness = (c.red * 0.299 + c.green * 0.587 + c.blue * 0.114);
     return brightness > 186;
   }
 }

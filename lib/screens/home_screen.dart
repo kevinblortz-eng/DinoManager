@@ -10,6 +10,7 @@ import '../theme/app_theme.dart';
 import '../widgets/dino_image_widget.dart';
 import 'backup_screen.dart';
 import 'add_edit_dino_screen.dart';
+import 'dino_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(int tabIndex)? onNavigateToTab;
@@ -63,12 +64,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  /// Ouvre la DinoCard en mode édition
+  /// Ouvre la DinoCard en mode visuel (lecture seule)
   void _openSpotlightDino(Dino dino) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AddEditDinoScreen(dino: dino),
+        builder: (_) => DinoDetailScreen(dino: dino),
       ),
     ).then((_) {
       context.read<DinoProvider>().loadDinos();
@@ -338,7 +339,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ── Helpers pour le symbole sexe ──
 
-  /// Retourne le symbole Unicode du sexe
   String _sexeSymbol(String sexe) {
     final s = sexe.trim().toLowerCase();
     if (s == 'male' || s == 'mâle' || s == '♂' || s == 'm') return '♂';
@@ -346,19 +346,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return '?';
   }
 
-  /// Retourne la couleur associée au sexe
   Color _sexeColor(String sexe) {
     final s = sexe.trim().toLowerCase();
     if (s == 'male' || s == 'mâle' || s == '♂' || s == 'm') {
-      return const Color(0xFF4FC3F7); // bleu clair
+      return const Color(0xFF4FC3F7);
     }
     if (s == 'female' || s == 'femelle' || s == '♀' || s == 'f') {
-      return const Color(0xFFFF80CB); // rose
+      return const Color(0xFFFF80CB);
     }
     return AppTheme.textMuted;
   }
 
-  /// Construit le badge sexe (symbole ♂ ou ♀ dans un petit cercle coloré)
   Widget _buildSexBadge(String sexe, {double size = 22}) {
     final symbol = _sexeSymbol(sexe);
     final color = _sexeColor(sexe);
@@ -408,7 +406,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Column(
           children: [
-            // Titre + bouton refresh
             Row(
               children: [
                 Container(
@@ -439,7 +436,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Spacer(),
                 GestureDetector(
                   onTap: () {
-                    // Stop propagation : refresh uniquement, pas navigation
                     _pickSpotlightDino();
                   },
                   behavior: HitTestBehavior.opaque,
@@ -458,7 +454,6 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 12),
             Row(
               children: [
-                // ── Image du dino ──
                 Container(
                   width: 100,
                   height: 80,
@@ -480,12 +475,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(width: 14),
-                // ── Infos du dino ──
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Nom + symboles sexe
                       Row(
                         children: [
                           Expanded(
@@ -505,7 +498,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       const SizedBox(height: 2),
-                      // Espèce · Lvl (sans le sexe en texte)
                       Text(
                         '${dino.espece} · Lvl ${dino.niveau}',
                         style: GoogleFonts.exo2(
@@ -536,7 +528,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                       const SizedBox(height: 6),
-                      // Barre de couleurs
                       Row(
                         children: List.generate(6, (i) {
                           final color = _hexToColor(previewColors[i]);

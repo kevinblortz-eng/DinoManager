@@ -1,3 +1,4 @@
+// lib/screens/library_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,13 +38,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.bgPrimary,
-      body: Column(
-        children: [
-          _buildHeader(context),
-          _buildSearchBar(),
-          _buildRoleFilterChips(),
-          Expanded(child: _buildDinoList()),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            _buildSearchBar(),
+            _buildRoleFilterChips(),
+            Expanded(child: _buildDinoList()),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -61,95 +64,41 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // HEADER FLAME GRADIENT
+  // HEADER — aligné sur le template Home / Simulator
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildHeader(BuildContext context) {
     return Consumer<DinoProvider>(
       builder: (context, provider, _) {
         final total = provider.allDinos.length;
-        return Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF1A0A00),
-                Color(0xFF0D1117),
-                Color(0xFF0A1628),
-              ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0xFF000000),
-                blurRadius: 12,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 14, 14, 16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFFFF9500), Color(0xFFFF4500)],
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 16, 0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'BIBLIOTHÈQUE',
+                      style: GoogleFonts.cinzelDecorative(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFFF6B00).withOpacity(0.5),
-                          blurRadius: 12,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
                     ),
-                    child: const Center(
-                      child: Text('🦖', style: TextStyle(fontSize: 26)),
+                    const SizedBox(height: 2),
+                    Text(
+                      'ARK Survival Ascended · $total dinos',
+                      style: GoogleFonts.exo2(
+                        fontSize: 11,
+                        color: AppTheme.textMuted,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ShaderMask(
-                          shaderCallback: (bounds) => const LinearGradient(
-                            colors: [Color(0xFFFF6B00), Color(0xFFFFAA00)],
-                          ).createShader(bounds),
-                          child: Text(
-                            'DINO MANAGER',
-                            style: GoogleFonts.cinzelDecorative(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'ARK Survival Ascended  ·  $total dinos',
-                          style: GoogleFonts.exo2(
-                            color: const Color(0xFF6B7A8D),
-                            fontSize: 11,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  _SettingsButton(provider: provider),
-                ],
+                  ],
+                ),
               ),
-            ),
+              _SettingsButton(provider: provider),
+            ],
           ),
         );
       },
@@ -306,7 +255,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // LISTE DES DINOS - ✅ AVEC PROTECTION COMPLÈTE BARRE SYSTÈME
+  // LISTE DES DINOS
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildDinoList() {
     return Consumer<DinoProvider>(
@@ -340,8 +289,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
         if (provider.dinos.isEmpty) {
           return _buildEmptyState(provider.hasActiveFilters, context);
         }
-
-        // ✅ PROTECTION BARRE SYSTÈME : Calcul dynamique du padding
         final bottomPadding = MediaQuery.of(context).padding.bottom;
 
         return RefreshIndicator(
@@ -350,12 +297,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
           onRefresh: () => provider.loadDinos(),
           child: ListView.builder(
             physics: const BouncingScrollPhysics(),
-            // ✅ CORRECTION CRITIQUE : Padding adaptatif
             padding: EdgeInsets.fromLTRB(
               14,
               4,
               14,
-              100 + bottomPadding, // 100px pour FAB + hauteur barre système
+              100 + bottomPadding,
             ),
             itemCount: provider.dinos.length,
             itemBuilder: (context, i) {
@@ -449,11 +395,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
-  // ✅ PROTECTION MODALS : useSafeArea pour éviter la barre système
   void _showFilterSheet(BuildContext context, DinoProvider provider) {
     showModalBottomSheet(
       context: context,
-      useSafeArea: true, // ✅ PROTECTION IMPORTANTE
+      useSafeArea: true,
       backgroundColor: const Color(0xFF161B22),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -537,13 +482,17 @@ class _SettingsButton extends StatelessWidget {
       }
     }
 
-    const priorityTags = ['Boss', 'Breed', 'Solid', 'Farm', 'Volant', 'Aquatique'];
-    final sortedTags = [...priorityTags.where((t) => tagStats.containsKey(t)),
-      ...tagStats.keys.where((t) => !priorityTags.contains(t)).toList()..sort()];
+    const priorityTags = [
+      'Boss', 'Breed', 'Solid', 'Farm', 'Volant', 'Aquatique'
+    ];
+    final sortedTags = [
+      ...priorityTags.where((t) => tagStats.containsKey(t)),
+      ...tagStats.keys.where((t) => !priorityTags.contains(t)).toList()..sort()
+    ];
 
     showModalBottomSheet(
       context: context,
-      useSafeArea: true, // ✅ PROTECTION IMPORTANTE
+      useSafeArea: true,
       backgroundColor: const Color(0xFF111827),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -577,21 +526,26 @@ class _SettingsButton extends StatelessWidget {
                   onPressed: () {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Fonctionnalité bientôt disponible')),
+                      const SnackBar(
+                          content: Text('Fonctionnalité bientôt disponible')),
                     );
                   },
-                  icon: const Icon(Icons.save_alt, size: 16, color: AppTheme.accentSecondary),
+                  icon: const Icon(Icons.save_alt,
+                      size: 16, color: AppTheme.accentSecondary),
                   label: const Text('Sauvegarder',
-                      style: TextStyle(color: AppTheme.accentSecondary, fontSize: 12)),
+                      style: TextStyle(
+                          color: AppTheme.accentSecondary, fontSize: 12)),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            _statTile('🦖', '${dinos.length}', 'Total', AppTheme.accentPrimary),
+            _statTile(
+                '🦖', '${dinos.length}', 'Total', AppTheme.accentPrimary),
             const SizedBox(height: 4),
             if (sortedTags.isEmpty)
               const Text('Aucun tag utilisé',
-                  style: TextStyle(color: AppTheme.textMuted, fontSize: 12))
+                  style: TextStyle(
+                      color: AppTheme.textMuted, fontSize: 12))
             else
               Wrap(
                 spacing: 8,
@@ -599,7 +553,8 @@ class _SettingsButton extends StatelessWidget {
                 children: sortedTags.map((tag) {
                   final count = tagStats[tag] ?? 0;
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppTheme.bgCard,
                       borderRadius: BorderRadius.circular(8),
@@ -608,16 +563,18 @@ class _SettingsButton extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('$count', style: const TextStyle(
-                          color: AppTheme.accentPrimary,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                        )),
+                        Text('$count',
+                            style: const TextStyle(
+                              color: AppTheme.accentPrimary,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                            )),
                         const SizedBox(width: 5),
-                        Text(tag, style: const TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 12,
-                        )),
+                        Text(tag,
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 12,
+                            )),
                       ],
                     ),
                   );
@@ -630,16 +587,21 @@ class _SettingsButton extends StatelessWidget {
     );
   }
 
-  Widget _statTile(String emoji, String count, String label, Color color) {
+  Widget _statTile(
+      String emoji, String count, String label, Color color) {
     return Row(
       children: [
         Text(emoji, style: const TextStyle(fontSize: 20)),
         const SizedBox(width: 8),
-        Text(count, style: GoogleFonts.exo2(
-          color: color, fontSize: 22, fontWeight: FontWeight.w900)),
+        Text(count,
+            style: GoogleFonts.exo2(
+                color: color,
+                fontSize: 22,
+                fontWeight: FontWeight.w900)),
         const SizedBox(width: 6),
-        Text(label, style: GoogleFonts.exo2(
-          color: AppTheme.textMuted, fontSize: 12)),
+        Text(label,
+            style: GoogleFonts.exo2(
+                color: AppTheme.textMuted, fontSize: 12)),
       ],
     );
   }
@@ -681,12 +643,19 @@ class _FilterSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _filterRow(context, 'Sexe', ['', ...Dino.sexesDisponibles],
-              provider.filterSexe, provider.setFilterSexe),
+          _filterRow(
+              context,
+              'Sexe',
+              ['', ...Dino.sexesDisponibles],
+              provider.filterSexe,
+              provider.setFilterSexe),
           const SizedBox(height: 12),
-          _filterRow(context, 'Espèce',
+          _filterRow(
+              context,
+              'Espèce',
               ['', ...Dino.especesDisponibles.take(12)],
-              provider.filterEspece, provider.setFilterEspece),
+              provider.filterEspece,
+              provider.setFilterEspece),
           const SizedBox(height: 12),
           if (provider.hasActiveFilters) ...[
             const SizedBox(height: 8),
@@ -701,8 +670,8 @@ class _FilterSheet extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppTheme.danger.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                      color: AppTheme.danger.withOpacity(0.3)),
+                  border:
+                      Border.all(color: AppTheme.danger.withOpacity(0.3)),
                 ),
                 child: Text(
                   'Réinitialiser les filtres',
@@ -749,8 +718,8 @@ class _FilterSheet extends StatelessWidget {
                 Navigator.pop(context);
               },
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   gradient: isActive
                       ? const LinearGradient(
@@ -767,11 +736,11 @@ class _FilterSheet extends StatelessWidget {
                 child: Text(
                   opt.isEmpty ? 'Tous' : opt,
                   style: GoogleFonts.exo2(
-                    color: isActive
-                        ? Colors.white
-                        : const Color(0xFF6B7A8D),
+                    color:
+                        isActive ? Colors.white : const Color(0xFF6B7A8D),
                     fontSize: 12,
-                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight:
+                        isActive ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
               ),

@@ -8,12 +8,14 @@ import '../models/dino.dart';
 import '../models/species_tracker.dart';
 import '../providers/dino_provider.dart';
 import '../providers/tracker_provider.dart';
-import '../services/dino_scan_helper.dart';
-import '../services/dino_ocr_service.dart';
+// import '../services/dino_scan_helper.dart';   // ⛔ DÉSACTIVÉ temporairement
+// import '../services/dino_ocr_service.dart';   // ⛔ DÉSACTIVÉ temporairement
 import '../theme/app_theme.dart';
 import '../widgets/ark_color_picker.dart';
 import '../widgets/dino_image_widget.dart';
 import '../utils/dino_helpers.dart';
+import 'dart:io';
+import 'dart:ui' as ui;
 
 class AddEditDinoScreen extends StatefulWidget {
   final Dino? dino;
@@ -42,15 +44,25 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
   late TextEditingController _nourritureCtrl;
   late TextEditingController _poidsCtrl;
   late TextEditingController _degatsCtrl;
-  late TextEditingController _vitesseCtrl;
 
-  late TextEditingController _hpPtsCtrl;
-  late TextEditingController _staminaPtsCtrl;
-  late TextEditingController _oxygenePtsCtrl;
-  late TextEditingController _nourriturePtsCtrl;
-  late TextEditingController _poidsPtsCtrl;
-  late TextEditingController _degatsPtsCtrl;
-  late TextEditingController _vitessePtsCtrl;
+  late TextEditingController _hpBaseCtrl;
+  late TextEditingController _hpMutaCtrl;
+  late TextEditingController _hpPersoCtrl;
+  late TextEditingController _staminaBaseCtrl;
+  late TextEditingController _staminaMutaCtrl;
+  late TextEditingController _staminaPersoCtrl;
+  late TextEditingController _oxygeneBaseCtrl;
+  late TextEditingController _oxygeneMutaCtrl;
+  late TextEditingController _oxygenePersoCtrl;
+  late TextEditingController _nourritureBaseCtrl;
+  late TextEditingController _nourritureMutaCtrl;
+  late TextEditingController _nourriturePersoCtrl;
+  late TextEditingController _poidsBaseCtrl;
+  late TextEditingController _poidsMutaCtrl;
+  late TextEditingController _poidsPersoCtrl;
+  late TextEditingController _degatsBaseCtrl;
+  late TextEditingController _degatsMutaCtrl;
+  late TextEditingController _degatsPersoCtrl;
 
   late String _espece;
   late String _sexe;
@@ -62,19 +74,69 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
 
   bool _isSaving = false;
 
+  int? _activeRegionIndex;
+
   static const List<String> _regionNames = [
-    'Corps',
-    'Tête',
-    'Dos',
-    'Ventre',
-    'Pattes',
-    'Queue',
+    '0', '1', '2', '3', '4', '5',
   ];
+
+  double _parseDouble(String text) {
+    return double.tryParse(text.trim().replaceAll(',', '.')) ?? 0.0;
+  }
+
+  Map<String, List<int>> _parsePointsFromNotes(String? notes) {
+    final result = <String, List<int>>{};
+    if (notes == null) return result;
+    final regex = RegExp(r'\[PTS:(.+?)\]');
+    final match = regex.firstMatch(notes);
+    if (match == null) return result;
+
+    final content = match.group(1)!;
+    for (final part in content.split(',')) {
+      final kv = part.split('=');
+      if (kv.length != 2) continue;
+      final key = kv[0].trim();
+      final values = kv[1].trim().split('/');
+      if (values.length == 3) {
+        result[key] = [
+          int.tryParse(values[0]) ?? 0,
+          int.tryParse(values[1]) ?? 0,
+          int.tryParse(values[2]) ?? 0,
+        ];
+      }
+    }
+    return result;
+  }
+
+  String _buildPointsBlock() {
+    final entries = <String>[];
+    void add(String key, TextEditingController b, TextEditingController m,
+        TextEditingController p) {
+      final bv = int.tryParse(b.text.trim()) ?? 0;
+      final mv = int.tryParse(m.text.trim()) ?? 0;
+      final pv = int.tryParse(p.text.trim()) ?? 0;
+      if (bv > 0 || mv > 0 || pv > 0) {
+        entries.add('$key=$bv/$mv/$pv');
+      }
+    }
+
+    add('hp', _hpBaseCtrl, _hpMutaCtrl, _hpPersoCtrl);
+    add('stamina', _staminaBaseCtrl, _staminaMutaCtrl, _staminaPersoCtrl);
+    add('oxygene', _oxygeneBaseCtrl, _oxygeneMutaCtrl, _oxygenePersoCtrl);
+    add('nourriture', _nourritureBaseCtrl, _nourritureMutaCtrl,
+        _nourriturePersoCtrl);
+    add('poids', _poidsBaseCtrl, _poidsMutaCtrl, _poidsPersoCtrl);
+    add('degats', _degatsBaseCtrl, _degatsMutaCtrl, _degatsPersoCtrl);
+
+    if (entries.isEmpty) return '';
+    return '[PTS:${entries.join(',')}]';
+  }
 
   @override
   void initState() {
     super.initState();
     final d = widget.dino;
+    final pts = _parsePointsFromNotes(d?.notes);
 
     _nomCtrl = TextEditingController(
       text: widget.isDuplicate && d != null
@@ -84,36 +146,54 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     _niveauCtrl = TextEditingController(
       text: d != null ? d.niveau.toString() : '0',
     );
-    _notesCtrl = TextEditingController(text: d?.notes ?? '');
 
-    _hpCtrl = TextEditingController(text: d != null ? d.hp.toString() : '');
-    _staminaCtrl =
-        TextEditingController(text: d != null ? d.stamina.toString() : '');
-    _oxygeneCtrl =
-        TextEditingController(text: d != null ? d.oxygene.toString() : '');
+    final rawNotes = d?.notes ?? '';
+    final cleanNotes = rawNotes.replaceAll(RegExp(r'\[PTS:.+?\]'), '').trim();
+    _notesCtrl = TextEditingController(text: cleanNotes);
+
+    _hpCtrl = TextEditingController(text: d != null ? '${d.hp}' : '');
+    _staminaCtrl = TextEditingController(text: d != null ? '${d.stamina}' : '');
+    _oxygeneCtrl = TextEditingController(text: d != null ? '${d.oxygene}' : '');
     _nourritureCtrl =
-        TextEditingController(text: d != null ? d.nourriture.toString() : '');
-    _poidsCtrl =
-        TextEditingController(text: d != null ? d.poids.toString() : '');
-    _degatsCtrl =
-        TextEditingController(text: d != null ? d.degats.toString() : '');
-    _vitesseCtrl =
-        TextEditingController(text: d != null ? d.vitesse.toString() : '');
+        TextEditingController(text: d != null ? '${d.nourriture}' : '');
+    _poidsCtrl = TextEditingController(text: d != null ? '${d.poids}' : '');
+    _degatsCtrl = TextEditingController(text: d != null ? '${d.degats}' : '');
 
-    _hpPtsCtrl =
-        TextEditingController(text: d != null ? d.hpPoints.toString() : '0');
-    _staminaPtsCtrl = TextEditingController(
-        text: d != null ? d.staminaPoints.toString() : '0');
-    _oxygenePtsCtrl = TextEditingController(
-        text: d != null ? d.oxygenePoints.toString() : '0');
-    _nourriturePtsCtrl = TextEditingController(
-        text: d != null ? d.nourriturePoints.toString() : '0');
-    _poidsPtsCtrl = TextEditingController(
-        text: d != null ? d.poidsPoints.toString() : '0');
-    _degatsPtsCtrl = TextEditingController(
-        text: d != null ? d.degatsPoints.toString() : '0');
-    _vitessePtsCtrl = TextEditingController(
-        text: d != null ? d.vitessePoints.toString() : '0');
+    _hpBaseCtrl = TextEditingController(text: '${pts['hp']?[0] ?? 0}');
+    _hpMutaCtrl = TextEditingController(text: '${pts['hp']?[1] ?? 0}');
+    _hpPersoCtrl = TextEditingController(text: '${pts['hp']?[2] ?? 0}');
+
+    _staminaBaseCtrl =
+        TextEditingController(text: '${pts['stamina']?[0] ?? 0}');
+    _staminaMutaCtrl =
+        TextEditingController(text: '${pts['stamina']?[1] ?? 0}');
+    _staminaPersoCtrl =
+        TextEditingController(text: '${pts['stamina']?[2] ?? 0}');
+
+    _oxygeneBaseCtrl =
+        TextEditingController(text: '${pts['oxygene']?[0] ?? 0}');
+    _oxygeneMutaCtrl =
+        TextEditingController(text: '${pts['oxygene']?[1] ?? 0}');
+    _oxygenePersoCtrl =
+        TextEditingController(text: '${pts['oxygene']?[2] ?? 0}');
+
+    _nourritureBaseCtrl =
+        TextEditingController(text: '${pts['nourriture']?[0] ?? 0}');
+    _nourritureMutaCtrl =
+        TextEditingController(text: '${pts['nourriture']?[1] ?? 0}');
+    _nourriturePersoCtrl =
+        TextEditingController(text: '${pts['nourriture']?[2] ?? 0}');
+
+    _poidsBaseCtrl = TextEditingController(text: '${pts['poids']?[0] ?? 0}');
+    _poidsMutaCtrl = TextEditingController(text: '${pts['poids']?[1] ?? 0}');
+    _poidsPersoCtrl = TextEditingController(text: '${pts['poids']?[2] ?? 0}');
+
+    _degatsBaseCtrl =
+        TextEditingController(text: '${pts['degats']?[0] ?? 0}');
+    _degatsMutaCtrl =
+        TextEditingController(text: '${pts['degats']?[1] ?? 0}');
+    _degatsPersoCtrl =
+        TextEditingController(text: '${pts['degats']?[2] ?? 0}');
 
     _espece = d?.espece ?? 'Rex';
     _sexe = d?.sexe ?? 'Inconnu';
@@ -146,14 +226,24 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     _nourritureCtrl.dispose();
     _poidsCtrl.dispose();
     _degatsCtrl.dispose();
-    _vitesseCtrl.dispose();
-    _hpPtsCtrl.dispose();
-    _staminaPtsCtrl.dispose();
-    _oxygenePtsCtrl.dispose();
-    _nourriturePtsCtrl.dispose();
-    _poidsPtsCtrl.dispose();
-    _degatsPtsCtrl.dispose();
-    _vitessePtsCtrl.dispose();
+    _hpBaseCtrl.dispose();
+    _hpMutaCtrl.dispose();
+    _hpPersoCtrl.dispose();
+    _staminaBaseCtrl.dispose();
+    _staminaMutaCtrl.dispose();
+    _staminaPersoCtrl.dispose();
+    _oxygeneBaseCtrl.dispose();
+    _oxygeneMutaCtrl.dispose();
+    _oxygenePersoCtrl.dispose();
+    _nourritureBaseCtrl.dispose();
+    _nourritureMutaCtrl.dispose();
+    _nourriturePersoCtrl.dispose();
+    _poidsBaseCtrl.dispose();
+    _poidsMutaCtrl.dispose();
+    _poidsPersoCtrl.dispose();
+    _degatsBaseCtrl.dispose();
+    _degatsMutaCtrl.dispose();
+    _degatsPersoCtrl.dispose();
     super.dispose();
   }
 
@@ -183,6 +273,18 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
 
     final bool isNewDino = widget.dino == null || widget.isDuplicate;
 
+    final userNotes = _notesCtrl.text.trim();
+    final ptsBlock = _buildPointsBlock();
+    final finalNotes =
+        ptsBlock.isNotEmpty ? '$userNotes\n$ptsBlock' : userNotes;
+
+    int totalPts(TextEditingController b, TextEditingController m,
+        TextEditingController p) {
+      return (int.tryParse(b.text.trim()) ?? 0) +
+          (int.tryParse(m.text.trim()) ?? 0) +
+          (int.tryParse(p.text.trim()) ?? 0);
+    }
+
     return Dino(
       id: isNewDino ? null : widget.dino!.id,
       nom: _nomCtrl.text.trim(),
@@ -190,23 +292,24 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
       sexe: _sexe,
       role: roleFromTag,
       niveau: int.tryParse(_niveauCtrl.text.trim()) ?? 0,
-      hp: int.tryParse(_hpCtrl.text.trim()) ?? 0,
-      stamina: int.tryParse(_staminaCtrl.text.trim()) ?? 0,
-      oxygene: int.tryParse(_oxygeneCtrl.text.trim()) ?? 0,
-      nourriture: int.tryParse(_nourritureCtrl.text.trim()) ?? 0,
-      poids: int.tryParse(_poidsCtrl.text.trim()) ?? 0,
-      degats:
-          double.tryParse(_degatsCtrl.text.trim().replaceAll(',', '.')) ?? 0.0,
-      vitesse:
-          double.tryParse(_vitesseCtrl.text.trim().replaceAll(',', '.')) ??
-              100.0,
-      hpPoints: _parsePtsTotal(_hpPtsCtrl.text),
-      staminaPoints: _parsePtsTotal(_staminaPtsCtrl.text),
-      oxygenePoints: _parsePtsTotal(_oxygenePtsCtrl.text),
-      nourriturePoints: _parsePtsTotal(_nourriturePtsCtrl.text),
-      poidsPoints: _parsePtsTotal(_poidsPtsCtrl.text),
-      degatsPoints: _parsePtsTotal(_degatsPtsCtrl.text),
-      vitessePoints: _parsePtsTotal(_vitessePtsCtrl.text),
+      hp: _parseDouble(_hpCtrl.text).round(),
+      stamina: _parseDouble(_staminaCtrl.text).round(),
+      oxygene: _parseDouble(_oxygeneCtrl.text).round(),
+      nourriture: _parseDouble(_nourritureCtrl.text).round(),
+      poids: _parseDouble(_poidsCtrl.text).round(),
+      degats: _parseDouble(_degatsCtrl.text),
+      vitesse: 100.0,
+      hpPoints: totalPts(_hpBaseCtrl, _hpMutaCtrl, _hpPersoCtrl),
+      staminaPoints:
+          totalPts(_staminaBaseCtrl, _staminaMutaCtrl, _staminaPersoCtrl),
+      oxygenePoints:
+          totalPts(_oxygeneBaseCtrl, _oxygeneMutaCtrl, _oxygenePersoCtrl),
+      nourriturePoints: totalPts(
+          _nourritureBaseCtrl, _nourritureMutaCtrl, _nourriturePersoCtrl),
+      poidsPoints: totalPts(_poidsBaseCtrl, _poidsMutaCtrl, _poidsPersoCtrl),
+      degatsPoints:
+          totalPts(_degatsBaseCtrl, _degatsMutaCtrl, _degatsPersoCtrl),
+      vitessePoints: 0,
       couleur0: Dino.encodeColor(_couleurs[0].id, _couleurs[0].hex),
       couleur1: Dino.encodeColor(_couleurs[1].id, _couleurs[1].hex),
       couleur2: Dino.encodeColor(_couleurs[2].id, _couleurs[2].hex),
@@ -215,30 +318,62 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
       couleur5: Dino.encodeColor(_couleurs[5].id, _couleurs[5].hex),
       tagVersion: _tagVersion,
       tags: List<String>.from(_tags),
-      notes: _notesCtrl.text.trim(),
+      notes: finalNotes,
       dateAjout: (widget.dino == null || widget.isDuplicate)
           ? DateTime.now()
           : widget.dino!.dateAjout,
     );
   }
 
-  int _parsePtsTotal(String text) {
-    final trimmed = text.trim();
-    if (trimmed.contains('+')) {
-      final parts = trimmed.split('+');
-      int total = 0;
-      for (final p in parts) {
-        total += int.tryParse(p.trim()) ?? 0;
-      }
-      return total;
-    }
-    return int.tryParse(trimmed) ?? 0;
-  }
+  // ─────────────── SCANNER OCR — ⛔ DÉSACTIVÉ TEMPORAIREMENT ───────────────
 
-  // ─────────────── SCANNER OCR ───────────────
+  Future<void> _launchScanner() async {
+    // ⛔ Fonctionnalité temporairement désactivée — en cours de correction
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.bgCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.construction_rounded,
+                color: Colors.orangeAccent, size: 22),
+            const SizedBox(width: 10),
+            Text(
+              'Fonctionnalité désactivée',
+              style: GoogleFonts.exo2(color: Colors.white, fontSize: 15),
+            ),
+          ],
+        ),
+        content: Text(
+          'Le scanner OCR (cryopod / jumelles Tek) est temporairement '
+          'indisponible pendant une correction.\n\n'
+          'Veuillez saisir les données manuellement.',
+          style: GoogleFonts.exo2(
+            color: Colors.white.withValues(alpha: 0.7),
+            fontSize: 13,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.orangeAccent,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text('OK',
+                style:
+                    GoogleFonts.exo2(fontWeight: FontWeight.w800, fontSize: 12)),
+          ),
+        ],
+      ),
+    );
 
-  /// Lance le scan OCR et pré-remplit tous les champs avec le résultat
-   Future<void> _launchScanner() async {
+    // ── Code original conservé ci-dessous pour réactivation ultérieure ──
+    /*
     final result = await DinoScanHelper.launchScan(context);
     if (result == null) return;
     if (!mounted) return;
@@ -259,7 +394,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         }
       }
 
-      // Stats corrigées à 0% imprint pour HP, Stamina, Weight, Melee
       final imprint = result.imprintPercent ?? 0;
       final imprintMultiplier = 1.0 + (0.2 * imprint / 100.0);
 
@@ -274,11 +408,9 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         _staminaCtrl.text = corrected.round().toString();
       }
       if (result.oxygen?.maxValue != null) {
-        // Oxygen PAS affecté par l'imprint
         _oxygeneCtrl.text = result.oxygen!.maxValue!.round().toString();
       }
       if (result.food?.maxValue != null) {
-        // Food PAS affecté par l'imprint
         _nourritureCtrl.text = result.food!.maxValue!.round().toString();
       }
       if (result.weight?.maxValue != null) {
@@ -291,22 +423,14 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         final corrected = imprint > 0 ? raw / imprintMultiplier : raw;
         _degatsCtrl.text = corrected.toStringAsFixed(1);
       }
-      if (result.speed?.maxValue != null) {
-        // Speed: l'imprint ajoute un bonus fixe, pas multiplicatif
-        // En pratique on ne corrige pas la speed, elle est souvent 100%
-        _vitesseCtrl.text = result.speed!.maxValue!.toStringAsFixed(1);
-      }
 
-      // Points (inchangés par l'imprint, ce sont les points bruts)
-      if (result.hp != null) _hpPtsCtrl.text = result.pointsDisplayFor(result.hp);
-      if (result.stamina != null) _staminaPtsCtrl.text = result.pointsDisplayFor(result.stamina);
-      if (result.oxygen != null) _oxygenePtsCtrl.text = result.pointsDisplayFor(result.oxygen);
-      if (result.food != null) _nourriturePtsCtrl.text = result.pointsDisplayFor(result.food);
-      if (result.weight != null) _poidsPtsCtrl.text = result.pointsDisplayFor(result.weight);
-      if (result.melee != null) _degatsPtsCtrl.text = result.pointsDisplayFor(result.melee);
-      if (result.speed != null) _vitessePtsCtrl.text = result.pointsDisplayFor(result.speed);
+      if (result.hp != null) _hpBaseCtrl.text = '${result.hp!.wildPoints ?? 0}';
+      if (result.stamina != null) _staminaBaseCtrl.text = '${result.stamina!.wildPoints ?? 0}';
+      if (result.oxygen != null) _oxygeneBaseCtrl.text = '${result.oxygen!.wildPoints ?? 0}';
+      if (result.food != null) _nourritureBaseCtrl.text = '${result.food!.wildPoints ?? 0}';
+      if (result.weight != null) _poidsBaseCtrl.text = '${result.weight!.wildPoints ?? 0}';
+      if (result.melee != null) _degatsBaseCtrl.text = '${result.melee!.wildPoints ?? 0}';
 
-      // Couleurs
       for (int i = 0; i < 6; i++) {
         final colorId = result.colorIds[i];
         if (colorId > 0) {
@@ -315,7 +439,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         }
       }
 
-      // Tags
       if (result.status != null) {
         if (result.status!.toLowerCase().contains('badass') && !_tags.contains('Badass')) {
           _tags.add('Badass');
@@ -325,7 +448,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         if (!_tags.contains('Mutant')) _tags.add('Mutant');
       }
 
-      // Notes
       final notesParts = <String>[];
       notesParts.add('Import OCR (${result.sourceType.label})');
       if (imprint > 0) {
@@ -341,253 +463,12 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-            'Données importées (${result.sourceType.label})${(result.imprintPercent ?? 0) > 0 ? ' — stats corrigées imprint' : ''} — vérifiez et sauvegardez'),
+        content: Text('Données importées (${result.sourceType.label})${(result.imprintPercent ?? 0) > 0 ? ' — stats corrigées imprint' : ''} — vérifiez et sauvegardez'),
         backgroundColor: AppTheme.success,
         duration: const Duration(seconds: 3),
       ),
     );
-  }
-
-  /// Affiche le résumé du scan et retourne true si l'utilisateur confirme
-  Future<bool?> _showScanResultDialog(DinoOcrResult result) async {
-    return showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.bgCard,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(
-              result.sourceType == OcrSourceType.tekBinoculars
-                  ? Icons.visibility
-                  : Icons.ac_unit_rounded,
-              color: const Color(0xFF00E5FF),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Résultat du scan',
-                      style: GoogleFonts.exo2(
-                          color: Colors.white, fontSize: 16)),
-                  Text('Source: ${result.sourceType.label}',
-                      style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          fontSize: 11)),
-                ],
-              ),
-            ),
-          ],
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _scanLine('Espèce', result.species ?? '?'),
-                _scanLine('Niveau', '${result.level ?? '?'}'),
-                _scanLine('Sexe', result.sex ?? '?'),
-                if (result.status != null)
-                  _scanLine('Statut', result.status!),
-                const Divider(color: Colors.white24, height: 20),
-                _scanStatLine('HP', result.hp),
-                _scanStatLine('Stamina', result.stamina),
-                _scanStatLine('Oxygen', result.oxygen),
-                _scanStatLine('Food', result.food),
-                _scanStatLine('Weight', result.weight),
-                _scanStatLine('Melee', result.melee),
-                _scanStatLine('Speed', result.speed),
-                const Divider(color: Colors.white24, height: 20),
-                _scanLine(
-                  'Couleurs',
-                  result.colorIds
-                      .map((c) => c > 0 ? '$c' : '-')
-                      .join(' | '),
-                ),
-                const SizedBox(height: 6),
-                // Aperçu visuel couleurs
-                Row(
-                  children: List.generate(6, (i) {
-                    final id = result.colorIds[i];
-                    final hex =
-                        id > 0 ? DinoScanHelper.getColorHex(id) : '#333333';
-                    return Expanded(
-                      child: Container(
-                        height: 24,
-                        margin: EdgeInsets.only(right: i < 5 ? 3 : 0),
-                        decoration: BoxDecoration(
-                          color: _parseHex(hex),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color: id > 0
-                                ? Colors.white.withValues(alpha: 0.4)
-                                : Colors.white.withValues(alpha: 0.1),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          id > 0 ? '$id' : '-',
-                          style: TextStyle(
-                            color:
-                                id > 0 ? Colors.white : Colors.white24,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            shadows: id > 0
-                                ? [
-                                    const Shadow(
-                                        color: Colors.black, blurRadius: 3)
-                                  ]
-                                : null,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-                if (result.mutationsMale != null ||
-                    result.mutationsFemale != null) ...[
-                  const SizedBox(height: 8),
-                  _scanLine('Mutations',
-                      '♂ ${result.mutationsMale ?? '?'}  ♀ ${result.mutationsFemale ?? '?'}'),
-                ],
-                if (result.imprinter != null) ...[
-                  const SizedBox(height: 4),
-                  _scanLine('Imprint',
-                      '${result.imprintPercent ?? '?'}% - ${result.imprinter}'),
-                ],
-                const SizedBox(height: 12),
-                // Texte brut
-                ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  title: Text('Texte brut OCR',
-                      style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.4),
-                          fontSize: 11)),
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: SelectableText(
-                        result.rawText,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.4),
-                          fontSize: 9,
-                          fontFamily: 'monospace',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Annuler',
-                style: GoogleFonts.exo2(color: AppTheme.textMuted)),
-          ),
-          FilledButton.icon(
-            onPressed: () => Navigator.pop(ctx, true),
-            icon: const Icon(Icons.check_circle_outline, size: 18),
-            label: Text('APPLIQUER',
-                style: GoogleFonts.exo2(
-                    fontWeight: FontWeight.w800, fontSize: 12)),
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF00E5FF),
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _scanLine(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(label,
-                style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    fontSize: 12)),
-          ),
-          Expanded(
-            child: Text(value,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _scanStatLine(String label, OcrStat? stat) {
-    if (stat == null) return _scanLine(label, '—');
-
-    final value = stat.isPercent
-        ? '${stat.maxValue?.toStringAsFixed(1) ?? '?'}%'
-        : '${stat.maxValue?.round() ?? '?'}';
-
-    final hasPoints = stat.wildPoints != null;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(label,
-                style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    fontSize: 12)),
-          ),
-          Text(value,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600)),
-          if (hasPoints) ...[
-            const SizedBox(width: 8),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-              decoration: BoxDecoration(
-                color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(
-                    color: const Color(0xFF00E5FF).withValues(alpha: 0.3)),
-              ),
-              child: Text(
-                stat.pointsDisplay,
-                style: const TextStyle(
-                  color: Color(0xFF00E5FF),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
+    */
   }
 
   // ─────────────── SAUVEGARDE ───────────────
@@ -663,11 +544,10 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
       'nourriture': _nourritureCtrl,
       'poids': _poidsCtrl,
       'degats': _degatsCtrl,
-      'vitesse': _vitesseCtrl,
     };
     m.forEach((k, c) {
-      final v = double.tryParse(c.text.trim().replaceAll(',', '.'));
-      if (v != null && v > 0) stats[k] = v;
+      final v = _parseDouble(c.text);
+      if (v > 0) stats[k] = v;
     });
     if (stats.isEmpty) {
       if (!mounted) return;
@@ -754,20 +634,19 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
           ),
         ),
         actions: [
-          // Bouton scanner dans l'AppBar aussi
+          // ⛔ Bouton scanner — visible mais désactivé visuellement
           Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.6),
               shape: BoxShape.circle,
               border: Border.all(
-                  color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
-                  width: 1),
+                  color: Colors.orangeAccent.withValues(alpha: 0.3), width: 1),
             ),
             child: IconButton(
               icon: const Icon(Icons.document_scanner_rounded,
-                  color: Color(0xFF00E5FF)),
-              tooltip: 'Scanner cryopod / jumelles Tek',
+                  color: Colors.orangeAccent),
+              tooltip: 'Scanner — temporairement désactivé',
               onPressed: _launchScanner,
             ),
           ),
@@ -830,50 +709,139 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     );
   }
 
+  // ── Zone visuelle principale de la carte ──
   Widget _buildVisualSection(List<String> hexColors, int niveau) {
-    return Container(
+    final assetPath =
+        'assets/images/dinos/${_espece.replaceAll(' ', '_')}_ASA.png';
+    final existingImage = widget.dino?.image;
+    final hasCustomImage = existingImage != null && existingImage.isNotEmpty;
+
+    return SizedBox(
       height: 280,
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment.center,
-          radius: 1.2,
-          colors: [
-            _roleColor.withValues(alpha: 0.2),
-            const Color(0xFF0F1115),
-          ],
-        ),
-        border: const Border(
-          bottom: BorderSide(color: Color(0xFF5A5A5A), width: 2),
-        ),
-      ),
       child: Stack(
         children: [
-          // Image dino — CLIQUABLE pour changer d'espèce
+
+          // ── FOND FLOUTÉ — même modèle que dino_detail_screen ──
+          Positioned.fill(
+            child: ClipRect(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  hasCustomImage
+                      ? Image.file(
+                          File(existingImage),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _buildFallbackBg(),
+                        )
+                      : Image.asset(
+                          assetPath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _buildFallbackBg(),
+                        ),
+                  BackdropFilter(
+                    filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: const SizedBox.expand(),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.50),
+                          _roleColor.withOpacity(0.20),
+                          Colors.black.withOpacity(0.65),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ── BORDURE BASSE ──
+          Positioned(
+            left: 0, right: 0, bottom: 0,
+            child: Container(height: 2, color: const Color(0xFF5A5A5A)),
+          ),
+
+          // ── IMAGE DINO cliquable → picker espèce ──
           Positioned.fill(
             child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
               onTap: _showSpeciesPickerDialog,
+              behavior: HitTestBehavior.opaque,
               child: Padding(
                 padding: const EdgeInsets.all(20),
-                child: DinoImageWidget(
-                  species: _espece,
-                  regionColors: hexColors,
-                  width: double.infinity,
-                  height: 280,
-                  fit: BoxFit.contain,
-                  showColorBand: false,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    hasCustomImage
+                        ? Image.file(
+                            File(existingImage),
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => DinoImageWidget(
+                              species: _espece,
+                              regionColors: hexColors,
+                              width: double.infinity,
+                              height: 240,
+                              fit: BoxFit.contain,
+                              showColorBand: false,
+                              alignment: Alignment.center,
+                            ),
+                          )
+                        : DinoImageWidget(
+                            species: _espece,
+                            regionColors: hexColors,
+                            width: double.infinity,
+                            height: 240,
+                            fit: BoxFit.contain,
+                            showColorBand: false,
+                            alignment: Alignment.center,
+                          ),
+                    // ── Hint "changer d'espèce" ──
+                    Positioned(
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.55),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.15),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.touch_app_rounded,
+                                color: Colors.white.withValues(alpha: 0.4),
+                                size: 11),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Changer d\'espèce',
+                              style: GoogleFonts.exo2(
+                                color: Colors.white.withValues(alpha: 0.4),
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
 
-          // Niveau (cliquable)
+          // ── BADGE NIVEAU cliquable ──
           Positioned(
-            top: 16,
-            left: 16,
+            top: 16, left: 16,
             child: GestureDetector(
-              onTap: () =>
-                  _editField('Niveau', _niveauCtrl, isNumber: true),
+              onTap: () => _inlineEdit(_niveauCtrl),
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -881,8 +849,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                   color: Colors.black.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                      color: DinoHelpers.getCardRarityColor(niveau),
-                      width: 2),
+                      color: DinoHelpers.getCardRarityColor(niveau), width: 2),
                   boxShadow: [
                     BoxShadow(
                       color: DinoHelpers.getCardRarityColor(niveau)
@@ -891,73 +858,42 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'LVL ${_niveauCtrl.text}',
-                      style: GoogleFonts.exo2(
-                        color: DinoHelpers.getCardRarityColor(niveau),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.edit,
-                        size: 12,
-                        color: DinoHelpers.getCardRarityColor(niveau)
-                            .withValues(alpha: 0.6)),
-                  ],
+                child: Text(
+                  'LVL $niveau',
+                  style: GoogleFonts.exo2(
+                    color: DinoHelpers.getCardRarityColor(niveau),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
             ),
           ),
 
-          // Sexe (cliquable)
+          // ── BADGE SEXE cliquable ──
           Positioned(
-            top: 16,
-            right: 16,
+            top: 16, right: 16,
             child: GestureDetector(
               onTap: _cycleSexe,
               child: _buildSexBadge(),
             ),
           ),
-
-          // Changer d'espèce (petit badge)
-          Positioned(
-            bottom: 10,
-            right: 10,
-            child: GestureDetector(
-              onTap: _showSpeciesPickerDialog,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.2)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.swap_horiz,
-                        color: Colors.white.withValues(alpha: 0.6),
-                        size: 14),
-                    const SizedBox(width: 4),
-                    Text(
-                      _espece,
-                      style: GoogleFonts.exo2(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFallbackBg() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.center,
+          radius: 1.2,
+          colors: [
+            _roleColor.withValues(alpha: 0.35),
+            const Color(0xFF0F1115),
+          ],
+        ),
       ),
     );
   }
@@ -1007,8 +943,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
       alignment: Alignment.center,
       child: Text(
         _sexeDisplay(),
-        style: TextStyle(
-            color: sexeColor, fontSize: 22, fontWeight: FontWeight.w900),
+        style:
+            TextStyle(color: sexeColor, fontSize: 22, fontWeight: FontWeight.w900),
       ),
     );
   }
@@ -1019,10 +955,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.black.withValues(alpha: 0.4),
-            Colors.transparent
-          ],
+          colors: [Colors.black.withValues(alpha: 0.4), Colors.transparent],
         ),
         border: const Border(
             bottom: BorderSide(color: Color(0xFF5A5A5A), width: 1)),
@@ -1042,8 +975,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                   fontSize: 32,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 2.5,
-                  shadows: [
-                    const Shadow(
+                  shadows: const [
+                    Shadow(
                         color: Colors.black,
                         blurRadius: 6,
                         offset: Offset(2, 2))
@@ -1116,6 +1049,10 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     );
   }
 
+  // ═══════════════════════════════════════════════
+  // GRILLE DE STATS EDITABLE
+  // ═══════════════════════════════════════════════
+
   Widget _buildEditableStatGrid() {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -1124,33 +1061,81 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
           Row(
             children: [
               Expanded(
-                  child: _editableStatCard('❤️', 'VIE', _hpCtrl, _hpPtsCtrl,
-                      const Color(0xFF4CAF50))),
+                child: _editableStatTile(
+                  emoji: '❤️',
+                  label: 'VIE',
+                  valCtrl: _hpCtrl,
+                  baseCtrl: _hpBaseCtrl,
+                  mutaCtrl: _hpMutaCtrl,
+                  persoCtrl: _hpPersoCtrl,
+                  color: const Color(0xFF4CAF50),
+                ),
+              ),
               const SizedBox(width: 10),
               Expanded(
-                  child: _editableStatCard('⚡', 'STAM', _staminaCtrl,
-                      _staminaPtsCtrl, const Color(0xFFFFD700))),
+                child: _editableStatTile(
+                  emoji: '⚡',
+                  label: 'STAM',
+                  valCtrl: _staminaCtrl,
+                  baseCtrl: _staminaBaseCtrl,
+                  mutaCtrl: _staminaMutaCtrl,
+                  persoCtrl: _staminaPersoCtrl,
+                  color: const Color(0xFFFFD700),
+                ),
+              ),
               const SizedBox(width: 10),
               Expanded(
-                  child: _editableStatCard('⚔️', 'ATTAQUE', _degatsCtrl,
-                      _degatsPtsCtrl, const Color(0xFFEF4444),
-                      suffix: '%', isDouble: true)),
+                child: _editableStatTile(
+                  emoji: '⚔️',
+                  label: 'ATTAQUE',
+                  valCtrl: _degatsCtrl,
+                  baseCtrl: _degatsBaseCtrl,
+                  mutaCtrl: _degatsMutaCtrl,
+                  persoCtrl: _degatsPersoCtrl,
+                  color: const Color(0xFFEF4444),
+                  suffix: '%',
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                  child: _editableStatCard('⚖️', 'POIDS', _poidsCtrl,
-                      _poidsPtsCtrl, const Color(0xFF3B82F6))),
+                child: _editableStatTile(
+                  emoji: '⚖️',
+                  label: 'POIDS',
+                  valCtrl: _poidsCtrl,
+                  baseCtrl: _poidsBaseCtrl,
+                  mutaCtrl: _poidsMutaCtrl,
+                  persoCtrl: _poidsPersoCtrl,
+                  color: const Color(0xFF3B82F6),
+                ),
+              ),
               const SizedBox(width: 10),
               Expanded(
-                  child: _editableStatCard('🍖', 'FOOD', _nourritureCtrl,
-                      _nourriturePtsCtrl, const Color(0xFF8B5CF6))),
+                child: _editableStatTile(
+                  emoji: '🍖',
+                  label: 'FOOD',
+                  valCtrl: _nourritureCtrl,
+                  baseCtrl: _nourritureBaseCtrl,
+                  mutaCtrl: _nourritureMutaCtrl,
+                  persoCtrl: _nourriturePersoCtrl,
+                  color: const Color(0xFF8B5CF6),
+                ),
+              ),
               const SizedBox(width: 10),
               Expanded(
-                  child: _editableStatCard('🫧', 'OXYGENE', _oxygeneCtrl,
-                      _oxygenePtsCtrl, const Color(0xFF10B981))),
+                child: _editableStatTile(
+                  emoji: '🫧',
+                  label: 'OXYGENE',
+                  valCtrl: _oxygeneCtrl,
+                  baseCtrl: _oxygeneBaseCtrl,
+                  mutaCtrl: _oxygeneMutaCtrl,
+                  persoCtrl: _oxygenePersoCtrl,
+                  color: const Color(0xFF10B981),
+                ),
+              ),
             ],
           ),
         ],
@@ -1158,171 +1143,608 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     );
   }
 
-  Widget _editableStatCard(String emoji, String label,
-      TextEditingController valCtrl, TextEditingController ptsCtrl, Color color,
-      {String? suffix, bool isDouble = false}) {
-    final valText = valCtrl.text.isEmpty ? '0' : valCtrl.text;
-    final displayVal = suffix != null ? '$valText$suffix' : valText;
-    final pts = _parsePtsTotal(ptsCtrl.text);
+  Widget _editableStatTile({
+    required String emoji,
+    required String label,
+    required TextEditingController valCtrl,
+    required TextEditingController baseCtrl,
+    required TextEditingController mutaCtrl,
+    required TextEditingController persoCtrl,
+    required Color color,
+    String? suffix,
+  }) {
+    final valText = valCtrl.text.trim();
+    final double valNum = _parseDouble(valText);
+    final bool hasValue = valNum > 0;
+    final String displayVal;
+    if (!hasValue) {
+      displayVal = '';
+    } else if (suffix != null) {
+      displayVal = valNum == valNum.roundToDouble()
+          ? '${valNum.round()}$suffix'
+          : '${valNum.toStringAsFixed(1)}$suffix';
+    } else {
+      displayVal = valNum == valNum.roundToDouble()
+          ? '${valNum.round()}'
+          : valNum.toStringAsFixed(1);
+    }
 
-    return GestureDetector(
-      onTap: () => _editStatDialog(label, valCtrl, ptsCtrl,
-          suffix: suffix, isDouble: isDouble),
-      child: Container(
-        height: 100,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: const Color(0xFF15181E),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFF454545), width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              offset: const Offset(2, 2),
-              blurRadius: 4,
+    final base = int.tryParse(baseCtrl.text.trim()) ?? 0;
+    final muta = int.tryParse(mutaCtrl.text.trim()) ?? 0;
+    final perso = int.tryParse(persoCtrl.text.trim()) ?? 0;
+    final total = base + muta + perso;
+    final hasPoints = total > 0;
+
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: const Color(0xFF15181E),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF454545), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            offset: const Offset(2, 2),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 22)),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: GoogleFonts.exo2(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 26)),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: GoogleFonts.exo2(
-                color: Colors.white.withValues(alpha: 0.7),
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
+          ),
+          const SizedBox(height: 4),
+          GestureDetector(
+            onTap: () => _inlineEdit(valCtrl, isStat: true),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              decoration: BoxDecoration(
+                color: hasValue
+                    ? Colors.transparent
+                    : Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: hasValue
+                      ? Colors.transparent
+                      : Colors.white.withValues(alpha: 0.15),
+                  width: 1,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: hasValue
+                  ? Text(
+                      displayVal,
+                      style: GoogleFonts.exo2(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : Text(
+                      '—',
+                      style: GoogleFonts.exo2(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
+            decoration: BoxDecoration(
+              color: hasPoints
+                  ? const Color(0xFF00E5FF).withValues(alpha: 0.08)
+                  : Colors.white.withValues(alpha: 0.03),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(
+                color: hasPoints
+                    ? const Color(0xFF00E5FF).withValues(alpha: 0.2)
+                    : Colors.white.withValues(alpha: 0.08),
               ),
             ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Flexible(
-                  child: Text(
-                    displayVal,
-                    style: GoogleFonts.exo2(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
+            child: hasPoints
+                ? FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${total}pts',
+                          style: GoogleFonts.exo2(
+                            color: const Color(0xFFFF6B00),
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          child: Text('|',
+                              style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  fontSize: 9)),
+                        ),
+                        _miniPtsBubble(
+                            baseCtrl, base, 'B', const Color(0xFF00E5FF)),
+                        Text(' - ',
+                            style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                fontSize: 8)),
+                        _miniPtsBubble(
+                            mutaCtrl, muta, 'M', const Color(0xFFFF6B00)),
+                        Text(' - ',
+                            style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                fontSize: 8)),
+                        _miniPtsBubble(
+                            persoCtrl, perso, 'P', const Color(0xFF4CAF50)),
+                      ],
                     ),
-                    overflow: TextOverflow.ellipsis,
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _miniPtsBubble(
+                          baseCtrl, base, 'B', const Color(0xFF00E5FF)),
+                      _miniPtsBubble(
+                          mutaCtrl, muta, 'M', const Color(0xFFFF6B00)),
+                      _miniPtsBubble(
+                          persoCtrl, perso, 'P', const Color(0xFF4CAF50)),
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _miniPtsBubble(
+      TextEditingController ctrl, int value, String hint, Color color) {
+    final hasVal = value > 0;
+    return GestureDetector(
+      onTap: () => _inlineEdit(ctrl, hint: hint),
+      child: Container(
+        constraints: const BoxConstraints(minWidth: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+        decoration: BoxDecoration(
+          color: hasVal
+              ? color.withValues(alpha: 0.15)
+              : Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(3),
+          border: Border.all(
+            color: hasVal
+                ? color.withValues(alpha: 0.4)
+                : Colors.white.withValues(alpha: 0.1),
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          hasVal ? '$value' : hint,
+          style: GoogleFonts.exo2(
+            color: hasVal ? color : Colors.white.withValues(alpha: 0.2),
+            fontSize: 8,
+            fontWeight: hasVal ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _inlineEdit(
+    TextEditingController ctrl, {
+    String? hint,
+    bool isStat = false,
+  }) async {
+    final tempCtrl =
+        TextEditingController(text: ctrl.text == '0' ? '' : ctrl.text);
+    final result = await showDialog<String>(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (ctx) => Dialog(
+        backgroundColor: const Color(0xFF1A1E28),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 80),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (hint != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    hint == 'B'
+                        ? 'Points Base'
+                        : hint == 'M'
+                            ? 'Points Muta'
+                            : hint == 'P'
+                                ? 'Points Perso'
+                                : hint,
+                    style: GoogleFonts.exo2(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 12,
+                    ),
                   ),
                 ),
-                if (pts > 0) ...[
-                  const SizedBox(width: 4),
-                  Text(
-                    '${pts}pts',
-                    style: GoogleFonts.exo2(
-                      color: const Color(0xFF00E5FF),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
+              TextField(
+                controller: tempCtrl,
+                autofocus: true,
+                keyboardType: isStat
+                    ? const TextInputType.numberWithOptions(decimal: true)
+                    : TextInputType.number,
+                inputFormatters: isStat
+                    ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))]
+                    : [FilteringTextInputFormatter.digitsOnly],
+                textAlign: TextAlign.center,
+                style: GoogleFonts.exo2(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                ),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFF0A0E1A),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                onSubmitted: (v) => Navigator.pop(ctx, v),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: Text('Annuler',
+                        style: GoogleFonts.exo2(
+                            color: AppTheme.textMuted, fontSize: 12)),
+                  ),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(ctx, tempCtrl.text),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF00E5FF),
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
+                    child: Text('OK',
+                        style: GoogleFonts.exo2(
+                            fontWeight: FontWeight.w800, fontSize: 12)),
                   ),
                 ],
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
+    tempCtrl.dispose();
+
+    if (result != null) {
+      setState(() {
+        ctrl.text = result.isEmpty ? '0' : result;
+      });
+    }
   }
 
-  Widget _buildEditableColorStrip() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF111111),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-      ),
-      child: Row(
-        children: List.generate(6, (i) {
-          final c = _couleurs[i];
-          final isActive =
-              c.id > 0 && c.hex != '#808080' && c.hex != '#7F7F7F';
-          final color =
-              isActive ? _parseHex(c.hex) : const Color(0xFF222222);
+  // ═══════════════════════════════════════════════
+  // BANDE DE COULEURS ÉDITABLE + PREVIEW RÉGION
+  // ═══════════════════════════════════════════════
 
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => _showArkColorPicker(i),
-              onLongPress: () {
-                setState(() => _couleurs[i] = (id: 0, hex: '#808080'));
-              },
-              child: Container(
-                height: 50,
-                margin: EdgeInsets.only(right: i < 5 ? 4 : 0),
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: isActive
-                        ? Colors.white.withValues(alpha: 0.6)
-                        : Colors.white.withValues(alpha: 0.1),
-                    width: 1.5,
+  Widget _buildEditableColorStrip() {
+    return Column(
+      children: [
+        if (_activeRegionIndex != null)
+          _buildRegionPreview(_activeRegionIndex!),
+
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF111111),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          child: Row(
+            children: List.generate(6, (i) {
+              final c = _couleurs[i];
+              final isActive =
+                  c.id > 0 && c.hex != '#808080' && c.hex != '#7F7F7F';
+              final color =
+                  isActive ? _parseHex(c.hex) : const Color(0xFF222222);
+              final isSelected = _activeRegionIndex == i;
+
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => _showArkColorPicker(i),
+                  onLongPress: () {
+                    setState(() {
+                      _couleurs[i] = (id: 0, hex: '#808080');
+                      if (_activeRegionIndex == i) {
+                        _activeRegionIndex = null;
+                      }
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: 50,
+                    margin: EdgeInsets.only(right: i < 5 ? 4 : 0),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: isSelected
+                            ? Colors.red
+                            : isActive
+                                ? Colors.white.withValues(alpha: 0.6)
+                                : Colors.white.withValues(alpha: 0.1),
+                        width: isSelected ? 2.5 : 1.5,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              const BoxShadow(
+                                  color: Colors.red,
+                                  blurRadius: 8,
+                                  spreadRadius: 1)
+                            ]
+                          : isActive
+                              ? [
+                                  BoxShadow(
+                                      color: color.withValues(alpha: 0.5),
+                                      blurRadius: 6)
+                                ]
+                              : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          isActive ? '${c.id}' : '-',
+                          style: TextStyle(
+                            color: isActive
+                                ? (_isLight(color)
+                                    ? Colors.black87
+                                    : Colors.white)
+                                : Colors.white.withValues(alpha: 0.3),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            shadows: isActive
+                                ? [
+                                    Shadow(
+                                      color: _isLight(color)
+                                          ? Colors.white.withValues(alpha: 0.8)
+                                          : Colors.black.withValues(alpha: 0.8),
+                                      blurRadius: 2,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                        ),
+                        Text(
+                          'R$i',
+                          style: TextStyle(
+                            color: isSelected
+                                ? Colors.red
+                                : Colors.white.withValues(alpha: 0.3),
+                            fontSize: 8,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  boxShadow: isActive
-                      ? [
-                          BoxShadow(
-                              color: color.withValues(alpha: 0.5),
-                              blurRadius: 6)
-                        ]
-                      : null,
                 ),
-                alignment: Alignment.center,
-                child: Text(
-                  isActive ? '${c.id}' : '-',
-                  style: TextStyle(
-                    color: isActive
-                        ? (_isLight(color) ? Colors.black87 : Colors.white)
-                        : Colors.white.withValues(alpha: 0.3),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    shadows: isActive
-                        ? [
-                            Shadow(
-                              color: _isLight(color)
-                                  ? Colors.white.withValues(alpha: 0.8)
-                                  : Colors.black.withValues(alpha: 0.8),
-                              blurRadius: 2,
-                            ),
-                          ]
-                        : null,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
+              );
+            }),
+          ),
+        ),
+      ],
     );
   }
 
-  // ── Boutons d'action en bas ──
+  Widget _buildRegionPreview(int regionIndex) {
+    final previewColors = List<String?>.generate(6, (i) {
+      if (i == regionIndex) {
+        final c = _couleurs[i];
+        final hasColor =
+            c.id > 0 && c.hex != '#808080' && c.hex != '#7F7F7F';
+        return hasColor ? c.hex : '#FF2222';
+      }
+      return '#808080';
+    });
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D1117),
+        borderRadius: BorderRadius.circular(8),
+        border:
+            Border.all(color: Colors.red.withValues(alpha: 0.5), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.red.withValues(alpha: 0.15), blurRadius: 12),
+        ],
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 120,
+            height: 90,
+            child: DinoImageWidget(
+              species: _espece,
+              regionColors: previewColors,
+              width: 120,
+              height: 90,
+              fit: BoxFit.contain,
+              showColorBand: false,
+              alignment: Alignment.center,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                            color: Colors.red.withValues(alpha: 0.5)),
+                      ),
+                      child: Text(
+                        'RÉGION $regionIndex',
+                        style: GoogleFonts.exo2(
+                          color: Colors.red,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: () {
+                          final c = _couleurs[regionIndex];
+                          final hasColor = c.id > 0 &&
+                              c.hex != '#808080' &&
+                              c.hex != '#7F7F7F';
+                          return hasColor
+                              ? _parseHex(c.hex)
+                              : const Color(0xFF333333);
+                        }(),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.3)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _couleurs[regionIndex].id > 0
+                              ? 'ID ${_couleurs[regionIndex].id}'
+                              : 'Sans couleur',
+                          style: GoogleFonts.exo2(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          _couleurs[regionIndex].hex.toUpperCase(),
+                          style: GoogleFonts.exo2(
+                            color: Colors.white.withValues(alpha: 0.4),
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Appui long sur la case → réinitialiser',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    fontSize: 9,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => setState(() => _activeRegionIndex = null),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.close,
+                color: Colors.white.withValues(alpha: 0.4),
+                size: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildActionButtons() {
     return Column(
       children: [
-        // Scanner
+        // ⛔ Bouton scanner — désactivé visuellement avec badge "bientôt"
         Row(
           children: [
             Expanded(
-              child: _buildActionButton(
-                icon: Icons.document_scanner_rounded,
-                label: 'SCANNER CRYOPOD / TEK',
-                color: const Color(0xFF00E5FF),
-                onPressed: _launchScanner,
+              child: Stack(
+                children: [
+                  _buildActionButton(
+                    icon: Icons.document_scanner_rounded,
+                    label: 'SCANNER CRYOPOD / TEK',
+                    color: Colors.orangeAccent,
+                    onPressed: _launchScanner,
+                  ),
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.orangeAccent,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'DÉSACTIVÉ',
+                        style: GoogleFonts.exo2(
+                          color: Colors.black,
+                          fontSize: 7,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        // Sauvegarder la DinoCard
         Row(
           children: [
             Expanded(
@@ -1340,7 +1762,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        // Stats et Couleurs vers tracker
         Row(
           children: [
             Expanded(
@@ -1462,106 +1883,13 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
               setState(() => ctrl.text = tempCtrl.text);
               Navigator.pop(ctx);
             },
-            child: Text('OK',
-                style: GoogleFonts.exo2(color: AppTheme.accentPrimary)),
+            child:
+                Text('OK', style: GoogleFonts.exo2(color: AppTheme.accentPrimary)),
           ),
         ],
       ),
     );
     tempCtrl.dispose();
-  }
-
-  Future<void> _editStatDialog(
-    String label,
-    TextEditingController valCtrl,
-    TextEditingController ptsCtrl, {
-    String? suffix,
-    bool isDouble = false,
-  }) async {
-    final tempVal = TextEditingController(text: valCtrl.text);
-    final tempPts = TextEditingController(text: ptsCtrl.text);
-
-    await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.bgCard,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(label,
-            style: GoogleFonts.exo2(color: Colors.white, fontSize: 16)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: tempVal,
-              autofocus: true,
-              keyboardType:
-                  TextInputType.numberWithOptions(decimal: isDouble),
-              inputFormatters: isDouble
-                  ? [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'[\d.,]'))
-                    ]
-                  : [FilteringTextInputFormatter.digitsOnly],
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText:
-                    'Valeur${suffix != null ? ' ($suffix)' : ''}',
-                labelStyle: GoogleFonts.exo2(color: AppTheme.textMuted),
-                filled: true,
-                fillColor: AppTheme.bgPrimary,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: tempPts,
-              keyboardType: TextInputType.text,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[\d+]'))
-              ],
-              style: const TextStyle(color: Colors.cyanAccent),
-              decoration: InputDecoration(
-                labelText: 'Points (ex: 20+196)',
-                labelStyle: GoogleFonts.exo2(color: AppTheme.textMuted),
-                filled: true,
-                fillColor: AppTheme.bgPrimary,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-                helperText: 'Saisir le total ou une addition',
-                helperStyle: GoogleFonts.exo2(
-                    color: AppTheme.textMuted, fontSize: 10),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Annuler',
-                style: GoogleFonts.exo2(color: AppTheme.textMuted)),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                valCtrl.text = tempVal.text;
-                ptsCtrl.text = tempPts.text;
-              });
-              Navigator.pop(ctx);
-            },
-            child: Text('OK',
-                style: GoogleFonts.exo2(color: AppTheme.accentPrimary)),
-          ),
-        ],
-      ),
-    );
-    tempVal.dispose();
-    tempPts.dispose();
   }
 
   Future<void> _editTags() async {
@@ -1578,8 +1906,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
               backgroundColor: AppTheme.bgCard,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
-              title: Text('Tags & Role',
-                  style: GoogleFonts.exo2(color: Colors.white)),
+              title:
+                  Text('Tags & Role', style: GoogleFonts.exo2(color: Colors.white)),
               content: Wrap(
                 spacing: 8,
                 runSpacing: 6,
@@ -1589,9 +1917,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                     return FilterChip(
                       label: Text(tag,
                           style: TextStyle(
-                            color: selected
-                                ? Colors.white
-                                : AppTheme.textSecondary,
+                            color:
+                                selected ? Colors.white : AppTheme.textSecondary,
                             fontSize: 12,
                           )),
                       selected: selected,
@@ -1635,8 +1962,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                         shape: BoxShape.circle,
                         color: AppTheme.bgSecondary,
                         border: Border.all(
-                            color: AppTheme.accentGreen
-                                .withValues(alpha: 0.4)),
+                            color: AppTheme.accentGreen.withValues(alpha: 0.4)),
                       ),
                       child: const Icon(Icons.add,
                           size: 18, color: AppTheme.accentGreen),
@@ -1655,11 +1981,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                     setState(() {
                       _tags = tempTags;
                       final roles = [
-                        'Boss',
-                        'Breed',
-                        'Solid',
-                        'Farm',
-                        'Collection'
+                        'Boss', 'Breed', 'Solid', 'Farm', 'Collection'
                       ];
                       final foundRole = tempTags.firstWhere(
                         (t) => roles.contains(t),
@@ -1670,8 +1992,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                     Navigator.pop(ctx);
                   },
                   child: Text('Valider',
-                      style: GoogleFonts.exo2(
-                          color: AppTheme.accentPrimary)),
+                      style: GoogleFonts.exo2(color: AppTheme.accentPrimary)),
                 ),
               ],
             );
@@ -1687,8 +2008,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.bgCard,
-        title: Text('Nouveau tag',
-            style: GoogleFonts.exo2(color: Colors.white)),
+        title:
+            Text('Nouveau tag', style: GoogleFonts.exo2(color: Colors.white)),
         content: TextField(
           controller: ctrl,
           autofocus: true,
@@ -1708,8 +2029,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Annuler',
-                style: GoogleFonts.exo2(color: AppTheme.textMuted)),
+            child:
+                Text('Annuler', style: GoogleFonts.exo2(color: AppTheme.textMuted)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, ctrl.text),
@@ -1727,6 +2048,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
   }
 
   Future<void> _showArkColorPicker(int index) async {
+    setState(() => _activeRegionIndex = index);
+
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -1744,6 +2067,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
               selectedHex: _couleurs[index].hex,
               regionName: _regionNames[index],
               regionIndex: index,
+              species: _espece,
+              currentColors: _couleurs.map((c) => c.hex).toList(),
               onColorSelected: (result) {
                 if (!mounted) return;
                 setState(() => _couleurs[index] = result);
@@ -1753,6 +2078,10 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         );
       },
     );
+
+    if (mounted) {
+      setState(() => _activeRegionIndex = null);
+    }
   }
 
   Future<void> _showSpeciesPickerDialog() async {
@@ -1787,13 +2116,11 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                     TextField(
                       controller: searchCtrl,
                       onChanged: applyFilter,
-                      style:
-                          const TextStyle(color: AppTheme.textPrimary),
+                      style: const TextStyle(color: AppTheme.textPrimary),
                       decoration: InputDecoration(
                         hintText: 'Rechercher...',
                         hintStyle: TextStyle(
-                            color:
-                                Colors.white.withValues(alpha: 0.4)),
+                            color: Colors.white.withValues(alpha: 0.4)),
                         prefixIcon: const Icon(Icons.search,
                             color: AppTheme.accentPrimary),
                         filled: true,
@@ -1810,8 +2137,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                           ? Center(
                               child: Text('Aucune espèce',
                                   style: TextStyle(
-                                      color: Colors.white
-                                          .withValues(alpha: 0.5))))
+                                      color:
+                                          Colors.white.withValues(alpha: 0.5))))
                           : ListView.builder(
                               itemCount: filtered.length,
                               itemBuilder: (context, index) {
@@ -1827,21 +2154,16 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                                           height: 32,
                                           fit: BoxFit.contain,
                                           errorBuilder: (_, __, ___) =>
-                                              const Icon(
-                                                  Icons.help_outline,
+                                              const Icon(Icons.help_outline,
                                                   color: Colors.white38,
                                                   size: 20),
                                         )
-                                      : const Icon(
-                                          Icons.help_outline,
-                                          color: Colors.white38,
-                                          size: 20),
+                                      : const Icon(Icons.help_outline,
+                                          color: Colors.white38, size: 20),
                                   title: Text(species,
                                       style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13)),
-                                  onTap: () =>
-                                      Navigator.pop(ctx, species),
+                                          color: Colors.white, fontSize: 13)),
+                                  onTap: () => Navigator.pop(ctx, species),
                                 );
                               },
                             ),
@@ -1853,8 +2175,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
                   child: Text('Annuler',
-                      style: GoogleFonts.exo2(
-                          color: AppTheme.accentPrimary)),
+                      style:
+                          GoogleFonts.exo2(color: AppTheme.accentPrimary)),
                 ),
               ],
             );

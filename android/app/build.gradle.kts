@@ -1,10 +1,5 @@
-// android/app/build.gradle.kts
 import java.util.Properties
 import java.io.FileInputStream
-
-
-
-
 
 plugins {
     id("com.android.application")
@@ -12,7 +7,6 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// ── Charger la clé de signature ── ndkVersion = flutter.ndkVersion
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
@@ -23,7 +17,6 @@ android {
     namespace = "com.dinomanager.asa"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -58,12 +51,8 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }

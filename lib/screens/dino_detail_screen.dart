@@ -3,10 +3,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:share_plus/share_plus.dart';
 import '../models/dino.dart';
 import '../theme/app_theme.dart';
 import '../providers/dino_provider.dart';
@@ -15,6 +13,7 @@ import '../widgets/common/dino_stat_grid.dart';
 import '../widgets/common/dino_color_strip.dart';
 import '../widgets/dino_multi_select_bottom_sheet.dart';
 import '../utils/dino_helpers.dart';
+import '../utils/save_image_helper.dart';
 import 'add_edit_dino_screen.dart';
 import 'dino_variant_screen.dart';
 
@@ -28,11 +27,9 @@ class DinoDetailScreen extends StatefulWidget {
 
 class _DinoDetailScreenState extends State<DinoDetailScreen> {
   late Dino _dino;
-
-  /// Clé pour capturer la carte en PNG
-  final GlobalKey _cardRepaintKey = GlobalKey();
-
+  final GlobalKey _exportKey = GlobalKey();
   bool _isCapturing = false;
+  bool _showExportWidget = false;
 
   @override
   void initState() {
@@ -40,111 +37,46 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
     _dino = widget.dino;
   }
 
-  // ─────────────── CAPTURE PNG ───────────────
+  // ═══════════════════════════════════════════════
+  // CAPTURE & SAUVEGARDE
+  // ═══════════════════════════════════════════════
 
-    Future<void> _captureAndShare() async {
+  Future<void> _captureAndSave() async {
     if (_isCapturing) return;
-    setState(() => _isCapturing = true);
+
+    setState(() {
+      _isCapturing = true;
+      _showExportWidget = true;
+    });
+
+    // Laisser le temps à DinoImageWidget de calculer le grain-merge
+    await Future.delayed(const Duration(milliseconds: 600));
 
     try {
-      // ── Dimensions cibles ──
-      const double targetWidth = 1080;
-      const double targetHeight = 1350;
+      final boundary = _exportKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
 
-      // ── Construire le widget carte à la taille exacte, hors écran ──
-      final widget = MediaQuery(
-        data: const MediaQueryData(
-          size: Size(targetWidth, targetHeight),
-          devicePixelRatio: 1.0,
-          padding: EdgeInsets.zero,
-        ),
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData.dark(),
-          home: Scaffold(
-            backgroundColor: const Color(0xFF0A0E1A),
-            body: Center(
-              child: SizedBox(
-                width: targetWidth,
-                height: targetHeight,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: _buildExportCard(),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      // ── Rendre hors écran avec un pipeline custom ──
-      final repaintBoundary = RenderRepaintBoundary();
-
-      final renderView = RenderView(
-        view: View.of(context),
-        child: RenderPositionedBox(
-          alignment: Alignment.center,
-          child: repaintBoundary,
-        ),
-        configuration: ViewConfiguration(
-          logicalConstraints: const BoxConstraints(
-            maxWidth: targetWidth,
-            maxHeight: targetHeight,
-          ),
-          devicePixelRatio: 1.0,
-        ),
-      );
-
-      final pipelineOwner = PipelineOwner();
-      pipelineOwner.rootNode = renderView;
-      renderView.prepareInitialFrame();
-
-      final buildOwner = BuildOwner(focusManager: FocusManager());
-      final rootElement = RenderObjectToWidgetAdapter<RenderBox>(
-        container: repaintBoundary,
-        debugShortDescription: 'DinoCardExport',
-        child: widget,
-      ).attachToRenderTree(buildOwner);
-
-      buildOwner.buildScope(rootElement);
-      pipelineOwner.flushLayout();
-      pipelineOwner.flushCompositingBits();
-      pipelineOwner.flushPaint();
-
-      // ── Capturer en PNG ──
-      final image = await repaintBoundary.toImage(
-        pixelRatio: 1.0, // Déjà à 1080x1350
-      );
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-
-      // Nettoyer
-      buildOwner.finalizeTree();
-
-      if (byteData == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Erreur lors de la génération de l\'image'),
-              backgroundColor: AppTheme.danger,
-            ),
-          );
-        }
-        return;
+      if (boundary == null) {
+        throw Exception('Widget export introuvable');
       }
 
-      // ── Sauvegarder et partager ──
-      final tempDir = await getTemporaryDirectory();
-      final fileName =
-          '${_dino.espece.replaceAll(' ', '_')}_${_dino.nom.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.png';
-      final file = File('${tempDir.path}/$fileName');
-      await file.writeAsBytes(byteData.buffer.asUint8List());
+      final image = await boundary.toImage(pixelRatio: 1.0);
+      final byteData =
+          await image.toByteData(format: ui.ImageByteFormat.png);
 
+      if (byteData == null) throw Exception('Erreur génération PNG');
       if (!mounted) return;
 
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text:
-            '${_dino.espece} — ${_dino.nom} (Lvl ${_dino.niveau}) #DinoManager',
+      final fileName = SaveImageHelper.generateFileName(
+        _dino.espece,
+        _dino.nom,
+      );
+
+      await SaveImageHelper.saveAndNotify(
+        context: context,
+        pngBytes: byteData.buffer.asUint8List(),
+        fileName: fileName,
+        displayName: '${_dino.espece} — ${_dino.nom}',
       );
     } catch (e) {
       if (mounted) {
@@ -156,12 +88,33 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isCapturing = false);
+      if (mounted) {
+        setState(() {
+          _isCapturing = false;
+          _showExportWidget = false;
+        });
+      }
     }
   }
 
-  // ─────────────── BUILD ───────────────
-  /// Carte optimisée pour l'export PNG 1080x1350
+  // ═══════════════════════════════════════════════
+  // EXPORT CARD 1080×1350 — monté en Offstage
+  // ═══════════════════════════════════════════════
+
+  Widget _buildOffstageExport() {
+    return Offstage(
+      offstage: true,
+      child: RepaintBoundary(
+        key: _exportKey,
+        child: SizedBox(
+          width: 1080,
+          height: 1350,
+          child: _buildExportCard(),
+        ),
+      ),
+    );
+  }
+
   Widget _buildExportCard() {
     return Container(
       decoration: BoxDecoration(
@@ -185,27 +138,22 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
         borderRadius: BorderRadius.circular(16),
         child: Column(
           children: [
-            // ── Image (environ 40% de la hauteur) ──
-            Expanded(
-              flex: 40,
+            SizedBox(
+              height: 540,
               child: _buildExportVisualSection(),
             ),
-            // ── Titre ──
             _buildExportTitleSection(),
-            // ── Stats ──
             Expanded(
-              flex: 30,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 12),
                 child: DinoStatGrid(dino: _dino),
               ),
             ),
-            // ── Couleurs ──
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: DinoColorStrip(dino: _dino),
             ),
-            // ── Watermark ──
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -233,41 +181,64 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
   }
 
   Widget _buildExportVisualSection() {
+    // ← champ correct du modèle Dino
     final hasCustomImage = _dino.image != null && _dino.image!.isNotEmpty;
+    final assetPath =
+        'assets/images/dinos/${_dino.espece.replaceAll(' ', '_')}_ASA.png';
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment.center,
-          radius: 1.2,
-          colors: [
-            _dino.roleColor.withOpacity(0.25),
-            const Color(0xFF0F1115),
-          ],
-        ),
-        border: const Border(
-          bottom: BorderSide(color: Color(0xFF5A5A5A), width: 2),
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: hasCustomImage
-                  ? Image.file(
-                      File(_dino.image!),
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => DinoImageWidget(
-                        species: _dino.espece,
-                        regionColors: _dino.colorRegions,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.contain,
-                        showColorBand: false,
+    return Stack(
+      children: [
+        // ── FOND : image assombrie (sans BackdropFilter → compatible export) ──
+        Positioned.fill(
+          child: ClipRect(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                hasCustomImage
+                    ? Image.file(
+                        File(_dino.image!),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _buildFallbackBg(),
+                      )
+                    : Image.asset(
+                        assetPath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _buildFallbackBg(),
                       ),
-                    )
-                  : DinoImageWidget(
+                // Simulation flou : overlay blanc léger
+                Container(color: Colors.white.withOpacity(0.08)),
+                // Overlay sombre + roleColor
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.62),
+                        _dino.roleColor.withOpacity(0.28),
+                        Colors.black.withOpacity(0.75),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // ── Bordure basse ──
+        Positioned(
+          left: 0, right: 0, bottom: 0,
+          child: Container(height: 2, color: const Color(0xFF5A5A5A)),
+        ),
+        // ── Dino principal ──
+        Positioned.fill(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: hasCustomImage
+                ? Image.file(
+                    File(_dino.image!),
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => DinoImageWidget(
                       species: _dino.espece,
                       regionColors: _dino.colorRegions,
                       width: double.infinity,
@@ -275,68 +246,78 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                       fit: BoxFit.contain,
                       showColorBand: false,
                     ),
+                  )
+                : DinoImageWidget(
+                    species: _dino.espece,
+                    regionColors: _dino.colorRegions,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.contain,
+                    showColorBand: false,
+                  ),
+          ),
+        ),
+        // ── Badge niveau ──
+        Positioned(
+          top: 20, left: 20,
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.85),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: DinoHelpers.getCardRarityColor(_dino.niveau),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: DinoHelpers.getCardRarityColor(_dino.niveau)
+                      .withOpacity(0.5),
+                  blurRadius: 10,
+                ),
+              ],
+            ),
+            child: Text(
+              'LVL ${_dino.niveau}',
+              style: GoogleFonts.exo2(
+                color: DinoHelpers.getCardRarityColor(_dino.niveau),
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
-          // Badge niveau
+        ),
+        // ── Badge sexe ──
+        if (_dino.sexe != 'Inconnu')
           Positioned(
-            top: 20,
-            left: 20,
+            top: 20, right: 20,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.85),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                    color: DinoHelpers.getCardRarityColor(_dino.niveau),
-                    width: 2),
+                shape: BoxShape.circle,
+                border: Border.all(color: _dino.sexeColor, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: DinoHelpers.getCardRarityColor(_dino.niveau)
-                        .withOpacity(0.5),
+                    color: _dino.sexeColor.withOpacity(0.5),
                     blurRadius: 10,
                   ),
                 ],
               ),
+              alignment: Alignment.center,
               child: Text(
-                'LVL ${_dino.niveau}',
-                style: GoogleFonts.exo2(
-                  color: DinoHelpers.getCardRarityColor(_dino.niveau),
-                  fontSize: 18,
+                _dino.sexeSymbol,
+                style: TextStyle(
+                  color: _dino.sexeColor,
+                  fontSize: 26,
                   fontWeight: FontWeight.w900,
                 ),
               ),
             ),
           ),
-          // Badge sexe
-          if (_dino.sexe != 'Inconnu')
-            Positioned(
-              top: 20,
-              right: 20,
-              child: Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.85),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: _dino.sexeColor, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                        color: _dino.sexeColor.withOpacity(0.5),
-                        blurRadius: 10)
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  _dino.sexeSymbol,
-                  style: TextStyle(
-                      color: _dino.sexeColor,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w900),
-                ),
-              ),
-            ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -364,11 +345,11 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                 fontSize: 36,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 3,
-                shadows: [
-                  const Shadow(
+                shadows: const [
+                  Shadow(
                       color: Colors.black,
                       blurRadius: 8,
-                      offset: Offset(2, 2))
+                      offset: Offset(2, 2)),
                 ],
               ),
               textAlign: TextAlign.center,
@@ -408,7 +389,8 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                   decoration: BoxDecoration(
                     color: _dino.roleColor.withOpacity(0.25),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: _dino.roleColor, width: 1),
+                    border:
+                        Border.all(color: _dino.roleColor, width: 1),
                   ),
                   child: Text(
                     _dino.role.toUpperCase(),
@@ -427,32 +409,66 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
     );
   }
 
+  // ═══════════════════════════════════════════════
+  // BUILD PRINCIPAL
+  // ═══════════════════════════════════════════════
+
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0E1A),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.6),
-            shape: BoxShape.circle,
-            border:
-                Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+      body: Stack(
+        children: [
+          // ── UI principale ──
+          SafeArea(
+            bottom: true,
+            child: Column(
+              children: [
+                _buildAppBar(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                        16, 16, 16, 16 + bottomPadding),
+                    child: Column(
+                      children: [
+                        _buildArkCard(),
+                        const SizedBox(height: 20),
+                        _buildActionButtons(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        actions: [
-          // ── Bouton capture / partage ──
+          // ── Widget export caché (Offstage) ──
+          if (_showExportWidget) _buildOffstageExport(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+      child: Row(
+        children: [
           Container(
-            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.6),
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: Colors.white.withOpacity(0.2), width: 1),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          const Spacer(),
+          Container(
             decoration: BoxDecoration(
               color: Colors.black.withOpacity(0.6),
               shape: BoxShape.circle,
@@ -471,36 +487,19 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                         strokeWidth: 2,
                       ),
                     )
-                  : const Icon(Icons.share_rounded,
+                  : const Icon(Icons.save_alt_rounded,
                       color: Color(0xFF00E5FF)),
-              tooltip: 'Partager la DinoCard',
-              onPressed: _isCapturing ? null : _captureAndShare,
+              tooltip: 'Sauvegarder la DinoCard',
+              onPressed: _isCapturing ? null : _captureAndSave,
             ),
           ),
         ],
-      ),
-      body: SafeArea(
-        bottom: true,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
-          child: Column(
-            children: [
-              // ── La carte encapsulée dans RepaintBoundary ──
-              RepaintBoundary(
-                key: _cardRepaintKey,
-                child: _buildArkCard(),
-              ),
-              const SizedBox(height: 20),
-              _buildActionButtons(),
-            ],
-          ),
-        ),
       ),
     );
   }
 
   // ═══════════════════════════════════════════════
-  // ARK CARD
+  // ARK CARD (affichage mobile)
   // ═══════════════════════════════════════════════
 
   Widget _buildArkCard() {
@@ -537,26 +536,60 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
     );
   }
 
+  // ── Zone visuelle avec fond flouté (BackdropFilter OK — affichage live) ──
   Widget _buildVisualSection() {
     final hasCustomImage = _dino.image != null && _dino.image!.isNotEmpty;
+    final assetPath =
+        'assets/images/dinos/${_dino.espece.replaceAll(' ', '_')}_ASA.png';
 
-    return Container(
+    return SizedBox(
       height: 280,
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment.center,
-          radius: 1.2,
-          colors: [
-            _dino.roleColor.withOpacity(0.2),
-            const Color(0xFF0F1115),
-          ],
-        ),
-        border: const Border(
-          bottom: BorderSide(color: Color(0xFF5A5A5A), width: 2),
-        ),
-      ),
       child: Stack(
         children: [
+          // ── FOND FLOUTÉ ──
+          Positioned.fill(
+            child: ClipRect(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  hasCustomImage
+                      ? Image.file(
+                          File(_dino.image!),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _buildFallbackBg(),
+                        )
+                      : Image.asset(
+                          assetPath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _buildFallbackBg(),
+                        ),
+                  BackdropFilter(
+                    filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: const SizedBox.expand(),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.50),
+                          _dino.roleColor.withOpacity(0.20),
+                          Colors.black.withOpacity(0.65),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // ── BORDURE BASSE ──
+          Positioned(
+            left: 0, right: 0, bottom: 0,
+            child: Container(height: 2, color: const Color(0xFF5A5A5A)),
+          ),
+          // ── IMAGE DINO PRINCIPALE ──
           Positioned.fill(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -572,12 +605,12 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               ),
             ),
           ),
+          // ── BADGE NIVEAU ──
           Positioned(
-            top: 16,
-            left: 16,
+            top: 16, left: 16,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(6),
@@ -602,13 +635,28 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               ),
             ),
           ),
+          // ── BADGE SEXE ──
           if (_dino.sexe != 'Inconnu')
             Positioned(
-              top: 16,
-              right: 16,
+              top: 16, right: 16,
               child: _buildSexBadge(),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFallbackBg() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.center,
+          radius: 1.2,
+          colors: [
+            _dino.roleColor.withOpacity(0.35),
+            const Color(0xFF0F1115),
+          ],
+        ),
       ),
     );
   }
@@ -618,7 +666,8 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
 
     if (isBoth) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.8),
           borderRadius: BorderRadius.circular(6),
@@ -652,7 +701,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
         border: Border.all(color: _dino.sexeColor, width: 2),
         boxShadow: [
           BoxShadow(
-              color: _dino.sexeColor.withOpacity(0.5), blurRadius: 8)
+              color: _dino.sexeColor.withOpacity(0.5), blurRadius: 8),
         ],
       ),
       alignment: Alignment.center,
@@ -667,23 +716,14 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
   }
 
   Widget _buildSpeciesImage() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.bgPrimary.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: _dino.roleColor.withOpacity(0.2), width: 1),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: DinoImageWidget(
-        species: _dino.espece,
-        regionColors: _dino.colorRegions,
-        width: double.infinity,
-        height: 280,
-        fit: BoxFit.contain,
-        showColorBand: false,
-        alignment: Alignment.center,
-      ),
+    return DinoImageWidget(
+      species: _dino.espece,
+      regionColors: _dino.colorRegions,
+      width: double.infinity,
+      height: 280,
+      fit: BoxFit.contain,
+      showColorBand: false,
+      alignment: Alignment.center,
     );
   }
 
@@ -711,11 +751,11 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                 fontSize: 32,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 2.5,
-                shadows: [
-                  const Shadow(
+                shadows: const [
+                  Shadow(
                       color: Colors.black,
                       blurRadius: 6,
-                      offset: Offset(2, 2))
+                      offset: Offset(2, 2)),
                 ],
               ),
               textAlign: TextAlign.center,
@@ -725,8 +765,8 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
           ),
           const SizedBox(height: 10),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 20, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.black.withOpacity(0.4),
               borderRadius: BorderRadius.circular(12),
@@ -755,7 +795,8 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                   decoration: BoxDecoration(
                     color: _dino.roleColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: _dino.roleColor, width: 1),
+                    border:
+                        Border.all(color: _dino.roleColor, width: 1),
                   ),
                   child: Text(
                     _dino.role.toUpperCase(),
@@ -884,7 +925,6 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
   Future<void> _duplicateDino() async {
     final copy = _dino.duplicate(newName: '${_dino.nom} (copie)');
     if (!mounted) return;
-
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => AddEditDinoScreen(dino: copy)),
@@ -900,8 +940,8 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.bgCard,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16)),
         title: Text('Supprimer ${_dino.nom}?',
             style: const TextStyle(color: AppTheme.textPrimary)),
         content: const Text('Cette action est irréversible.',
@@ -932,15 +972,15 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
 
   Future<void> _viewVariants() async {
     final provider = Provider.of<DinoProvider>(context, listen: false);
-    final sameSpecies =
-        provider.dinos.where((dino) => dino.espece == _dino.espece).toList();
+    final sameSpecies = provider.dinos
+        .where((dino) => dino.espece == _dino.espece)
+        .toList();
 
     if (sameSpecies.length <= 1) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content:
-              Text('Aucun autre dinosaure de cette espèce trouvé'),
+          content: Text('Aucun autre dinosaure de cette espèce trouvé'),
           backgroundColor: AppTheme.bgCard,
           behavior: SnackBarBehavior.floating,
         ),
