@@ -19,13 +19,13 @@ class DinoColorStrip extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: List.generate(6, (i) {
           final id = DinoHelpers.getColorId(dino, i);
           final hex = DinoHelpers.getColorHex(dino, i);
-          final isActive = id > 0 && hex != '#808080' && hex != '#7F7F7F';
+          final isActive = id > 0 && DinoHelpers.isColorActive(hex);
           final color = isActive ? DinoHelpers.parseHex(hex) : const Color(0xFF222222);
 
           return Expanded(
@@ -37,13 +37,13 @@ class DinoColorStrip extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
                   color: isActive 
-                    ? Colors.white.withOpacity(0.6)
-                    : Colors.white.withOpacity(0.1),
+                    ? Colors.white.withValues(alpha: 0.6)
+                    : Colors.white.withValues(alpha: 0.1),
                   width: 1.5,
                 ),
                 boxShadow: isActive ? [
                   BoxShadow(
-                    color: color!.withOpacity(0.5),
+                    color: color!.withValues(alpha: 0.5),
                     blurRadius: 6,
                   ),
                 ] : null,
@@ -53,15 +53,15 @@ class DinoColorStrip extends StatelessWidget {
                 isActive ? '$id' : '-',
                 style: TextStyle(
                   color: isActive
-                    ? (DinoHelpers.isLight(color!) ? Colors.black87 : Colors.white)
-                    : Colors.white.withOpacity(0.3),
+                    ? DinoHelpers.contrastText(color!)
+                    : Colors.white.withValues(alpha: 0.3),
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                   shadows: isActive ? [
                     Shadow(
-                      color: DinoHelpers.isLight(color!) 
-                        ? Colors.white.withOpacity(0.8)
-                        : Colors.black.withOpacity(0.8),
+                      color: DinoHelpers.isLight(color!)
+                        ? Colors.white.withValues(alpha: 0.8)
+                        : Colors.black.withValues(alpha: 0.8),
                       blurRadius: 2,
                     ),
                   ] : null,

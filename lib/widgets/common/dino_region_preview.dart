@@ -42,7 +42,7 @@ class DinoRegionPreview extends StatelessWidget {
             color: const Color(0xFF0F1115),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFFFF4444).withOpacity(0.5),
+              color: const Color(0xFFFF4444).withValues(alpha: 0.5),
               width: 1.5,
             ),
           ),
@@ -74,7 +74,7 @@ class DinoRegionPreview extends StatelessWidget {
               chipColor = const Color(0xFF2A2A2A);
             } else {
               try {
-                final h = hex!.replaceAll('#', '');
+                final h = hex.replaceAll('#', '');
                 chipColor = Color(int.parse('FF$h', radix: 16));
               } catch (_) {
                 chipColor = const Color(0xFF2A2A2A);
@@ -92,13 +92,13 @@ class DinoRegionPreview extends StatelessWidget {
                   border: Border.all(
                     color: isActive
                         ? const Color(0xFFFF4444)
-                        : Colors.white.withOpacity(0.15),
+                        : Colors.white.withValues(alpha: 0.15),
                     width: isActive ? 2 : 1,
                   ),
                   boxShadow: isActive
                       ? [
                           BoxShadow(
-                            color: const Color(0xFFFF4444).withOpacity(0.5),
+                            color: const Color(0xFFFF4444).withValues(alpha: 0.5),
                             blurRadius: 6,
                           ),
                         ]
@@ -110,7 +110,7 @@ class DinoRegionPreview extends StatelessWidget {
                   style: GoogleFonts.exo2(
                     color: isActive
                         ? Colors.white
-                        : Colors.white.withOpacity(0.4),
+                        : Colors.white.withValues(alpha: 0.4),
                     fontSize: isActive ? 11 : 9,
                     fontWeight: isActive
                         ? FontWeight.w900

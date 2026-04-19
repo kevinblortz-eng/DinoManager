@@ -24,7 +24,7 @@ class DinoStatGrid extends StatelessWidget {
   /// Accepte int, double, virgule, point
   Map<String, List<double>> _parsePointsData() {
     final result = <String, List<double>>{};
-    final notes = dino.notes ?? '';
+    final notes = dino.notes;
     final regex = RegExp(r'\[PTS:(.+?)\]');
     final match = regex.firstMatch(notes);
     if (match == null) return result;
@@ -128,7 +128,7 @@ class DinoStatGrid extends StatelessWidget {
         border: Border.all(color: const Color(0xFF454545), width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             offset: const Offset(2, 2),
             blurRadius: 4,
           ),
@@ -142,7 +142,7 @@ class DinoStatGrid extends StatelessWidget {
           Text(
             label,
             style: GoogleFonts.exo2(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 9,
               fontWeight: FontWeight.w700,
             ),
@@ -162,10 +162,10 @@ class DinoStatGrid extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
               decoration: BoxDecoration(
-                color: const Color(0xFF00E5FF).withOpacity(0.08),
+                color: const Color(0xFF00E5FF).withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
-                  color: const Color(0xFF00E5FF).withOpacity(0.2),
+                  color: const Color(0xFF00E5FF).withValues(alpha: 0.2),
                 ),
               ),
               child: FittedBox(
@@ -187,15 +187,15 @@ class DinoStatGrid extends StatelessWidget {
                       child: Text(
                         '|',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           fontSize: 9,
                         ),
                       ),
                     ),
                     Text(
-                      '${_formatNum(ptsValues![0])} - ${_formatNum(ptsValues[1])} - ${_formatNum(ptsValues[2])}',
+                      '${_formatNum(ptsValues[0])} - ${_formatNum(ptsValues[1])} - ${_formatNum(ptsValues[2])}',
                       style: GoogleFonts.exo2(
-                        color: const Color(0xFF00E5FF).withOpacity(0.8),
+                        color: const Color(0xFF00E5FF).withValues(alpha: 0.8),
                         fontSize: 8,
                         fontWeight: FontWeight.w600,
                       ),

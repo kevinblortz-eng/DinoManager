@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/dino.dart';
 
+/// Centralise tous les helpers partagés : couleurs, formatage, stats.
+/// Évite la duplication de _hexToColor / _parseHex dans chaque widget.
 class DinoHelpers {
-  
+
+  // ─── Formatage ────────────────────────────────────────────────────────────
+
   static String toTitleCase(String text) {
     if (text.isEmpty) return text;
     return text.split(' ').map((word) {
@@ -10,6 +14,39 @@ class DinoHelpers {
       return word[0].toUpperCase() + word.substring(1).toLowerCase();
     }).join(' ');
   }
+
+  /// Formate un grand nombre : 12500 → "12.5k", 1200000 → "1.2m"
+  static String formatNumber(int value) {
+    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}m';
+    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}k';
+    return value.toString();
+  }
+
+  // ─── Couleurs ─────────────────────────────────────────────────────────────
+
+  /// Parse une chaîne "#RRGGBB" ou "#AARRGGBB" en Color Flutter.
+  /// Retourne null si invalide.
+  static Color? parseHex(String? hex) {
+    if (hex == null || hex.isEmpty) return null;
+    try {
+      final h = hex.replaceAll('#', '');
+      if (h.length == 6) return Color(int.parse('FF$h', radix: 16));
+      if (h.length == 8) return Color(int.parse(h, radix: 16));
+    } catch (_) {}
+    return null;
+  }
+
+  /// Variante non-nullable : retourne Colors.grey en cas d'échec.
+  static Color hexToColor(String hex) => parseHex(hex) ?? Colors.grey;
+
+  /// Vrai si la couleur est claire (luminance > 0.5).
+  static bool isLight(Color color) => color.computeLuminance() > 0.5;
+
+  /// Couleur de texte adaptée au fond (noir sur fond clair, blanc sur fond sombre).
+  static Color contrastText(Color background) =>
+      isLight(background) ? Colors.black87 : Colors.white;
+
+  // ─── Accès aux couleurs régionales d'un dino ──────────────────────────────
 
   static int getColorId(Dino dino, int index) {
     switch (index) {
@@ -35,39 +72,35 @@ class DinoHelpers {
     }
   }
 
-  static Color? parseHex(String? hex) {
-    if (hex == null || hex.isEmpty) return null;
-    try {
-      final h = hex.replaceAll('#', '');
-      if (h.length == 6) return Color(int.parse('FF$h', radix: 16));
-      if (h.length == 8) return Color(int.parse(h, radix: 16));
-    } catch (_) {}
-    return null;
-  }
+  /// Vérifie si une région est "active" (non-grise).
+  static bool isColorActive(String hex) =>
+      hex != '#808080' && hex != '#7F7F7F' && hex.isNotEmpty;
 
-  static bool isLight(Color color) => color.computeLuminance() > 0.5;
+  // ─── Rareté / niveau ──────────────────────────────────────────────────────
 
   static Color getCardRarityColor(int niveau) {
-    if (niveau >= 362) return const Color(0xFFFFD700);
-    if (niveau >= 222) return const Color(0xFFC0C0C0);
-    if (niveau >= 150) return const Color(0xFFCD7F32);
-    return const Color(0xFF8E8E93);
+    if (niveau >= 362) return const Color(0xFFFFD700);  // Or
+    if (niveau >= 222) return const Color(0xFFC0C0C0);  // Argent
+    if (niveau >= 150) return const Color(0xFFCD7F32);  // Bronze
+    return const Color(0xFF8E8E93);                      // Commun
   }
 
+  // ─── Statistiques globales ────────────────────────────────────────────────
+
   static Map<String, int> getRoleDistribution(List<Dino> dinos) {
-    final Map<String, int> distribution = {};
-    for (var dino in dinos) {
-      distribution[dino.role] = (distribution[dino.role] ?? 0) + 1;
+    final dist = <String, int>{};
+    for (final d in dinos) {
+      dist[d.role] = (dist[d.role] ?? 0) + 1;
     }
-    return distribution;
+    return dist;
   }
 
   static Map<String, int> getSexDistribution(List<Dino> dinos) {
-    final Map<String, int> distribution = {};
-    for (var dino in dinos) {
-      distribution[dino.sexe] = (distribution[dino.sexe] ?? 0) + 1;
+    final dist = <String, int>{};
+    for (final d in dinos) {
+      dist[d.sexe] = (dist[d.sexe] ?? 0) + 1;
     }
-    return distribution;
+    return dist;
   }
 
   static Dino? getHighestLevelDino(List<Dino> dinos) {

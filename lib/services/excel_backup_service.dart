@@ -83,11 +83,11 @@ class ExcelBackupService {
       filePrefix: filePrefix,
     );
 
-    await Share.shareXFiles(
-      [XFile(file.path)],
+    await SharePlus.instance.share(ShareParams(
+      files: [XFile(file.path)],
       text: 'Sauvegarde Excel ARK complète',
       subject: 'Backup Excel ARK',
-    );
+    ));
 
     return file;
   }

@@ -111,7 +111,7 @@ class _ShareScreenState extends State<ShareScreen> {
                     Text(
                       fileName,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 10,
                       ),
                     ),
@@ -228,12 +228,12 @@ class _ShareScreenState extends State<ShareScreen> {
         border: Border.all(color: const Color(0xFF5A5A5A), width: 4),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.8),
+            color: Colors.black.withValues(alpha: 0.8),
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
           BoxShadow(
-            color: dino.roleColor.withOpacity(0.4),
+            color: dino.roleColor.withValues(alpha: 0.4),
             blurRadius: 20,
             spreadRadius: -3,
           ),
@@ -264,7 +264,7 @@ class _ShareScreenState extends State<ShareScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 border: const Border(
                   top: BorderSide(color: Color(0xFF5A5A5A), width: 1),
                 ),
@@ -273,7 +273,7 @@ class _ShareScreenState extends State<ShareScreen> {
                 'DINO MANAGER',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.exo2(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 4,
@@ -294,7 +294,7 @@ class _ShareScreenState extends State<ShareScreen> {
           center: Alignment.center,
           radius: 1.2,
           colors: [
-            dino.roleColor.withOpacity(0.25),
+            dino.roleColor.withValues(alpha: 0.25),
             const Color(0xFF0F1115),
           ],
         ),
@@ -337,7 +337,7 @@ class _ShareScreenState extends State<ShareScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.85),
+                color: Colors.black.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                     color: DinoHelpers.getCardRarityColor(dino.niveau),
@@ -345,7 +345,7 @@ class _ShareScreenState extends State<ShareScreen> {
                 boxShadow: [
                   BoxShadow(
                     color: DinoHelpers.getCardRarityColor(dino.niveau)
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                     blurRadius: 10,
                   ),
                 ],
@@ -368,12 +368,12 @@ class _ShareScreenState extends State<ShareScreen> {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.85),
+                  color: Colors.black.withValues(alpha: 0.85),
                   shape: BoxShape.circle,
                   border: Border.all(color: dino.sexeColor, width: 2),
                   boxShadow: [
                     BoxShadow(
-                        color: dino.sexeColor.withOpacity(0.5),
+                        color: dino.sexeColor.withValues(alpha: 0.5),
                         blurRadius: 10)
                   ],
                 ),
@@ -398,7 +398,7 @@ class _ShareScreenState extends State<ShareScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.black.withOpacity(0.5), Colors.transparent],
+          colors: [Colors.black.withValues(alpha: 0.5), Colors.transparent],
         ),
         border: const Border(
             bottom: BorderSide(color: Color(0xFF5A5A5A), width: 1)),
@@ -433,10 +433,10 @@ class _ShareScreenState extends State<ShareScreen> {
             padding:
                 const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                  color: dino.roleColor.withOpacity(0.6), width: 1),
+                  color: dino.roleColor.withValues(alpha: 0.6), width: 1),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -445,7 +445,7 @@ class _ShareScreenState extends State<ShareScreen> {
                   child: Text(
                     dino.nom,
                     style: GoogleFonts.exo2(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 20,
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.w600,
@@ -458,7 +458,7 @@ class _ShareScreenState extends State<ShareScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
-                    color: dino.roleColor.withOpacity(0.25),
+                    color: dino.roleColor.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: dino.roleColor, width: 1),
                   ),
@@ -511,7 +511,7 @@ class _ShareScreenState extends State<ShareScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF4CAF50).withOpacity(0.15),
+                color: const Color(0xFF4CAF50).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.save_alt_rounded,
@@ -545,10 +545,10 @@ class _ShareScreenState extends State<ShareScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.success.withOpacity(0.1),
+              color: AppTheme.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: AppTheme.success.withOpacity(0.3),
+                color: AppTheme.success.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -582,12 +582,12 @@ class _ShareScreenState extends State<ShareScreen> {
               child: Column(
                 children: [
                   Icon(Icons.pets_rounded,
-                      color: Colors.white.withOpacity(0.2), size: 60),
+                      color: Colors.white.withValues(alpha: 0.2), size: 60),
                   const SizedBox(height: 16),
                   Text(
                     'Aucun dino enregistré',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.4),
+                      color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 16,
                     ),
                   ),
@@ -652,7 +652,7 @@ class _ShareScreenState extends State<ShareScreen> {
       decoration: BoxDecoration(
         color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: dino.roleColor.withOpacity(0.2)),
+        border: Border.all(color: dino.roleColor.withValues(alpha: 0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -666,7 +666,7 @@ class _ShareScreenState extends State<ShareScreen> {
                 color: AppTheme.bgPrimary,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: dino.roleColor.withOpacity(0.3),
+                  color: dino.roleColor.withValues(alpha: 0.3),
                 ),
               ),
               child: ClipRRect(
@@ -712,10 +712,10 @@ class _ShareScreenState extends State<ShareScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 1),
                         decoration: BoxDecoration(
-                          color: dino.roleColor.withOpacity(0.15),
+                          color: dino.roleColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(
-                              color: dino.roleColor.withOpacity(0.4)),
+                              color: dino.roleColor.withValues(alpha: 0.4)),
                         ),
                         child: Text(
                           'Lvl ${dino.niveau}',
@@ -756,10 +756,10 @@ class _ShareScreenState extends State<ShareScreen> {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: color.withOpacity(onTap != null ? 0.15 : 0.05),
+          color: color.withValues(alpha: onTap != null ? 0.15 : 0.05),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: color.withOpacity(onTap != null ? 0.4 : 0.1),
+            color: color.withValues(alpha: onTap != null ? 0.4 : 0.1),
           ),
         ),
         child: _isExporting

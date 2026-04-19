@@ -535,12 +535,15 @@ class DinoOcrService {
     final statusParts = <String>[];
     for (final line in lines) {
       final lower = line.toLowerCase();
-      if (lower.contains('tamed') && !statusParts.contains('Tamed'))
+      if (lower.contains('tamed') && !statusParts.contains('Tamed')) {
         statusParts.add('Tamed');
-      if (lower.contains('wild') && !statusParts.contains('Wild'))
+      }
+      if (lower.contains('wild') && !statusParts.contains('Wild')) {
         statusParts.add('Wild');
-      if (lower.contains('badass') && !statusParts.contains('Badass'))
+      }
+      if (lower.contains('badass') && !statusParts.contains('Badass')) {
         statusParts.add('Badass');
+      }
     }
     if (statusParts.isNotEmpty) status = statusParts.join(' ');
 
@@ -882,6 +885,7 @@ class DinoOcrService {
 
     final colorCandidates = <List<int>>[];
 
+    // ignore: unused_local_variable
     bool pastStats = false;
 
     for (final line in lines) {

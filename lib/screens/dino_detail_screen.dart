@@ -123,12 +123,12 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
         border: Border.all(color: const Color(0xFF5A5A5A), width: 4),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.8),
+            color: Colors.black.withValues(alpha: 0.8),
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
           BoxShadow(
-            color: _dino.roleColor.withOpacity(0.4),
+            color: _dino.roleColor.withValues(alpha: 0.4),
             blurRadius: 20,
             spreadRadius: -3,
           ),
@@ -158,7 +158,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 border: const Border(
                   top: BorderSide(color: Color(0xFF5A5A5A), width: 1),
                 ),
@@ -167,7 +167,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                 'DINO MANAGER',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.exo2(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 4,
@@ -206,7 +206,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                         errorBuilder: (_, __, ___) => _buildFallbackBg(),
                       ),
                 // Simulation flou : overlay blanc léger
-                Container(color: Colors.white.withOpacity(0.08)),
+                Container(color: Colors.white.withValues(alpha: 0.08)),
                 // Overlay sombre + roleColor
                 Container(
                   decoration: BoxDecoration(
@@ -214,9 +214,9 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.62),
-                        _dino.roleColor.withOpacity(0.28),
-                        Colors.black.withOpacity(0.75),
+                        Colors.black.withValues(alpha: 0.62),
+                        _dino.roleColor.withValues(alpha: 0.28),
+                        Colors.black.withValues(alpha: 0.75),
                       ],
                     ),
                   ),
@@ -264,7 +264,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
             padding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.85),
+              color: Colors.black.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: DinoHelpers.getCardRarityColor(_dino.niveau),
@@ -273,7 +273,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               boxShadow: [
                 BoxShadow(
                   color: DinoHelpers.getCardRarityColor(_dino.niveau)
-                      .withOpacity(0.5),
+                      .withValues(alpha: 0.5),
                   blurRadius: 10,
                 ),
               ],
@@ -296,12 +296,12 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.85),
+                color: Colors.black.withValues(alpha: 0.85),
                 shape: BoxShape.circle,
                 border: Border.all(color: _dino.sexeColor, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: _dino.sexeColor.withOpacity(0.5),
+                    color: _dino.sexeColor.withValues(alpha: 0.5),
                     blurRadius: 10,
                   ),
                 ],
@@ -327,7 +327,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.black.withOpacity(0.5), Colors.transparent],
+          colors: [Colors.black.withValues(alpha: 0.5), Colors.transparent],
         ),
         border: const Border(
             bottom: BorderSide(color: Color(0xFF5A5A5A), width: 1)),
@@ -362,10 +362,10 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
             padding:
                 const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                  color: _dino.roleColor.withOpacity(0.6), width: 1),
+                  color: _dino.roleColor.withValues(alpha: 0.6), width: 1),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -374,7 +374,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                   child: Text(
                     _dino.nom,
                     style: GoogleFonts.exo2(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 20,
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.w600,
@@ -387,7 +387,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
-                    color: _dino.roleColor.withOpacity(0.25),
+                    color: _dino.roleColor.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(8),
                     border:
                         Border.all(color: _dino.roleColor, width: 1),
@@ -457,10 +457,10 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withValues(alpha: 0.6),
               shape: BoxShape.circle,
               border: Border.all(
-                  color: Colors.white.withOpacity(0.2), width: 1),
+                  color: Colors.white.withValues(alpha: 0.2), width: 1),
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -470,10 +470,10 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
           const Spacer(),
           Container(
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withValues(alpha: 0.6),
               shape: BoxShape.circle,
               border: Border.all(
-                color: const Color(0xFF00E5FF).withOpacity(0.4),
+                color: const Color(0xFF00E5FF).withValues(alpha: 0.4),
                 width: 1,
               ),
             ),
@@ -510,12 +510,12 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
         border: Border.all(color: const Color(0xFF5A5A5A), width: 3),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.8),
+            color: Colors.black.withValues(alpha: 0.8),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
           BoxShadow(
-            color: _dino.roleColor.withOpacity(0.3),
+            color: _dino.roleColor.withValues(alpha: 0.3),
             blurRadius: 15,
             spreadRadius: -2,
           ),
@@ -573,9 +573,9 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withOpacity(0.50),
-                          _dino.roleColor.withOpacity(0.20),
-                          Colors.black.withOpacity(0.65),
+                          Colors.black.withValues(alpha: 0.50),
+                          _dino.roleColor.withValues(alpha: 0.20),
+                          Colors.black.withValues(alpha: 0.65),
                         ],
                       ),
                     ),
@@ -612,7 +612,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               padding: const EdgeInsets.symmetric(
                   horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.8),
+                color: Colors.black.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
                     color: DinoHelpers.getCardRarityColor(_dino.niveau),
@@ -620,7 +620,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                 boxShadow: [
                   BoxShadow(
                     color: DinoHelpers.getCardRarityColor(_dino.niveau)
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                     blurRadius: 8,
                   ),
                 ],
@@ -653,7 +653,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
           center: Alignment.center,
           radius: 1.2,
           colors: [
-            _dino.roleColor.withOpacity(0.35),
+            _dino.roleColor.withValues(alpha: 0.35),
             const Color(0xFF0F1115),
           ],
         ),
@@ -669,7 +669,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
         padding:
             const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.8),
+          color: Colors.black.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: Colors.purple, width: 2),
         ),
@@ -696,12 +696,12 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.8),
+        color: Colors.black.withValues(alpha: 0.8),
         shape: BoxShape.circle,
         border: Border.all(color: _dino.sexeColor, width: 2),
         boxShadow: [
           BoxShadow(
-              color: _dino.sexeColor.withOpacity(0.5), blurRadius: 8),
+              color: _dino.sexeColor.withValues(alpha: 0.5), blurRadius: 8),
         ],
       ),
       alignment: Alignment.center,
@@ -733,7 +733,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.black.withOpacity(0.4), Colors.transparent],
+          colors: [Colors.black.withValues(alpha: 0.4), Colors.transparent],
         ),
         border: const Border(
             bottom: BorderSide(color: Color(0xFF5A5A5A), width: 1)),
@@ -768,10 +768,10 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
             padding: const EdgeInsets.symmetric(
                 horizontal: 20, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                  color: _dino.roleColor.withOpacity(0.6), width: 1),
+                  color: _dino.roleColor.withValues(alpha: 0.6), width: 1),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -780,7 +780,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                   child: Text(
                     _dino.nom,
                     style: GoogleFonts.exo2(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 16,
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.w600,
@@ -793,7 +793,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: _dino.roleColor.withOpacity(0.2),
+                    color: _dino.roleColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(6),
                     border:
                         Border.all(color: _dino.roleColor, width: 1),
@@ -879,12 +879,12 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.6), width: 2),
+            border: Border.all(color: color.withValues(alpha: 0.6), width: 2),
             boxShadow: [
               BoxShadow(
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4)),
             ],

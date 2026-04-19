@@ -62,10 +62,10 @@ class _ScanResultReviewSheetState extends State<ScanResultReviewSheet> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _sourceColor(_result.sourceType).withOpacity(0.15),
+                      color: _sourceColor(_result.sourceType).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: _sourceColor(_result.sourceType).withOpacity(0.5),
+                        color: _sourceColor(_result.sourceType).withValues(alpha: 0.5),
                       ),
                     ),
                     child: Text(
@@ -234,9 +234,9 @@ class _ScanResultReviewSheetState extends State<ScanResultReviewSheet> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.orange.withOpacity(0.08),
+        color: Colors.orange.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

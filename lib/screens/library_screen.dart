@@ -55,6 +55,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             MaterialPageRoute(builder: (_) => const AddEditDinoScreen()),
           );
           if (!mounted) return;
+          // ignore: use_build_context_synchronously
           context.read<DinoProvider>().loadDinos();
         },
         backgroundColor: AppTheme.accentPrimary,
@@ -170,12 +171,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 height: 42,
                 decoration: BoxDecoration(
                   color: provider.hasActiveFilters
-                      ? AppTheme.accentPrimary.withOpacity(0.2)
+                      ? AppTheme.accentPrimary.withValues(alpha: 0.2)
                       : const Color(0xFF161B22),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: provider.hasActiveFilters
-                        ? AppTheme.accentPrimary.withOpacity(0.5)
+                        ? AppTheme.accentPrimary.withValues(alpha: 0.5)
                         : const Color(0xFF21304A),
                     width: 1.2,
                   ),
@@ -361,7 +362,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const AddEditDinoScreen()),
-                ).then((_) => context.read<DinoProvider>().loadDinos()),
+                ).then((_) {
+                  if (!mounted) return;
+                  // ignore: use_build_context_synchronously
+                  context.read<DinoProvider>().loadDinos();
+                }),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 28, vertical: 14),
@@ -372,7 +377,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF6B00).withOpacity(0.4),
+                        color: const Color(0xFFFF6B00).withValues(alpha: 0.4),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -458,14 +463,14 @@ class _SettingsButton extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-              color: Colors.white.withOpacity(0.1), width: 1),
+              color: Colors.white.withValues(alpha: 0.1), width: 1),
         ),
         child: Icon(
           Icons.bar_chart_rounded,
-          color: Colors.white.withOpacity(0.7),
+          color: Colors.white.withValues(alpha: 0.7),
           size: 20,
         ),
       ),
@@ -668,10 +673,10 @@ class _FilterSheet extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppTheme.danger.withOpacity(0.15),
+                  color: AppTheme.danger.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                   border:
-                      Border.all(color: AppTheme.danger.withOpacity(0.3)),
+                      Border.all(color: AppTheme.danger.withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   'Réinitialiser les filtres',

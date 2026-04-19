@@ -748,9 +748,9 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withOpacity(0.50),
-                          _roleColor.withOpacity(0.20),
-                          Colors.black.withOpacity(0.65),
+                          Colors.black.withValues(alpha: 0.50),
+                          _roleColor.withValues(alpha: 0.20),
+                          Colors.black.withValues(alpha: 0.65),
                         ],
                       ),
                     ),

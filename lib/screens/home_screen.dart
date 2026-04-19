@@ -7,7 +7,9 @@ import '../providers/dino_provider.dart';
 import '../providers/tracker_provider.dart';
 import '../models/dino.dart';
 import '../theme/app_theme.dart';
+import '../utils/dino_helpers.dart';
 import '../widgets/dino_image_widget.dart';
+import '../widgets/common/dino_sex_badge.dart';
 import 'backup_screen.dart';
 import 'add_edit_dino_screen.dart';
 import 'dino_detail_screen.dart';
@@ -72,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => DinoDetailScreen(dino: dino),
       ),
     ).then((_) {
+      if (!mounted) return;
       context.read<DinoProvider>().loadDinos();
       _pickSpotlightDino();
     });
@@ -337,51 +340,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Helpers pour le symbole sexe ──
-
-  String _sexeSymbol(String sexe) {
-    final s = sexe.trim().toLowerCase();
-    if (s == 'male' || s == 'mâle' || s == '♂' || s == 'm') return '♂';
-    if (s == 'female' || s == 'femelle' || s == '♀' || s == 'f') return '♀';
-    return '?';
-  }
-
-  Color _sexeColor(String sexe) {
-    final s = sexe.trim().toLowerCase();
-    if (s == 'male' || s == 'mâle' || s == '♂' || s == 'm') {
-      return const Color(0xFF4FC3F7);
-    }
-    if (s == 'female' || s == 'femelle' || s == '♀' || s == 'f') {
-      return const Color(0xFFFF80CB);
-    }
-    return AppTheme.textMuted;
-  }
-
-  Widget _buildSexBadge(String sexe, {double size = 22}) {
-    final symbol = _sexeSymbol(sexe);
-    final color = _sexeColor(sexe);
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        shape: BoxShape.circle,
-        border: Border.all(color: color.withValues(alpha: 0.5), width: 1.5),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        symbol,
-        style: TextStyle(
-          color: color,
-          fontSize: size * 0.6,
-          fontWeight: FontWeight.w900,
-          height: 1.1,
-        ),
-      ),
-    );
-  }
-
   Widget _buildSpotlightCard(Dino dino) {
     final previewColors = [
       dino.colorHex0, dino.colorHex1, dino.colorHex2,
@@ -494,7 +452,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          _buildSexBadge(dino.sexe, size: 24),
+                          DinoSexBadge(sexe: dino.sexe, size: 24),
                         ],
                       ),
                       const SizedBox(height: 2),
@@ -579,6 +537,7 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               MaterialPageRoute(builder: (_) => const AddEditDinoScreen()),
             ).then((_) {
+              if (!mounted) return;
               context.read<DinoProvider>().loadDinos();
               _pickSpotlightDino();
             }),
@@ -868,13 +827,5 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Color _hexToColor(String hex) {
-    try {
-      final clean = hex.replaceFirst('#', '');
-      if (clean.length == 6) {
-        return Color(int.parse('FF$clean', radix: 16));
-      }
-    } catch (_) {}
-    return Colors.grey;
-  }
+  Color _hexToColor(String hex) => DinoHelpers.hexToColor(hex);
 }

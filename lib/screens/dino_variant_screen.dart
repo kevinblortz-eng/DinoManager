@@ -159,12 +159,12 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
         border: Border.all(color: const Color(0xFF5A5A5A), width: 4),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.8),
+            color: Colors.black.withValues(alpha: 0.8),
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
           BoxShadow(
-            color: widget.baseDino.roleColor.withOpacity(0.4),
+            color: widget.baseDino.roleColor.withValues(alpha: 0.4),
             blurRadius: 20,
             spreadRadius: -3,
           ),
@@ -193,7 +193,7 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 border: const Border(
                   top: BorderSide(color: Color(0xFF5A5A5A), width: 1),
                 ),
@@ -202,7 +202,7 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
                 'DINO MANAGER',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.exo2(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 4,
@@ -381,9 +381,9 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withOpacity(0.50),
-                variantDino.roleColor.withOpacity(0.20), // ✅ variantDino
-                Colors.black.withOpacity(0.65),
+                Colors.black.withValues(alpha: 0.50),
+                variantDino.roleColor.withValues(alpha: 0.20), // ✅ variantDino
+                Colors.black.withValues(alpha: 0.65),
               ],
             ),
           ),
@@ -538,7 +538,7 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
           center: Alignment.center,
           radius: 1.2,
           colors: [
-            dino.roleColor.withOpacity(0.35),
+            dino.roleColor.withValues(alpha: 0.35),
             const Color(0xFF0F1115),
           ],
         ),
@@ -617,7 +617,7 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.black.withOpacity(0.5), Colors.transparent],
+          colors: [Colors.black.withValues(alpha: 0.5), Colors.transparent],
         ),
         border: const Border(
           top: BorderSide(color: Color(0xFF5A5A5A), width: 1),
@@ -664,7 +664,7 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
           Text(
             '${widget.selectedVariants.length} variante${widget.selectedVariants.length > 1 ? 's' : ''}',
             style: GoogleFonts.exo2(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               fontSize: 12,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.5,

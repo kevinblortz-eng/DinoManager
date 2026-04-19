@@ -8,7 +8,17 @@ plugins {
 }
 
 val keystoreProperties = Properties()
-val keystorePropertiesFile = rootProject.file("key.properties")
+// Cherche key.properties d'abord dans android/app/ (votre fichier original),
+// puis à la racine android/ en fallback pour les builds CI.
+val keystorePropertiesFile = let {
+    val appFile = file("key.properties")          // android/app/key.properties
+    val rootFile = rootProject.file("key.properties") // android/key.properties
+    when {
+        appFile.exists()  -> appFile
+        rootFile.exists() -> rootFile
+        else              -> appFile
+    }
+}
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }

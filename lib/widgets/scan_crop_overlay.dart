@@ -229,7 +229,7 @@ class _ScanCropOverlayState extends State<ScanCropOverlay>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: const Color(0xFF00E5FF).withOpacity(0.85),
+              color: const Color(0xFF00E5FF).withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -324,7 +324,7 @@ class _CropPainter extends CustomPainter {
     );
 
     // ── 1. Zones sombres hors cadre ──
-    final darkPaint = Paint()..color = Colors.black.withOpacity(0.65);
+    final darkPaint = Paint()..color = Colors.black.withValues(alpha: 0.65);
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, px.top), darkPaint);
     canvas.drawRect(Rect.fromLTWH(0, px.bottom, size.width, size.height - px.bottom), darkPaint);
     canvas.drawRect(Rect.fromLTWH(0, px.top, px.left, px.height), darkPaint);
@@ -336,7 +336,7 @@ class _CropPainter extends CustomPainter {
         : const Color(0xFF00E5FF);  // cyan tek/auto
 
     final borderPaint = Paint()
-      ..color       = borderColor.withOpacity(pulse)
+      ..color       = borderColor.withValues(alpha: pulse)
       ..style       = PaintingStyle.stroke
       ..strokeWidth = 2.0;
     canvas.drawRect(px, borderPaint);
@@ -380,7 +380,7 @@ class _CropPainter extends CustomPainter {
 
     // ── 5. Grille tierce (rule of thirds) ──
     final gridPaint = Paint()
-      ..color       = Colors.white.withOpacity(0.08)
+      ..color       = Colors.white.withValues(alpha: 0.08)
       ..strokeWidth = 0.5;
     for (int i = 1; i <= 2; i++) {
       final x = px.left + px.width  * i / 3;

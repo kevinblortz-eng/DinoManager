@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';
+import '../utils/dino_helpers.dart';
 import 'dino_image_widget.dart';
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -36,17 +37,17 @@ class ArkDinoCard extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: dino.roleColor.withOpacity(0.3), // ✅ Corrigé
+            color: dino.roleColor.withValues(alpha: 0.3), // ✅ Corrigé
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5), // ✅ Corrigé
+              color: Colors.black.withValues(alpha: 0.5), // ✅ Corrigé
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
             BoxShadow(
-              color: dino.roleColor.withOpacity(0.15), // ✅ Corrigé
+              color: dino.roleColor.withValues(alpha: 0.15), // ✅ Corrigé
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -76,7 +77,7 @@ class ArkDinoCard extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 6),
                 child: Icon(
                   Icons.chevron_right_rounded,
-                  color: Colors.white.withOpacity(0.2), // ✅ Corrigé
+                  color: Colors.white.withValues(alpha: 0.2), // ✅ Corrigé
                   size: 24,
                 ),
               ),
@@ -101,7 +102,7 @@ class ArkDinoCard extends StatelessWidget {
           center: Alignment.centerLeft,
           radius: 1.5,
           colors: [
-            dino.roleColor.withOpacity(0.15), // ✅ Corrigé
+            dino.roleColor.withValues(alpha: 0.15), // ✅ Corrigé
             Colors.transparent,
           ],
         ),
@@ -116,27 +117,27 @@ class ArkDinoCard extends StatelessWidget {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  Colors.black.withOpacity(0.85), // ✅ Corrigé
-                  Colors.black.withOpacity(0.95), // ✅ Corrigé
+                  Colors.black.withValues(alpha: 0.85), // ✅ Corrigé
+                  Colors.black.withValues(alpha: 0.95), // ✅ Corrigé
                 ],
               ),
               border: Border.all(
-                color: dino.roleColor.withOpacity(0.4), // ✅ Corrigé
+                color: dino.roleColor.withValues(alpha: 0.4), // ✅ Corrigé
                 width: 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.7), // ✅ Corrigé
+                  color: Colors.black.withValues(alpha: 0.7), // ✅ Corrigé
                   blurRadius: 15,
                   spreadRadius: 2,
                 ),
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.25), // ✅ Corrigé
+                  color: Colors.white.withValues(alpha: 0.25), // ✅ Corrigé
                   blurRadius: 12,
                   spreadRadius: 1,
                 ),
                 BoxShadow(
-                  color: dino.roleColor.withOpacity(0.3), // ✅ Corrigé
+                  color: dino.roleColor.withValues(alpha: 0.3), // ✅ Corrigé
                   blurRadius: 16,
                   spreadRadius: -2,
                 ),
@@ -145,7 +146,7 @@ class ArkDinoCard extends StatelessWidget {
           ),
           Transform(
             alignment: Alignment.center,
-            transform: Matrix4.identity()..scale(-1.0, 1.0), // ✅ Syntaxe correcte
+            transform: Matrix4.diagonal3Values(-1.0, 1.0, 1.0),
             child: Container(
               width: 104,
               height: 104,
@@ -153,7 +154,7 @@ class ArkDinoCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.2), // ✅ Corrigé
+                    color: Colors.white.withValues(alpha: 0.2), // ✅ Corrigé
                     blurRadius: 8,
                     spreadRadius: 1,
                   ),
@@ -206,7 +207,7 @@ class ArkDinoCard extends StatelessWidget {
                   letterSpacing: 0.5,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withOpacity(0.5), // ✅ Corrigé
+                      color: Colors.black.withValues(alpha: 0.5), // ✅ Corrigé
                       blurRadius: 4,
                     ),
                   ],
@@ -245,10 +246,10 @@ class ArkDinoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: dino.sexeColor.withOpacity(0.2), // ✅ Corrigé
+        color: dino.sexeColor.withValues(alpha: 0.2), // ✅ Corrigé
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: dino.sexeColor.withOpacity(0.6), // ✅ Corrigé
+          color: dino.sexeColor.withValues(alpha: 0.6), // ✅ Corrigé
           width: 1.5,
         ),
       ),
@@ -267,10 +268,10 @@ class ArkDinoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: dino.roleColor.withOpacity(0.15), // ✅ Corrigé
+        color: dino.roleColor.withValues(alpha: 0.15), // ✅ Corrigé
         borderRadius: BorderRadius.circular(5),
         border: Border.all(
-          color: dino.roleColor.withOpacity(0.5), // ✅ Corrigé
+          color: dino.roleColor.withValues(alpha: 0.5), // ✅ Corrigé
           width: 1,
         ),
       ),
@@ -293,10 +294,10 @@ class ArkDinoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.25), // ✅ Corrigé
+        color: Colors.black.withValues(alpha: 0.25), // ✅ Corrigé
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1), // ✅ Corrigé
+          color: Colors.white.withValues(alpha: 0.1), // ✅ Corrigé
           width: 1,
         ),
       ),
@@ -338,7 +339,7 @@ class ArkDinoCard extends StatelessWidget {
           Text(
             label,
             style: GoogleFonts.exo2(
-              color: Colors.white.withOpacity(0.7), // ✅ Corrigé
+              color: Colors.white.withValues(alpha: 0.7), // ✅ Corrigé
               fontSize: 8,
               fontWeight: FontWeight.w700,
             ),
@@ -346,7 +347,7 @@ class ArkDinoCard extends StatelessWidget {
           Text(
             ' - ',
             style: GoogleFonts.exo2(
-              color: Colors.white.withOpacity(0.4), // ✅ Corrigé
+              color: Colors.white.withValues(alpha: 0.4), // ✅ Corrigé
               fontSize: 8,
               fontWeight: FontWeight.w600,
             ),
@@ -369,7 +370,7 @@ class ArkDinoCard extends StatelessWidget {
       width: 1,
       height: 8,
       margin: const EdgeInsets.symmetric(horizontal: 2),
-      color: Colors.white.withOpacity(0.15), // ✅ Corrigé
+      color: Colors.white.withValues(alpha: 0.15), // ✅ Corrigé
     );
   }
 
@@ -388,7 +389,7 @@ class ArkDinoCard extends StatelessWidget {
             gradient: LinearGradient(
               colors: [
                 Colors.transparent,
-                Colors.white.withOpacity(0.15), // ✅ Corrigé
+                Colors.white.withValues(alpha: 0.15), // ✅ Corrigé
                 Colors.transparent,
               ],
             ),
@@ -398,10 +399,10 @@ class ArkDinoCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.2), // ✅ Corrigé
+            color: Colors.black.withValues(alpha: 0.2), // ✅ Corrigé
             borderRadius: BorderRadius.circular(5),
             border: Border.all(
-              color: Colors.white.withOpacity(0.08), // ✅ Corrigé
+              color: Colors.white.withValues(alpha: 0.08), // ✅ Corrigé
               width: 1,
             ),
           ),
@@ -421,12 +422,12 @@ class ArkDinoCard extends StatelessWidget {
                     color: color,
                     borderRadius: BorderRadius.circular(2),
                     border: Border.all(
-                      color: Colors.white.withOpacity(isInactive ? 0.05 : 0.25), // ✅ CORRECTION CRITIQUE
+                      color: Colors.white.withValues(alpha: isInactive ? 0.05 : 0.25), // ✅ CORRECTION CRITIQUE
                       width: 0.5,
                     ),
                     boxShadow: !isInactive ? [
                       BoxShadow(
-                        color: color.withOpacity(0.4), // ✅ Corrigé
+                        color: color.withValues(alpha: 0.4), // ✅ Corrigé
                         blurRadius: 2,
                       ),
                     ] : null,
@@ -444,21 +445,7 @@ class ArkDinoCard extends StatelessWidget {
   // HELPERS
   // ══════════════════════════════════════════════════════════════════════════
 
-  String _formatNumber(int value) {
-    if (value >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(1)}m';
-    } else if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)}k';
-    }
-    return value.toString();
-  }
+  String _formatNumber(int value) => DinoHelpers.formatNumber(value);
 
-  Color? _parseHex(String? hex) {
-    if (hex == null || hex.isEmpty) return null;
-    try {
-      final h = hex.replaceAll('#', '');
-      if (h.length == 6) return Color(int.parse('FF$h', radix: 16));
-    } catch (_) {}
-    return null;
-  }
+  Color? _parseHex(String? hex) => DinoHelpers.parseHex(hex);
 }

@@ -78,7 +78,7 @@ class _CaptureGuideDialogState extends State<CaptureGuideDialog> {
                   color: const Color(0xFF15181E),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFF00E5FF).withOpacity(0.3),
+                    color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -91,7 +91,7 @@ class _CaptureGuideDialogState extends State<CaptureGuideDialog> {
                           borderRadius: BorderRadius.circular(11),
                           gradient: RadialGradient(
                             colors: [
-                              Colors.grey.withOpacity(0.08),
+                              Colors.grey.withValues(alpha: 0.08),
                               Colors.transparent,
                             ],
                           ),
@@ -116,7 +116,7 @@ class _CaptureGuideDialogState extends State<CaptureGuideDialog> {
                           children: [
                             Icon(
                               Icons.crop_free_rounded,
-                              color: const Color(0xFF00E5FF).withOpacity(0.4),
+                              color: const Color(0xFF00E5FF).withValues(alpha: 0.4),
                               size: 40,
                             ),
                             const SizedBox(height: 8),
@@ -124,7 +124,7 @@ class _CaptureGuideDialogState extends State<CaptureGuideDialog> {
                               'Placez la fenêtre de stats ici',
                               style: GoogleFonts.exo2(
                                 color:
-                                    const Color(0xFF00E5FF).withOpacity(0.6),
+                                    const Color(0xFF00E5FF).withValues(alpha: 0.6),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -151,16 +151,16 @@ class _CaptureGuideDialogState extends State<CaptureGuideDialog> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00E5FF).withOpacity(0.08),
+                  color: const Color(0xFF00E5FF).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: const Color(0xFF00E5FF).withOpacity(0.2),
+                    color: const Color(0xFF00E5FF).withValues(alpha: 0.2),
                   ),
                 ),
                 child: Text(
                   _tips[_tipIndex],
                   style: GoogleFonts.exo2(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),

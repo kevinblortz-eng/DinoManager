@@ -41,6 +41,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
 
   // ── Image galerie ──────────────────────────────────────────────────────────
   File? _galleryImage;
+  // ignore: unused_field
   Size? _galleryImageSize;
 
   // ── Zone de recadrage (valeurs normalisées 0.0–1.0) ───────────────────────
@@ -261,7 +262,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
   void _cleanTemp(List<File> temps, File original) {
     for (final f in temps) {
       if (f.path != original.path) {
-        f.delete().catchError((_) {});
+        f.delete().catchError((_) => f);
       }
     }
   }
@@ -414,6 +415,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     final controller = _cameraController!;
     final previewSize = controller.value.previewSize!;
     final previewAspect = previewSize.height / previewSize.width;
+    // ignore: unused_local_variable
     final screenAspect  = size.width / size.height;
 
     return OverflowBox(
@@ -648,7 +650,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
               ? []
               : [
                   BoxShadow(
-                    color:  const Color(0xFF00E5FF).withOpacity(0.5),
+                    color:  const Color(0xFF00E5FF).withValues(alpha: 0.5),
                     blurRadius: 20,
                     spreadRadius: 4,
                   ),
@@ -684,7 +686,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
 
   Widget _buildProcessingOverlay() {
     return Container(
-      color: Colors.black.withOpacity(0.75),
+      color: Colors.black.withValues(alpha: 0.75),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

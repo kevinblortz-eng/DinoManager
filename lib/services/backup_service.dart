@@ -49,14 +49,14 @@ class BackupService {
       final file = File('${tempDir.path}/$fileName');
       await file.writeAsString(jsonString, encoding: utf8);
 
-      await Share.shareXFiles(
-        [XFile(file.path, mimeType: 'application/json')],
+      await SharePlus.instance.share(ShareParams(
+        files: [XFile(file.path, mimeType: 'application/json')],
         subject: '[$_appName] Sauvegarde complète — $timestamp',
         text: 'Sauvegarde complète ARK Dino Manager\n'
             '${dinos.length} dino(s)\n'
             '${trackers.length} tracker(s)\n'
             'Date : $timestamp',
-      );
+      ));
 
       return null;
     } catch (e) {

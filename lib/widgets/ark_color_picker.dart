@@ -165,7 +165,7 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: AppTheme.accentPrimary.withOpacity(0.2),
+                      color: AppTheme.accentPrimary.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Center(
@@ -247,14 +247,14 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color:
-                                        Colors.white.withOpacity(0.3),
+                                        Colors.white.withValues(alpha: 0.3),
                                     width: 2,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
                                       color: (currentColor?.color ??
                                               Colors.grey)
-                                          .withOpacity(0.4),
+                                          .withValues(alpha: 0.4),
                                       blurRadius: 8,
                                       spreadRadius: 2,
                                     ),
@@ -298,7 +298,7 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                                           ),
                                           decoration: BoxDecoration(
                                             color: AppTheme.accentPrimary
-                                                .withOpacity(0.15),
+                                                .withValues(alpha: 0.15),
                                             borderRadius:
                                                 BorderRadius.circular(
                                                     4),
@@ -440,14 +440,14 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                             border: Border.all(
                               color: isSelected
                                   ? Colors.white
-                                  : Colors.white.withOpacity(0.2),
+                                  : Colors.white.withValues(alpha: 0.2),
                               width: isSelected ? 2.5 : 1,
                             ),
                             boxShadow: isSelected
                                 ? [
                                     BoxShadow(
                                       color: Colors.white
-                                          .withOpacity(0.25),
+                                          .withValues(alpha: 0.25),
                                       blurRadius: 6,
                                       spreadRadius: 1,
                                     ),
@@ -475,7 +475,7 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                                     vertical: 1),
                                 decoration: BoxDecoration(
                                   color:
-                                      Colors.black.withOpacity(0.45),
+                                      Colors.black.withValues(alpha: 0.45),
                                   borderRadius: const BorderRadius.only(
                                     bottomLeft: Radius.circular(5),
                                     bottomRight: Radius.circular(5),
@@ -515,13 +515,13 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                           border: Border.all(
                             color: isSelected
                                 ? Colors.white
-                                : Colors.white.withOpacity(0.1),
+                                : Colors.white.withValues(alpha: 0.1),
                             width: isSelected ? 2.5 : 0.5,
                           ),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: c.color.withOpacity(0.6),
+                                    color: c.color.withValues(alpha: 0.6),
                                     blurRadius: 6,
                                     spreadRadius: 1,
                                   ),
@@ -542,7 +542,7 @@ class _ArkColorPickerState extends State<ArkColorPicker> {
                               padding: const EdgeInsets.symmetric(
                                   vertical: 1),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withValues(alpha: 0.5),
                                 borderRadius: const BorderRadius.only(
                                   bottomLeft: Radius.circular(5),
                                   bottomRight: Radius.circular(5),
@@ -650,12 +650,12 @@ class ArkColorBadge extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(4),
           border: Border.all(
-            color: Colors.white.withOpacity(0.25),
+            color: Colors.white.withValues(alpha: 0.25),
             width: 0.8,
           ),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               blurRadius: 3,
             ),
           ],
@@ -693,8 +693,5 @@ class ArkColorBadge extends StatelessWidget {
     return Colors.grey;
   }
 
-  bool _isLight(Color c) {
-    final brightness = (c.red * 0.299 + c.green * 0.587 + c.blue * 0.114);
-    return brightness > 186;
-  }
+  bool _isLight(Color c) => c.computeLuminance() > 0.5;
 }

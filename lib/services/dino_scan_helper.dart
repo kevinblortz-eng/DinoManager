@@ -153,9 +153,9 @@ class DinoScanHelper {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.4), width: 1.5),
+            border: Border.all(color: color.withValues(alpha: 0.4), width: 1.5),
           ),
           child: Column(
             children: [
@@ -173,7 +173,7 @@ class DinoScanHelper {
               Text(
                 sub,
                 style: TextStyle(
-                  color: color.withOpacity(0.6),
+                  color: color.withValues(alpha: 0.6),
                   fontSize: 10,
                 ),
               ),

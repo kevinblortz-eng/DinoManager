@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // ✅ Import ajouté
+import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';
-// import '../theme/app_theme.dart'; 
 import 'dino_image_widget.dart';
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -144,7 +143,7 @@ class ArkDinoCard extends StatelessWidget {
           ),
           Transform(
             alignment: Alignment.center,
-            transform: Matrix4.identity()..scale(-1.0, 1.0, 1.0),
+            transform: Matrix4.diagonal3Values(-1.0, 1.0, 1.0),
             child: Container(
               width: 104,
               height: 104,

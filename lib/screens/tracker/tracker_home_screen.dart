@@ -283,8 +283,9 @@ class _TrackerHomeScreenState extends State<TrackerHomeScreen> {
                           .createTracker(officialName, project);
 
                       if (!mounted) return;
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(dialogContext);
-
+                      // ignore: use_build_context_synchronously
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
@@ -292,6 +293,7 @@ class _TrackerHomeScreenState extends State<TrackerHomeScreen> {
                         ),
                       );
                     } catch (e) {
+                      // ignore: use_build_context_synchronously
                       ScaffoldMessenger.of(dialogContext).showSnackBar(
                         SnackBar(content: Text('Erreur: $e')),
                       );
@@ -370,9 +372,11 @@ class _TrackerHomeScreenState extends State<TrackerHomeScreen> {
 
     if (confirm != true) return;
 
+    // ignore: use_build_context_synchronously
     await context.read<TrackerProvider>().deleteTracker(tracker.id);
 
     if (!mounted) return;
+    // ignore: use_build_context_synchronously
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
           content: Text('Tracker ${tracker.species} supprimé')),
