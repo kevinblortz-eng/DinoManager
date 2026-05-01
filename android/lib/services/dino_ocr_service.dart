@@ -120,7 +120,9 @@ class DinoOcrResult {
 
   Dino toDino({bool removeImprint = true}) {
     final ids = List<int>.from(colorIds);
-    while (ids.length < 6) ids.add(0);
+    while (ids.length < 6) {
+      ids.add(0);
+    }
 
     final hexes = ids.map((id) {
       if (id <= 0) return '#808080';
@@ -213,7 +215,9 @@ class DinoOcrResult {
       if (status!.toLowerCase().contains('tamed'))  tags.add('Tamed');
     }
     if ((mutationsMale   ?? 0) > 0 ||
-        (mutationsFemale ?? 0) > 0) tags.add('Mutant');
+        (mutationsFemale ?? 0) > 0) {
+      tags.add('Mutant');
+    }
     return tags;
   }
 
@@ -411,14 +415,14 @@ class DinoOcrService {
     // Ordre ARK Tek binoculars :
     // non-% → [0]HP [1]Stamina [2]Torpor [3]Poids [4]Food [5]Oxygen
     // %     → [0]Melee [1]Vitesse
-    if (nonPct.length > 0) hp      = _toStat(nonPct[0]);
+    if (nonPct.isNotEmpty) hp      = _toStat(nonPct[0]);
     if (nonPct.length > 1) stamina = _toStat(nonPct[1]);
     if (nonPct.length > 2) torpor  = _toStat(nonPct[2]);
     if (nonPct.length > 3) weight  = _toStat(nonPct[3]);
     if (nonPct.length > 4) food    = _toStat(nonPct[4]);
     if (nonPct.length > 5) oxygen  = _toStat(nonPct[5]);
 
-    if (pctStats.length > 0) melee = _toStat(pctStats[0]);
+    if (pctStats.isNotEmpty) melee = _toStat(pctStats[0]);
     if (pctStats.length > 1) speed = _toStat(pctStats[1]);
 
     colorIds = _extractColors(lines);
@@ -523,7 +527,9 @@ class DinoOcrService {
           lower.contains('deploy')   ||
           lower.contains('mutation') ||
           lower.contains('weight:')  ||
-          lower.contains('poids:'))  continue;
+          lower.contains('poids:')) {
+        continue;
+      }
 
       final mStat = statRe.firstMatch(line);
       if (mStat != null) {
@@ -544,14 +550,14 @@ class DinoOcrService {
     // %     → [0]Melee [1]Vitesse
     OcrStat? hp, stamina, oxygen, food, weight, melee, speed;
 
-    if (nonPctVals.length > 0) hp      = OcrStat(maxValue: nonPctVals[0]);
+    if (nonPctVals.isNotEmpty) hp      = OcrStat(maxValue: nonPctVals[0]);
     if (nonPctVals.length > 1) stamina = OcrStat(maxValue: nonPctVals[1]);
     // [2] = Water/Torpor → ignoré
     if (nonPctVals.length > 3) weight  = OcrStat(maxValue: nonPctVals[3]);
     if (nonPctVals.length > 4) food    = OcrStat(maxValue: nonPctVals[4]);
     if (nonPctVals.length > 5) oxygen  = OcrStat(maxValue: nonPctVals[5]);
 
-    if (pctVals.length > 0) melee = OcrStat(maxValue: pctVals[0], isPercent: true);
+    if (pctVals.isNotEmpty) melee = OcrStat(maxValue: pctVals[0], isPercent: true);
     if (pctVals.length > 1) speed = OcrStat(maxValue: pctVals[1], isPercent: true);
 
     colorIds = _extractColors(lines);
@@ -605,7 +611,9 @@ class DinoOcrService {
           lower.contains('poids')     ||
           lower.contains('imprint')   ||
           lower.contains('tamed')     ||
-          lower.contains('wild'))     continue;
+          lower.contains('wild')) {
+        continue;
+      }
 
       // Ignorer les lignes avec "/" (stats) ou "(X|Y|Z)" (points tek)
       if (line.contains('/')) continue;
@@ -699,10 +707,12 @@ class DinoOcrService {
     final parts = <String>[];
     for (final line in lines) {
       final lower = line.toLowerCase();
-      if (lower == 'tamed' || lower.contains('tamed') && line.length < 20)
+      if (lower == 'tamed' || lower.contains('tamed') && line.length < 20) {
         parts.add('Tamed');
-      if (lower == 'wild' || lower.contains('wild') && line.length < 20)
+      }
+      if (lower == 'wild' || lower.contains('wild') && line.length < 20) {
         parts.add('Wild');
+      }
       if (lower.contains('badass')) parts.add('Badass');
     }
     return parts.isEmpty ? null : parts.toSet().join(' ');
@@ -739,7 +749,9 @@ class DinoOcrService {
     for (final line in lines) {
       final lower = line.toLowerCase();
       if (!lower.contains('mutation') &&
-          !line.contains('♂') && !line.contains('♀')) continue;
+          !line.contains('♂') && !line.contains('♀')) {
+        continue;
+      }
 
       var m = RegExp(r'♂\s*([\d,]+)\s*♀\s*([\d,]+)').firstMatch(line);
       if (m != null) {
