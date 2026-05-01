@@ -1,0 +1,49 @@
+name: dino_manager
+description: ARK Dino Manager – Mobile Smart Breeding
+publish_to: 'none'
+version: 1.0.7+7
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+    # Base de données locale (web + Android)
+  hive: 2.2.3
+  hive_flutter: 1.1.0
+  path_provider: ^2.1.2
+  # Gestion d'état
+  provider: 6.1.5+1
+  # UI & utilitaires
+  shared_preferences: ^2.5.5
+  intl: ^0.20.2
+  flutter_colorpicker: ^1.1.0
+  google_fonts: ^8.0.2
+  cached_network_image: ^3.4.1
+  # Export / partage de données
+  share_plus: ^12.0.2
+  file_picker: ^11.0.2
+  # Icônes
+  cupertino_icons: ^1.0.8
+  # Pour Excel
+  excel: ^4.0.6
+  # Vos autres dépendances existantes...
+  google_mlkit_text_recognition: ^0.15.1
+  image_picker: ^1.1.2
+  image: ^4.3.0
+  permission_handler: ^12.0.1
+  camera: ^0.11.0+2
+  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/dinos/
+    - assets/icons/
+    - assets/images/flame_background.png
