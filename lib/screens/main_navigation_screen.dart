@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// lib/screens/main_navigation_screen.dart
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -12,10 +8,7 @@ import 'library_screen.dart';
 import 'add_edit_dino_screen.dart';
 import 'simulator_screen.dart';
 import 'tracker/species_journal_home_screen.dart';
-<<<<<<< HEAD
-=======
 import 'orders_screen.dart';
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -27,11 +20,7 @@ class MainNavigationScreen extends StatefulWidget {
 class MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 2; // Home au centre par défaut
 
-<<<<<<< HEAD
-  // Index : 0=Simulateur, 1=Bibliothèque, 2=Home, 3=Journal, 4=Ajouter
-=======
   // Index : 0=Simulateur, 1=Bibliothèque, 2=Home, 3=Journal, 4=Commandes
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   final List<Widget> _screens = [];
   bool _initialized = false;
@@ -39,29 +28,17 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
   void _initScreens() {
     if (_initialized) return;
     _screens.addAll([
-<<<<<<< HEAD
-      const SimulatorScreen(),                   // 0
-      const LibraryScreen(),                     // 1
-      HomeScreen(onNavigateToTab: navigateToTab), // 2
-      const SpeciesJournalHomeScreen(),          // 3
-      const _AddScreenPlaceholder(),             // 4 — placeholder, on push
-=======
       const SimulatorScreen(),                    // 0
       const LibraryScreen(),                      // 1
       HomeScreen(onNavigateToTab: navigateToTab), // 2
       const SpeciesJournalHomeScreen(),           // 3
       const OrdersScreen(),                       // 4
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     ]);
     _initialized = true;
   }
 
   void navigateToTab(int index) {
-<<<<<<< HEAD
-    if (index >= 0 && index <= 3) {
-=======
     if (index >= 0 && index <= 4) {
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
       setState(() => _currentIndex = index);
     }
   }
@@ -97,73 +74,38 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
     return Scaffold(
       backgroundColor: AppTheme.bgPrimary,
       body: IndexedStack(
-<<<<<<< HEAD
-        index: _currentIndex > 3 ? 2 : _currentIndex, // si 4 on reste sur home
-=======
         index: _currentIndex,
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
         children: _screens,
       ),
       bottomNavigationBar: _ArkBottomNavBar(
         currentIndex: _currentIndex,
         onTabChanged: (index) {
-<<<<<<< HEAD
-          if (index == 4) {
-            _openAddScreen();
-          } else {
-            navigateToTab(index);
-          }
-        },
-=======
           navigateToTab(index);
         },
         onAddPressed: _openAddScreen,
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
       ),
     );
   }
 }
 
-<<<<<<< HEAD
-// Placeholder au cas où IndexedStack essaie d'afficher l'index 4
-class _AddScreenPlaceholder extends StatelessWidget {
-  const _AddScreenPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.shrink();
-  }
-}
-
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 // ═══════════════════════════════════════════════════════════════
 //  BOTTOM NAVIGATION BAR — 5 boutons
 // ═══════════════════════════════════════════════════════════════
 class _ArkBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTabChanged;
-<<<<<<< HEAD
-=======
   final VoidCallback onAddPressed;
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   const _ArkBottomNavBar({
     required this.currentIndex,
     required this.onTabChanged,
-<<<<<<< HEAD
-=======
     required this.onAddPressed,
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   });
 
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-<<<<<<< HEAD
-=======
     final isHome = currentIndex == 2;
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
     return Container(
       decoration: BoxDecoration(
@@ -191,33 +133,21 @@ class _ArkBottomNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-<<<<<<< HEAD
-=======
               // ── Simulateur ──
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
               _NavBarItem(
                 icon: Icons.science_rounded,
                 label: 'Simulateur',
                 isActive: currentIndex == 0,
                 onTap: () => onTabChanged(0),
               ),
-<<<<<<< HEAD
-=======
 
               // ── Bibliothèque ──
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
               _NavBarItem(
                 icon: Icons.auto_stories_rounded,
                 label: 'Bibliothèque',
                 isActive: currentIndex == 1,
                 onTap: () => onTabChanged(1),
               ),
-<<<<<<< HEAD
-              _NavBarCenterItem(
-                isActive: currentIndex == 2,
-                onTap: () => onTabChanged(2),
-              ),
-=======
 
               // ── Bouton Dynamique au centre ──
               // Quand on est sur HOME : bouton "Ajouter"
@@ -233,21 +163,12 @@ class _ArkBottomNavBar extends StatelessWidget {
                 ),
 
               // ── Journal ──
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
               _NavBarItem(
                 icon: Icons.menu_book_rounded,
                 label: 'Journal',
                 isActive: currentIndex == 3,
                 onTap: () => onTabChanged(3),
               ),
-<<<<<<< HEAD
-              _NavBarItem(
-                icon: Icons.add_circle_outline_rounded,
-                label: 'Ajouter',
-                isActive: false, // jamais "actif" car c'est un push
-                onTap: () => onTabChanged(4),
-                accentColor: AppTheme.success,
-=======
 
               // ── Commandes ──
               _NavBarItem(
@@ -256,7 +177,6 @@ class _ArkBottomNavBar extends StatelessWidget {
                 isActive: currentIndex == 4,
                 onTap: () => onTabChanged(4),
                 accentColor: Colors.cyanAccent,
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
               ),
             ],
           ),
@@ -266,12 +186,9 @@ class _ArkBottomNavBar extends StatelessWidget {
   }
 }
 
-<<<<<<< HEAD
-=======
 // ─────────────────────────────────────────────────────────────
 // ITEM STANDARD (Simulateur, Bibliothèque, Journal, Commandes)
 // ─────────────────────────────────────────────────────────────
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 class _NavBarItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -350,13 +267,6 @@ class _NavBarItem extends StatelessWidget {
   }
 }
 
-<<<<<<< HEAD
-class _NavBarCenterItem extends StatelessWidget {
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _NavBarCenterItem({
-=======
 // ─────────────────────────────────────────────────────────────
 // BOUTON CENTRE QUAND ON EST SUR HOME : "Ajouter"
 // ─────────────────────────────────────────────────────────────
@@ -431,7 +341,6 @@ class _NavBarCenterHomeItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const _NavBarCenterHomeItem({
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     required this.isActive,
     required this.onTap,
   });

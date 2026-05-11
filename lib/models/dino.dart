@@ -110,11 +110,7 @@ class Dino {
 
   // Tags par défaut (en mémoire, extensibles via shared_prefs ou Hive)
   static const List<String> tagsParDefaut = [
-<<<<<<< HEAD
-    'Boss', 'Breeding',
-=======
     'Boss', 'Breeding','Solid','Farm','Collection','Combat',
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   ];
   // Pour la compat ascendante
   static const List<String> tagsDisponibles = [
@@ -518,8 +514,6 @@ class Dino {
       dateAjout: dateAjout ?? this.dateAjout,
     );
   }
-<<<<<<< HEAD
-=======
     /// Factory pour créer un dino vide (utilisé comme fallback)
   factory Dino.empty() {
     return Dino(
@@ -559,5 +553,4 @@ class Dino {
       dateAjout: DateTime.now(),
     );
   }
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 }

@@ -8,13 +8,8 @@ import '../models/dino.dart';
 import '../models/species_tracker.dart';
 import '../providers/dino_provider.dart';
 import '../providers/tracker_provider.dart';
-<<<<<<< HEAD
-// import '../services/dino_scan_helper.dart';   // ⛔ DÉSACTIVÉ temporairement
-// import '../services/dino_ocr_service.dart';   // ⛔ DÉSACTIVÉ temporairement
-=======
 import '../services/dino_scan_helper.dart';
 import '../services/dino_ocr_service.dart';
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 import '../theme/app_theme.dart';
 import '../widgets/ark_color_picker.dart';
 import '../widgets/dino_image_widget.dart';
@@ -78,10 +73,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
   late List<({int id, String hex})> _couleurs;
 
   bool _isSaving = false;
-<<<<<<< HEAD
-=======
   bool _isScanning = false;
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   int? _activeRegionIndex;
 
@@ -334,13 +326,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     );
   }
 
-<<<<<<< HEAD
-  // ─────────────── SCANNER OCR — ⛔ DÉSACTIVÉ TEMPORAIREMENT ───────────────
-
-  Future<void> _launchScanner() async {
-    // ⛔ Fonctionnalité temporairement désactivée — en cours de correction
-    showDialog(
-=======
   // ─────────────── SCANNER OCR ───────────────
 
   Future<void> _launchScanner() async {
@@ -496,39 +481,12 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
   Future<bool?> _showScanResultDialog(DinoOcrResult result) {
     final imprint = result.imprintPercent ?? 0;
     return showDialog<bool>(
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.bgCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-<<<<<<< HEAD
-            Icon(Icons.construction_rounded,
-                color: Colors.orangeAccent, size: 22),
-            const SizedBox(width: 10),
-            Text(
-              'Fonctionnalité désactivée',
-              style: GoogleFonts.exo2(color: Colors.white, fontSize: 15),
-            ),
-          ],
-        ),
-        content: Text(
-          'Le scanner OCR (cryopod / jumelles Tek) est temporairement '
-          'indisponible pendant une correction.\n\n'
-          'Veuillez saisir les données manuellement.',
-          style: GoogleFonts.exo2(
-            color: Colors.white.withValues(alpha: 0.7),
-            fontSize: 13,
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.orangeAccent,
-=======
             const Icon(Icons.document_scanner_rounded,
                 color: Colors.greenAccent, size: 22),
             const SizedBox(width: 10),
@@ -617,124 +575,17 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
               backgroundColor: Colors.greenAccent,
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-<<<<<<< HEAD
-            child: Text('OK',
-                style:
-                    GoogleFonts.exo2(fontWeight: FontWeight.w800, fontSize: 12)),
-=======
             child: Text('Appliquer',
                 style: GoogleFonts.exo2(
                     fontWeight: FontWeight.w800, fontSize: 12)),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           ),
         ],
       ),
     );
-<<<<<<< HEAD
-
-    // ── Code original conservé ci-dessous pour réactivation ultérieure ──
-    /*
-    final result = await DinoScanHelper.launchScan(context);
-    if (result == null) return;
-    if (!mounted) return;
-
-    final confirmed = await _showScanResultDialog(result);
-    if (confirmed != true) return;
-    if (!mounted) return;
-
-    setState(() {
-      if (result.species != null) _espece = result.species!;
-      if (result.level != null) _niveauCtrl.text = result.level.toString();
-
-      if (result.sex != null) {
-        if (result.sex!.contains('♀')) {
-          _sexe = 'Femelle';
-        } else if (result.sex!.contains('♂')) {
-          _sexe = 'Mâle';
-        }
-      }
-
-      final imprint = result.imprintPercent ?? 0;
-      final imprintMultiplier = 1.0 + (0.2 * imprint / 100.0);
-
-      if (result.hp?.maxValue != null) {
-        final raw = result.hp!.maxValue!;
-        final corrected = imprint > 0 ? raw / imprintMultiplier : raw;
-        _hpCtrl.text = corrected.round().toString();
-      }
-      if (result.stamina?.maxValue != null) {
-        final raw = result.stamina!.maxValue!;
-        final corrected = imprint > 0 ? raw / imprintMultiplier : raw;
-        _staminaCtrl.text = corrected.round().toString();
-      }
-      if (result.oxygen?.maxValue != null) {
-        _oxygeneCtrl.text = result.oxygen!.maxValue!.round().toString();
-      }
-      if (result.food?.maxValue != null) {
-        _nourritureCtrl.text = result.food!.maxValue!.round().toString();
-      }
-      if (result.weight?.maxValue != null) {
-        final raw = result.weight!.maxValue!;
-        final corrected = imprint > 0 ? raw / imprintMultiplier : raw;
-        _poidsCtrl.text = corrected.round().toString();
-      }
-      if (result.melee?.maxValue != null) {
-        final raw = result.melee!.maxValue!;
-        final corrected = imprint > 0 ? raw / imprintMultiplier : raw;
-        _degatsCtrl.text = corrected.toStringAsFixed(1);
-      }
-
-      if (result.hp != null) _hpBaseCtrl.text = '${result.hp!.wildPoints ?? 0}';
-      if (result.stamina != null) _staminaBaseCtrl.text = '${result.stamina!.wildPoints ?? 0}';
-      if (result.oxygen != null) _oxygeneBaseCtrl.text = '${result.oxygen!.wildPoints ?? 0}';
-      if (result.food != null) _nourritureBaseCtrl.text = '${result.food!.wildPoints ?? 0}';
-      if (result.weight != null) _poidsBaseCtrl.text = '${result.weight!.wildPoints ?? 0}';
-      if (result.melee != null) _degatsBaseCtrl.text = '${result.melee!.wildPoints ?? 0}';
-
-      for (int i = 0; i < 6; i++) {
-        final colorId = result.colorIds[i];
-        if (colorId > 0) {
-          final hex = DinoScanHelper.getColorHex(colorId);
-          _couleurs[i] = (id: colorId, hex: hex);
-        }
-      }
-
-      if (result.status != null) {
-        if (result.status!.toLowerCase().contains('badass') && !_tags.contains('Badass')) {
-          _tags.add('Badass');
-        }
-      }
-      if ((result.mutationsMale ?? 0) > 0 || (result.mutationsFemale ?? 0) > 0) {
-        if (!_tags.contains('Mutant')) _tags.add('Mutant');
-      }
-
-      final notesParts = <String>[];
-      notesParts.add('Import OCR (${result.sourceType.label})');
-      if (imprint > 0) {
-        notesParts.add('Imprint: ${imprint.toStringAsFixed(1)}%${result.imprinter != null ? ' - ${result.imprinter}' : ''}');
-        notesParts.add('⚠️ Stats HP/Stam/Weight/Melee corrigées à 0% imprint');
-      }
-      if (result.mutationsMale != null || result.mutationsFemale != null) {
-        notesParts.add('Mutations: ♂${result.mutationsMale ?? '?'} ♀${result.mutationsFemale ?? '?'}');
-      }
-      _notesCtrl.text = notesParts.join('\n');
-    });
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Données importées (${result.sourceType.label})${(result.imprintPercent ?? 0) > 0 ? ' — stats corrigées imprint' : ''} — vérifiez et sauvegardez'),
-        backgroundColor: AppTheme.success,
-        duration: const Duration(seconds: 3),
-      ),
-    );
-    */
-=======
   }
 
   Widget _scanRow(String label, String value, {bool warn = false}) {
@@ -765,24 +616,11 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         ],
       ),
     );
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   }
 
   // ─────────────── SAUVEGARDE ───────────────
 
   Future<void> _save() async {
-<<<<<<< HEAD
-    if (_nomCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Le nom est obligatoire'),
-            backgroundColor: AppTheme.warning),
-      );
-      return;
-    }
-
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     setState(() => _isSaving = true);
 
     final provider = context.read<DinoProvider>();
@@ -796,13 +634,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     setState(() => _isSaving = false);
 
     if (success) {
-<<<<<<< HEAD
-      final message = widget.isDuplicate
-          ? '${dino.nom} dupliqué !'
-          : widget.dino == null
-              ? '${dino.nom} ajouté !'
-              : '${dino.nom} mis à jour !';
-=======
       // ✅ FIX BUG 2 — Forcer le rechargement complet du provider
       // pour que toutes les pages qui écoutent DinoProvider
       // reconstruisent immédiatement leurs cartes.
@@ -816,7 +647,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
           : widget.dino == null
               ? '$dinoName ajouté !'
               : '$dinoName mis à jour !';
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: AppTheme.success),
       );
@@ -950,25 +780,12 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
           ),
         ),
         actions: [
-<<<<<<< HEAD
-          // ⛔ Bouton scanner — visible mais désactivé visuellement
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.6),
               shape: BoxShape.circle,
               border: Border.all(
-<<<<<<< HEAD
-                  color: Colors.orangeAccent.withValues(alpha: 0.3), width: 1),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.document_scanner_rounded,
-                  color: Colors.orangeAccent),
-              tooltip: 'Scanner — temporairement désactivé',
-              onPressed: _launchScanner,
-=======
                 color: _isScanning
                     ? Colors.greenAccent.withValues(alpha: 0.6)
                     : Colors.greenAccent.withValues(alpha: 0.3),
@@ -989,7 +806,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                       color: Colors.greenAccent),
               tooltip: 'Scanner Cryopod / Tek Jumelles',
               onPressed: _isScanning ? null : _launchScanner,
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             ),
           ),
         ],
@@ -1051,10 +867,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     );
   }
 
-<<<<<<< HEAD
-  // ── Zone visuelle principale de la carte ──
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   Widget _buildVisualSection(List<String> hexColors, int niveau) {
     final assetPath =
         'assets/images/dinos/${_espece.replaceAll(' ', '_')}_ASA.png';
@@ -1065,11 +877,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
       height: 280,
       child: Stack(
         children: [
-<<<<<<< HEAD
-
-          // ── FOND FLOUTÉ — même modèle que dino_detail_screen ──
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           Positioned.fill(
             child: ClipRect(
               child: Stack(
@@ -1107,20 +914,10 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
               ),
             ),
           ),
-<<<<<<< HEAD
-
-          // ── BORDURE BASSE ──
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           Positioned(
             left: 0, right: 0, bottom: 0,
             child: Container(height: 2, color: const Color(0xFF5A5A5A)),
           ),
-<<<<<<< HEAD
-
-          // ── IMAGE DINO cliquable → picker espèce ──
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           Positioned.fill(
             child: GestureDetector(
               onTap: _showSpeciesPickerDialog,
@@ -1153,10 +950,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                             showColorBand: false,
                             alignment: Alignment.center,
                           ),
-<<<<<<< HEAD
-                    // ── Hint "changer d'espèce" ──
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                     Positioned(
                       bottom: 0,
                       child: Container(
@@ -1193,11 +986,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
               ),
             ),
           ),
-<<<<<<< HEAD
-
-          // ── BADGE NIVEAU cliquable ──
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           Positioned(
             top: 16, left: 16,
             child: GestureDetector(
@@ -1229,11 +1017,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
               ),
             ),
           ),
-<<<<<<< HEAD
-
-          // ── BADGE SEXE cliquable ──
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           Positioned(
             top: 16, right: 16,
             child: GestureDetector(
@@ -1306,13 +1089,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
       alignment: Alignment.center,
       child: Text(
         _sexeDisplay(),
-<<<<<<< HEAD
-        style:
-            TextStyle(color: sexeColor, fontSize: 22, fontWeight: FontWeight.w900),
-=======
         style: TextStyle(
             color: sexeColor, fontSize: 22, fontWeight: FontWeight.w900),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
       ),
     );
   }
@@ -1374,11 +1152,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                   Flexible(
                     child: Text(
                       _nomCtrl.text.isEmpty
-<<<<<<< HEAD
-                          ? 'Appuyer pour nommer'
-=======
                           ? 'Tap pour nommer (optionnel)'
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                           : _nomCtrl.text,
                       style: GoogleFonts.exo2(
                         color: _nomCtrl.text.isEmpty
@@ -1826,10 +1600,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
       children: [
         if (_activeRegionIndex != null)
           _buildRegionPreview(_activeRegionIndex!),
-<<<<<<< HEAD
-
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -2082,47 +1852,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
   Widget _buildActionButtons() {
     return Column(
       children: [
-<<<<<<< HEAD
-        // ⛔ Bouton scanner — désactivé visuellement avec badge "bientôt"
-        Row(
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  _buildActionButton(
-                    icon: Icons.document_scanner_rounded,
-                    label: 'SCANNER CRYOPOD / TEK',
-                    color: Colors.orangeAccent,
-                    onPressed: _launchScanner,
-                  ),
-                  Positioned(
-                    top: 6,
-                    right: 6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.orangeAccent,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        'DÉSACTIVÉ',
-                        style: GoogleFonts.exo2(
-                          color: Colors.black,
-                          fontSize: 7,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
         Row(
           children: [
             Expanded(
@@ -2261,13 +1990,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
               setState(() => ctrl.text = tempCtrl.text);
               Navigator.pop(ctx);
             },
-<<<<<<< HEAD
-            child:
-                Text('OK', style: GoogleFonts.exo2(color: AppTheme.accentPrimary)),
-=======
             child: Text('OK',
                 style: GoogleFonts.exo2(color: AppTheme.accentPrimary)),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           ),
         ],
       ),
@@ -2275,27 +1999,16 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     tempCtrl.dispose();
   }
 
-<<<<<<< HEAD
-  Future<void> _editTags() async {
-    final provider = context.read<DinoProvider>();
-    final availableTags = provider.allTags;
-=======
   // ✅ FIX BUG 1 — _editTags avec rechargement dynamique des tags
   // La liste availableTags est maintenant lue DANS le builder du StatefulBuilder
   // via context.watch, ce qui permet de voir les nouveaux tags immédiatement
   // après leur création sans fermer et rouvrir le dialog.
   Future<void> _editTags() async {
     final provider = context.read<DinoProvider>();
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
     await showDialog(
       context: context,
       builder: (ctx) {
-<<<<<<< HEAD
-        final tempTags = List<String>.from(_tags);
-        return StatefulBuilder(
-          builder: (context, setLocalState) {
-=======
         // ✅ Initialiser tempTags ICI pour capturer l'état courant au moment
         // de l'ouverture, mais on le met dans une variable partagée
         // via StatefulBuilder pour que les mises à jour soient visibles.
@@ -2308,18 +2021,12 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
             final availableTags =
                 context.watch<DinoProvider>().allTags;
 
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             return AlertDialog(
               backgroundColor: AppTheme.bgCard,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
-<<<<<<< HEAD
-              title:
-                  Text('Tags & Role', style: GoogleFonts.exo2(color: Colors.white)),
-=======
               title: Text('Tags & Role',
                   style: GoogleFonts.exo2(color: Colors.white)),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
               content: Wrap(
                 spacing: 8,
                 runSpacing: 6,
@@ -2329,14 +2036,9 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                     return FilterChip(
                       label: Text(tag,
                           style: TextStyle(
-<<<<<<< HEAD
-                            color:
-                                selected ? Colors.white : AppTheme.textSecondary,
-=======
                             color: selected
                                 ? Colors.white
                                 : AppTheme.textSecondary,
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                             fontSize: 12,
                           )),
                       selected: selected,
@@ -2362,11 +2064,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                           borderRadius: BorderRadius.circular(8)),
                     );
                   }),
-<<<<<<< HEAD
-                  GestureDetector(
-                    onTap: () async {
-                      final newTag = await _showAddTagDialog(provider);
-=======
                   // ✅ Bouton "+" pour créer un nouveau tag
                   GestureDetector(
                     onTap: () async {
@@ -2374,7 +2071,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                       // du dialog après création du tag
                       final newTag =
                           await _showAddTagDialog(provider, setLocalState);
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                       if (newTag != null) {
                         setLocalState(() {
                           if (!tempTags.contains(newTag)) {
@@ -2390,12 +2086,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                         shape: BoxShape.circle,
                         color: AppTheme.bgSecondary,
                         border: Border.all(
-<<<<<<< HEAD
-                            color: AppTheme.accentGreen.withValues(alpha: 0.4)),
-=======
                             color:
                                 AppTheme.accentGreen.withValues(alpha: 0.4)),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                       ),
                       child: const Icon(Icons.add,
                           size: 18, color: AppTheme.accentGreen),
@@ -2413,11 +2105,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                   onPressed: () {
                     setState(() {
                       _tags = tempTags;
-<<<<<<< HEAD
-                      final roles = [
-=======
                       const roles = [
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                         'Boss', 'Breed', 'Solid', 'Farm', 'Collection'
                       ];
                       final foundRole = tempTags.firstWhere(
@@ -2429,12 +2117,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                     Navigator.pop(ctx);
                   },
                   child: Text('Valider',
-<<<<<<< HEAD
-                      style: GoogleFonts.exo2(color: AppTheme.accentPrimary)),
-=======
                       style:
                           GoogleFonts.exo2(color: AppTheme.accentPrimary)),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                 ),
               ],
             );
@@ -2444,9 +2128,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     );
   }
 
-<<<<<<< HEAD
-  Future<String?> _showAddTagDialog(DinoProvider provider) async {
-=======
   // ✅ FIX BUG 1 — Signature étendue avec setLocalState
   // Après addCustomTag(), on appelle setLocalState(() {}) pour forcer
   // le StatefulBuilder du dialog parent à se reconstruire et afficher
@@ -2455,19 +2136,13 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     DinoProvider provider,
     StateSetter setLocalState,
   ) async {
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     final ctrl = TextEditingController();
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.bgCard,
-<<<<<<< HEAD
-        title:
-            Text('Nouveau tag', style: GoogleFonts.exo2(color: Colors.white)),
-=======
         title: Text('Nouveau tag',
             style: GoogleFonts.exo2(color: Colors.white)),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
         content: TextField(
           controller: ctrl,
           autofocus: true,
@@ -2487,13 +2162,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-<<<<<<< HEAD
-            child:
-                Text('Annuler', style: GoogleFonts.exo2(color: AppTheme.textMuted)),
-=======
             child: Text('Annuler',
                 style: GoogleFonts.exo2(color: AppTheme.textMuted)),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, ctrl.text),
@@ -2503,10 +2173,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         ],
       ),
     );
-<<<<<<< HEAD
-    if (result != null && result.trim().isNotEmpty) {
-      await provider.addCustomTag(result.trim());
-=======
 
     ctrl.dispose();
 
@@ -2514,7 +2180,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
       await provider.addCustomTag(result.trim());
       // ✅ Forcer le rebuild du dialog parent pour afficher le nouveau tag
       setLocalState(() {});
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
       return result.trim();
     }
     return null;
@@ -2610,13 +2275,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                           ? Center(
                               child: Text('Aucune espèce',
                                   style: TextStyle(
-<<<<<<< HEAD
-                                      color:
-                                          Colors.white.withValues(alpha: 0.5))))
-=======
                                       color: Colors.white
                                           .withValues(alpha: 0.5))))
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                           : ListView.builder(
                               itemCount: filtered.length,
                               itemBuilder: (context, index) {
@@ -2641,12 +2301,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                                   title: Text(species,
                                       style: const TextStyle(
                                           color: Colors.white, fontSize: 13)),
-<<<<<<< HEAD
-                                  onTap: () => Navigator.pop(ctx, species),
-=======
                                   onTap: () =>
                                       Navigator.pop(ctx, species),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                                 );
                               },
                             ),
@@ -2658,13 +2314,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
                   child: Text('Annuler',
-<<<<<<< HEAD
-                      style:
-                          GoogleFonts.exo2(color: AppTheme.accentPrimary)),
-=======
                       style: GoogleFonts.exo2(
                           color: AppTheme.accentPrimary)),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                 ),
               ],
             );

@@ -5,6 +5,7 @@ import '../providers/dino_provider.dart';
 import '../providers/tracker_provider.dart';
 import '../providers/tag_theme_provider.dart';
 import '../providers/role_theme_provider.dart';
+import '../providers/language_provider.dart';
 import '../theme/app_theme.dart';
 import '../models/dino.dart';
 import '../models/role_theme.dart';
@@ -16,6 +17,22 @@ import 'backup_screen.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, _) {
+        return _SettingScreenContent(
+          languageProvider: languageProvider,
+        );
+      },
+    );
+  }
+}
+
+class _SettingScreenContent extends StatelessWidget {
+  final LanguageProvider languageProvider;
+  const _SettingScreenContent({required this.languageProvider});
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +92,7 @@ class SettingScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // ── Bloc 7 : Langue ──
-                _buildLanguageSection(),
+                _buildLanguageSection(context, languageProvider),
                 const SizedBox(height: 24),
 
                 // ── Bloc 3 : Actualités ──
@@ -789,7 +806,13 @@ class SettingScreen extends StatelessWidget {
   // ═══════════════════════════════════════════════════════
   // BLOC 7 — Langue (placeholder i18n)
   // ═══════════════════════════════════════════════════════
-  Widget _buildLanguageSection() {
+  Widget _buildLanguageSection(
+    BuildContext context,
+    LanguageProvider languageProvider,
+  ) {
+    final langs = LanguageProvider.supportedLanguages;
+    final activeCode = languageProvider.currentCode;
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -800,6 +823,7 @@ class SettingScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── En-tête ──
           Row(
             children: [
               Icon(Icons.language_rounded,
@@ -817,19 +841,18 @@ class SettingScreen extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 3),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: Colors.greenAccent.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                      color:
-                          Colors.greenAccent.withValues(alpha: 0.2)),
+                      color: Colors.greenAccent.withValues(alpha: 0.3)),
                 ),
                 child: Text(
-                  'Bientôt',
+                  '${langs.length} langues',
                   style: GoogleFonts.exo2(
-                    color: Colors.greenAccent.withValues(alpha: 0.7),
+                    color: Colors.greenAccent,
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                   ),
@@ -837,109 +860,97 @@ class SettingScreen extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 6),
+          Text(
+            'Appuie sur une langue pour l\'activer immédiatement',
+            style: GoogleFonts.exo2(
+                color: AppTheme.textMuted, fontSize: 10),
+          ),
           const SizedBox(height: 14),
-          // Langue active (FR uniquement pour l'instant)
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.greenAccent.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                  color: Colors.greenAccent.withValues(alpha: 0.15)),
-            ),
-            child: Row(
-              children: [
-                const Text('🇫🇷', style: TextStyle(fontSize: 22)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          // ── Grille des langues ──
+          ...langs.map((lang) {
+            final code = lang['code']!;
+            final label = lang['label']!;
+            final flag = lang['flag']!;
+            final isActive = code == activeCode;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: GestureDetector(
+                onTap: () => languageProvider.setLocale(code),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? Colors.greenAccent.withValues(alpha: 0.08)
+                        : AppTheme.bgPrimary,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isActive
+                          ? Colors.greenAccent.withValues(alpha: 0.5)
+                          : AppTheme.borderColor,
+                      width: isActive ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Row(
                     children: [
-                      Text(
-                        'Français',
-                        style: GoogleFonts.exo2(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                      Text(flag,
+                          style: const TextStyle(fontSize: 24)),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              label,
+                              style: GoogleFonts.exo2(
+                                color: isActive
+                                    ? Colors.white
+                                    : AppTheme.textSecondary,
+                                fontSize: 13,
+                                fontWeight: isActive
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                              ),
+                            ),
+                            if (isActive)
+                              Text(
+                                'Langue active',
+                                style: GoogleFonts.exo2(
+                                  color: Colors.greenAccent
+                                      .withValues(alpha: 0.7),
+                                  fontSize: 10,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      Text(
-                        'Langue active',
-                        style: GoogleFonts.exo2(
-                          color: AppTheme.textMuted,
-                          fontSize: 10,
+                      // Indicateur actif
+                      AnimatedOpacity(
+                        opacity: isActive ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color:
+                                Colors.greenAccent.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: Colors.greenAccent
+                                    .withValues(alpha: 0.4)),
+                          ),
+                          child: const Icon(Icons.check_rounded,
+                              color: Colors.greenAccent, size: 14),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.greenAccent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                        color: Colors.greenAccent
-                            .withValues(alpha: 0.4)),
-                  ),
-                  child: const Icon(Icons.check_rounded,
-                      color: Colors.greenAccent, size: 14),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          // Langues futures grisées
-          Opacity(
-            opacity: 0.35,
-            child: Row(
-              children: [
-                _buildLanguageTile('🇬🇧', 'English'),
-                const SizedBox(width: 8),
-                _buildLanguageTile('🇩🇪', 'Deutsch'),
-                const SizedBox(width: 8),
-                _buildLanguageTile('🇪🇸', 'Español'),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Le support multilingue sera disponible dans une prochaine mise à jour.',
-            style: GoogleFonts.exo2(
-              color: AppTheme.textMuted.withValues(alpha: 0.6),
-              fontSize: 9,
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLanguageTile(String flag, String name) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: AppTheme.bgPrimary,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppTheme.borderColor),
-        ),
-        child: Column(
-          children: [
-            Text(flag, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 4),
-            Text(
-              name,
-              style: GoogleFonts.exo2(
-                color: AppTheme.textMuted,
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
               ),
-            ),
-          ],
-        ),
+            );
+          }),
+        ],
       ),
     );
   }

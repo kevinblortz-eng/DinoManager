@@ -110,13 +110,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          final provider = context.read<OrderProvider>();
           await Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (_) => const OrderCreateEditScreen()),
           );
           if (!mounted) return;
-          context.read<OrderProvider>().loadOrders();
+          provider.loadOrders();
         },
         backgroundColor: AppTheme.accentPrimary,
         child: const Icon(Icons.add, color: Colors.white),

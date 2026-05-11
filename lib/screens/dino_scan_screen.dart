@@ -52,10 +52,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
   // ── Scan en cours ──────────────────────────────────────────────────────────
   bool _processing = false;
   String _processingStep = '';
-<<<<<<< HEAD
-=======
   File? _frozenImage; // ✅ image gelée pendant le traitement OC
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   // ── Type de source attendu ─────────────────────────────────────────────────
   OcrSourceType _expectedSource = OcrSourceType.unknown;
@@ -79,10 +76,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     }
     // mode galerie : l'image est passée via Navigator.push arguments
     // ou ouverte dès l'init
-<<<<<<< HEAD
-=======
     
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   }
 
   @override
@@ -154,92 +148,6 @@ class _DinoScanScreenState extends State<DinoScanScreen>
 
   /// Capture la photo, recadre selon _cropRect, prétraite et lance l'OCR
   Future<void> _captureAndScan() async {
-<<<<<<< HEAD
-    if (_processing) return;
-
-    setState(() {
-      _processing     = true;
-      _processingStep = 'Capture en cours…';
-    });
-
-    try {
-      File rawFile;
-
-      if (widget.mode == ScanMode.camera) {
-        // ── 1a. Prise de vue caméra ──
-        final xFile = await _cameraController!.takePicture();
-        rawFile = File(xFile.path);
-      } else {
-        // ── 1b. Image galerie déjà chargée ──
-        if (_galleryImage == null) return;
-        rawFile = _galleryImage!;
-      }
-
-      // ── 2. Vérification qualité ──
-      setState(() => _processingStep = 'Analyse qualité…');
-      final quality = await ImagePreprocessor.checkQuality(rawFile);
-
-      if (!quality.isAcceptable && mounted) {
-        final continueAnyway = await _showQualityWarning(quality);
-        if (continueAnyway != true) {
-          setState(() => _processing = false);
-          return;
-        }
-      }
-
-      // ── 3. Recadrage selon la zone sélectionnée ──
-      setState(() => _processingStep = 'Recadrage de la zone…');
-      final croppedFile = await _cropToRegion(rawFile);
-
-      // ── 4. Prétraitement (grayscale → contraste → binarisation) ──
-      setState(() => _processingStep = 'Amélioration de l\'image…');
-      final processedFile = await ImagePreprocessor.preprocess(croppedFile);
-
-      // ── 5. OCR ──
-      setState(() => _processingStep = 'Lecture des données…');
-      final ocrService = DinoOcrService();
-      final result     = await ocrService.scanImage(processedFile);
-
-      // Nettoyage fichiers temporaires
-      _cleanTemp([croppedFile, processedFile], rawFile);
-
-      if (!mounted) return;
-
-      if (!result.hasData) {
-        _showNoDataSnackBar();
-        setState(() => _processing = false);
-        return;
-      }
-
-      // ── 6. Afficher résultat pour confirmation ──
-      setState(() => _processing = false);
-      final confirmed = await showModalBottomSheet<DinoOcrResult>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => ScanResultReviewSheet(
-          result: result,
-          onConfirm: (r) => Navigator.pop(context, r),
-          onRetry:   () => Navigator.pop(context),
-        ),
-      );
-
-      if (confirmed != null && mounted) {
-        Navigator.of(context).pop(confirmed);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _processing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur scan : $e'),
-            backgroundColor: Colors.red.shade700,
-          ),
-        );
-      }
-    }
-  }
-=======
   if (_processing) return;
 
   setState(() {
@@ -343,7 +251,6 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     }
   }
 }
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   /// Recadre l'image selon [_cropRect] (coordonnées normalisées)
   Future<File> _cropToRegion(File source) async {
@@ -488,21 +395,6 @@ class _DinoScanScreenState extends State<DinoScanScreen>
   }
 
   // ── VUE CAMÉRA ─────────────────────────────────────────────────────────────
-<<<<<<< HEAD
-  Widget _buildCameraView() {
-    if (_cameraError != null) return _buildErrorView(_cameraError!);
-    if (!_cameraReady)        return _buildLoadingView();
-
-    final size = MediaQuery.of(context).size;
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // ── Preview caméra ──
-        _buildCameraPreview(size),
-
-        // ── Overlay de cadrage interactif ──
-=======
  Widget _buildCameraView() {
   if (_cameraError != null) return _buildErrorView(_cameraError!);
   if (!_cameraReady)        return _buildLoadingView();
@@ -520,53 +412,12 @@ class _DinoScanScreenState extends State<DinoScanScreen>
 
       // Overlay de cadrage (masqué pendant le traitement)
       if (!_processing)
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
         ScanCropOverlay(
           cropRect: _cropRect,
           onCropChanged: (r) => setState(() => _cropRect = r),
           expectedSource: _expectedSource,
         ),
 
-<<<<<<< HEAD
-        // ── Barre supérieure ──
-        Positioned(
-          top: 0, left: 0, right: 0,
-          child: _buildTopBar(),
-        ),
-
-        // ── Contrôles inférieurs ──
-        Positioned(
-          bottom: 0, left: 0, right: 0,
-          child: _buildBottomControls(),
-        ),
-
-        // ── Overlay de traitement ──
-        if (_processing) _buildProcessingOverlay(),
-      ],
-    );
-  }
-
-  Widget _buildCameraPreview(Size size) {
-    final controller = _cameraController!;
-    final previewSize = controller.value.previewSize!;
-    final previewAspect = previewSize.height / previewSize.width;
-    // ignore: unused_local_variable
-    final screenAspect  = size.width / size.height;
-
-    return OverflowBox(
-      maxWidth:  size.width,
-      maxHeight: size.height,
-      child: FittedBox(
-        fit: BoxFit.cover,
-        child: SizedBox(
-          width:  size.width,
-          height: size.width * previewAspect,
-          child: CameraPreview(controller),
-        ),
-      ),
-    );
-  }
-=======
       Positioned(
         top: 0, left: 0, right: 0,
         child: _buildTopBar(),
@@ -604,7 +455,6 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     ),
   );
 }
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   // ── VUE GALERIE ────────────────────────────────────────────────────────────
   Widget _buildGalleryView() {
@@ -781,41 +631,8 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     );
   }
 
-<<<<<<< HEAD
-  Widget _buildZoomSlider() {
-    return Row(
-      children: [
-        Icon(Icons.zoom_out, color: Colors.white54, size: 18),
-        Expanded(
-          child: Slider(
-            value:   _currentZoom,
-            min:     _minZoom,
-            max:     _maxZoom.clamp(_minZoom, _minZoom + 6),
-            onChanged: _setZoom,
-            activeColor:   const Color(0xFF00E5FF),
-            inactiveColor: Colors.white24,
-          ),
-        ),
-        Icon(Icons.zoom_in, color: Colors.white54, size: 18),
-        SizedBox(
-          width: 36,
-          child: Text(
-            '${_currentZoom.toStringAsFixed(1)}×',
-            style: const TextStyle(color: Colors.white54, fontSize: 11),
-            textAlign: TextAlign.right,
-          ),
-        ),
-      ],
-    );
-  }
-=======
  Widget _buildZoomSlider() {
   final double displayMax = _maxZoom.clamp(_minZoom, _minZoom + 6);
-  final double percent = _maxZoom > _minZoom
-      ? ((_currentZoom - _minZoom) / (_maxZoom.clamp(_minZoom, _minZoom + 6) - _minZoom))
-          .clamp(0.0, 1.0)
-      : 0.0;
-
   return Row(
     children: [
       // ── Icône zoom out ──
@@ -890,7 +707,6 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     ],
   );
 }
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   Widget _buildScanButton({String label = 'CAPTURER'}) {
     return GestureDetector(
@@ -1073,10 +889,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
         ),
       ),
     );
-<<<<<<< HEAD
-=======
     
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   }
 
   Widget _tipRow(IconData icon, String text) => Padding(
@@ -1093,8 +906,6 @@ class _DinoScanScreenState extends State<DinoScanScreen>
         ),
       );
 }
-<<<<<<< HEAD
-=======
 /// Thumb personnalisé avec bordure noire pour rester visible
 /// quel que soit le fond (cyan du cadre ou fond sombre)
 class _ZoomThumbShape extends SliderComponentShape {
@@ -1144,4 +955,3 @@ class _ZoomThumbShape extends SliderComponentShape {
   }
 }
 
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b

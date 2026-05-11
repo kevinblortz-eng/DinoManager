@@ -1,11 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
-<<<<<<< HEAD
-
-import '../models/dino.dart';
-=======
 import '../models/dino.dart';
 import '../models/order.dart';
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -13,27 +8,17 @@ class DatabaseHelper {
   DatabaseHelper._internal();
 
   static const String _boxName = 'dinos_box';
-<<<<<<< HEAD
-  static const String _counterKey = '__id_counter__';
-
-  Box<Map>? _box;
-=======
   static const String _ordersBoxName = 'orders_box';
   static const String _counterKey = '__id_counter__';
 
   Box<Map>? _box;
   Box<Map>? _ordersBox;
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   Future<Box<Map>> get box async {
     _box ??= await Hive.openBox<Map>(_boxName);
     return _box!;
   }
 
-<<<<<<< HEAD
-  // ─────────────────────────────────────────────────────────────
-  // ID auto-incrémenté
-=======
   Future<Box<Map>> get ordersBox async {
     _ordersBox ??= await Hive.openBox<Map>(_ordersBoxName);
     return _ordersBox!;
@@ -41,7 +26,6 @@ class DatabaseHelper {
 
   // ─────────────────────────────────────────────────────────────
   // ID auto-incrémenté pour Dinos
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   // ─────────────────────────────────────────────────────────────
   Future<int> _nextId() async {
     final b = await box;
@@ -230,11 +214,7 @@ class DatabaseHelper {
   }
 
   // ─────────────────────────────────────────────────────────────
-<<<<<<< HEAD
-  // CRUD
-=======
   // CRUD DINOS
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   // ─────────────────────────────────────────────────────────────
   Future<int> insertDino(Dino dino) async {
     final b = await box;
@@ -388,11 +368,6 @@ class DatabaseHelper {
     await b.put(_counterKey, <String, dynamic>{'v': 0});
   }
 
-<<<<<<< HEAD
-  Future<void> close() async {
-    await _box?.close();
-    _box = null;
-=======
   // ════════════════════════════════════════════
   // CRUD COMMANDES (Orders) avec HIVE
   // ════════════════════════════════════════════
@@ -435,7 +410,7 @@ class DatabaseHelper {
       try {
         results.add(Order.fromMap(map));
       } catch (e) {
-        print('Erreur parsing Order: $e');
+        debugPrint('Erreur parsing Order: $e');
       }
     }
 
@@ -453,6 +428,5 @@ class DatabaseHelper {
     await _ordersBox?.close();
     _box = null;
     _ordersBox = null;
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   }
 }

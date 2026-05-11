@@ -44,7 +44,6 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
   ItemSortMode _sortMode = ItemSortMode.espece;
 
   bool _isDirty = false;
-  DateTime? _lastSaveAt;
 
   late int _defaultQuantity;
   late OrderItemType _defaultType;
@@ -122,7 +121,6 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
   Future<void> _autoSaveBackground() async {
     if (!_isDirty) return;
     _isDirty = false;
-    _lastSaveAt = DateTime.now();
 
     try {
       String orderName = _nameController.text;
@@ -2232,6 +2230,7 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
             ? dino.image
             : null;
     final bool hasCustomImage = customImagePath != null;
+    final String safeImagePath = customImagePath ?? '';
     final typeColor = _typeColor(item.type);
     final typeEmoji = _typeEmoji(item.type);
 
@@ -2253,7 +2252,7 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
                 height: 82,
                 child: hasCustomImage
                     ? Image.file(
-                        File(customImagePath!),
+                        File(safeImagePath),
                         fit: BoxFit.contain,
                         alignment: Alignment.bottomCenter,
                         errorBuilder: (_, __, ___) => DinoImageWidget(

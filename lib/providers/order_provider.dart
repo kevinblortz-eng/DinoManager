@@ -14,10 +14,10 @@ class OrderProvider extends ChangeNotifier {
 
   Future<bool> createOrder(Order order) async {
     try {
-      print('🔵 OrderProvider.createOrder called');
-      print('   Order ID: ${order.id}');
-      print('   Order name: ${order.name}');
-      print('   Items: ${order.items.length}');
+      debugPrint('🔵 OrderProvider.createOrder called');
+      debugPrint('   Order ID: ${order.id}');
+      debugPrint('   Order name: ${order.name}');
+      debugPrint('   Items: ${order.items.length}');
 
       _orders.add(order);
 
@@ -27,11 +27,11 @@ class OrderProvider extends ChangeNotifier {
       // ✅ Sauvegarder en SharedPreferences
       await _saveOrdersToStorage();
 
-      print('✅ OrderProvider.createOrder SUCCESS');
+      debugPrint('✅ OrderProvider.createOrder SUCCESS');
       return true;
     } catch (e, stackTrace) {
-      print('🔴 OrderProvider.createOrder FAILED: $e');
-      print('Stack: $stackTrace');
+      debugPrint('🔴 OrderProvider.createOrder FAILED: $e');
+      debugPrint('Stack: $stackTrace');
       _error = e.toString();
       notifyListeners();
       return false;
@@ -40,12 +40,12 @@ class OrderProvider extends ChangeNotifier {
 
   Future<bool> updateOrder(Order order) async {
     try {
-      print('🔵 OrderProvider.updateOrder called');
-      print('   Order ID: ${order.id}');
+      debugPrint('🔵 OrderProvider.updateOrder called');
+      debugPrint('   Order ID: ${order.id}');
 
       final idx = _orders.indexWhere((o) => o.id == order.id);
       if (idx == -1) {
-        print('⚠️ Order not found for update: ${order.id}');
+        debugPrint('⚠️ Order not found for update: ${order.id}');
         _error = 'Commande non trouvée';
         notifyListeners();
         return false;
@@ -59,11 +59,11 @@ class OrderProvider extends ChangeNotifier {
       // ✅ Sauvegarder en SharedPreferences
       await _saveOrdersToStorage();
 
-      print('✅ OrderProvider.updateOrder SUCCESS');
+      debugPrint('✅ OrderProvider.updateOrder SUCCESS');
       return true;
     } catch (e, stackTrace) {
-      print('🔴 OrderProvider.updateOrder FAILED: $e');
-      print('Stack: $stackTrace');
+      debugPrint('🔴 OrderProvider.updateOrder FAILED: $e');
+      debugPrint('Stack: $stackTrace');
       _error = e.toString();
       notifyListeners();
       return false;
@@ -72,7 +72,7 @@ class OrderProvider extends ChangeNotifier {
 
   Future<bool> deleteOrder(String orderId) async {
     try {
-      print('🔵 OrderProvider.deleteOrder called: $orderId');
+      debugPrint('🔵 OrderProvider.deleteOrder called: $orderId');
 
       _orders.removeWhere((o) => o.id == orderId);
 
@@ -80,11 +80,11 @@ class OrderProvider extends ChangeNotifier {
       notifyListeners();
       await _saveOrdersToStorage();
 
-      print('✅ OrderProvider.deleteOrder SUCCESS');
+      debugPrint('✅ OrderProvider.deleteOrder SUCCESS');
       return true;
     } catch (e, stackTrace) {
-      print('🔴 OrderProvider.deleteOrder FAILED: $e');
-      print('Stack: $stackTrace');
+      debugPrint('🔴 OrderProvider.deleteOrder FAILED: $e');
+      debugPrint('Stack: $stackTrace');
       _error = e.toString();
       notifyListeners();
       return false;
@@ -93,11 +93,11 @@ class OrderProvider extends ChangeNotifier {
 
   Future<bool> validateOrder(String orderId) async {
     try {
-      print('🔵 OrderProvider.validateOrder called: $orderId');
+      debugPrint('🔵 OrderProvider.validateOrder called: $orderId');
 
       final idx = _orders.indexWhere((o) => o.id == orderId);
       if (idx == -1) {
-        print('⚠️ Order not found for validation: $orderId');
+        debugPrint('⚠️ Order not found for validation: $orderId');
         _error = 'Commande non trouvée';
         notifyListeners();
         return false;
@@ -111,11 +111,11 @@ class OrderProvider extends ChangeNotifier {
       notifyListeners();
       await _saveOrdersToStorage();
 
-      print('✅ OrderProvider.validateOrder SUCCESS');
+      debugPrint('✅ OrderProvider.validateOrder SUCCESS');
       return true;
     } catch (e, stackTrace) {
-      print('🔴 OrderProvider.validateOrder FAILED: $e');
-      print('Stack: $stackTrace');
+      debugPrint('🔴 OrderProvider.validateOrder FAILED: $e');
+      debugPrint('Stack: $stackTrace');
       _error = e.toString();
       notifyListeners();
       return false;
@@ -124,7 +124,7 @@ class OrderProvider extends ChangeNotifier {
 
   Future<void> _saveOrdersToStorage() async {
     try {
-      print('💾 Saving ${_orders.length} orders to SharedPreferences...');
+      debugPrint('💾 Saving ${_orders.length} orders to SharedPreferences...');
 
       final prefs = await SharedPreferences.getInstance();
 
@@ -135,11 +135,11 @@ class OrderProvider extends ChangeNotifier {
 
       await prefs.setString('orders_list', json);
 
-      print('✅ Orders saved to storage');
+      debugPrint('✅ Orders saved to storage');
       _error = null;
     } catch (e, stackTrace) {
-      print('⚠️ Storage save failed: $e');
-      print('Stack: $stackTrace');
+      debugPrint('⚠️ Storage save failed: $e');
+      debugPrint('Stack: $stackTrace');
       _error = e.toString();
     }
   }
@@ -150,13 +150,13 @@ class OrderProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('📂 Loading orders from SharedPreferences...');
+      debugPrint('📂 Loading orders from SharedPreferences...');
 
       final prefs = await SharedPreferences.getInstance();
       final json = prefs.getString('orders_list');
 
       if (json == null || json.isEmpty) {
-        print('✅ No orders found (first time)');
+        debugPrint('✅ No orders found (first time)');
         _orders = [];
       } else {
         // ✅ Décoder le JSON et reconstruire les objets
@@ -165,13 +165,13 @@ class OrderProvider extends ChangeNotifier {
             .map((item) => Order.fromMap(item as Map<String, dynamic>))
             .toList();
 
-        print('✅ Orders loaded: ${_orders.length}');
+        debugPrint('✅ Orders loaded: ${_orders.length}');
       }
 
       _error = null;
     } catch (e, stackTrace) {
-      print('⚠️ Load orders failed: $e');
-      print('Stack: $stackTrace');
+      debugPrint('⚠️ Load orders failed: $e');
+      debugPrint('Stack: $stackTrace');
       _error = e.toString();
       _orders = [];
     } finally {

@@ -18,6 +18,7 @@ class DinoShareCardPortraitExporter {
   });
 
   Future<void> captureAndSave(BuildContext context) async {
+    // ignore: use_build_context_synchronously
     final repaintKey = GlobalKey();
     OverlayEntry? entry;
 

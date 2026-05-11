@@ -1,0 +1,251 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "ARK Dino Manager",
+  "@appTitle": {"description": "App title"},
+
+  "settingsTitle": "Settings & Information",
+  "settingsBackup": "BACKUP",
+  "settingsBestiary": "BESTIARY",
+  "settingsTags": "TAGS & COLORS",
+  "settingsRoleThemes": "ROLE THEMES",
+  "settingsLanguage": "LANGUAGE",
+  "settingsNews": "NEWS",
+
+  "languageActive": "Active language",
+  "languageSelectorTitle": "Choose language",
+  "languageSelectorSubtitle": "Language will be applied immediately",
+
+  "backupAutoActive": "Google Auto-Backup active",
+  "backupAutoDesc": "Your data is automatically backed up to Google Drive every 24h. It will be automatically restored on reinstallation with the same Google account.",
+  "backupManage": "Manage manual backups",
+
+  "bestiaryDinoCards": "DinoCards",
+  "bestiaryTrackers": "Trackers",
+  "bestiarySpecies": "Species",
+  "bestiaryArkBestiary": "ARK Bestiary",
+  "bestiarySpeciesCount": "{current} / {total} species",
+  "@bestiarySpeciesCount": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "bestiaryDiscovered": "{percent}% of ARK bestiary discovered",
+  "@bestiaryDiscovered": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+
+  "tagsTitle": "TAGS & COLORS",
+  "tagsTapToChange": "Tap a tag to change its color",
+  "tagsLongPressReset": "Long press a custom tag to reset it",
+  "tagsResetAll": "Reset all",
+
+  "roleThemesTitle": "ROLE THEMES",
+  "roleThemesTapHint": "Tap a role to customize its 3 colors",
+  "roleThemesResetAll": "Reset all",
+  "roleThemesBackground": "Background",
+  "roleThemesBorder": "Border",
+  "roleThemesText": "Text",
+  "roleThemesApply": "Apply",
+  "roleThemesCancel": "Cancel",
+  "roleThemesPreview": "Preview",
+  "roleThemesConfirmReset": "Reset all themes?",
+  "roleThemesConfirmResetDesc": "This will delete all role customizations.",
+
+  "colorRegionsTitle": "COLOR REGIONS",
+  "colorRegionVisible": "Visible",
+  "colorRegionInvisible": "Invisible",
+  "colorRegionLabel": "R{index}",
+  "@colorRegionLabel": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+  "colorBankTitle": "COLOR BANK",
+  "colorBankNoColor": "No color recorded",
+  "colorBankRegion": "Region {index}",
+  "@colorBankRegion": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+
+  "speciesJournalTitle": "Species Journal",
+  "speciesJournalSubtitle": "Species journal",
+  "speciesJournalBestStats": "BEST STATS",
+  "speciesJournalLibraryDinos": "LIBRARY DINOS",
+  "speciesJournalNoTracker": "No active tracker",
+  "speciesJournalTotalColors": "{count} colors",
+  "@speciesJournalTotalColors": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "homeTitle": "ARK MANAGER",
+  "homeSubtitle": "Your dino library",
+  "homeNoDinos": "No dinos in the library",
+  "homeAddFirst": "Add your first dino!",
+  "homeSearch": "Search...",
+  "homeFilter": "Filter",
+  "homeSortBy": "Sort by",
+  "homeStats": "Statistics",
+  "homeSortName": "Name",
+  "homeSortLevel": "Level",
+  "homeSortSpecies": "Species",
+  "homeSortDate": "Date",
+  "homeSortMutations": "Mutations",
+
+  "libraryTitle": "LIBRARY",
+  "libraryEmpty": "Empty library",
+  "libraryAddDino": "Add a dino",
+  "libraryImport": "Import",
+  "libraryExport": "Export",
+  "libraryExportExcel": "Export Excel",
+  "libraryShare": "Share",
+
+  "dinoDetailTitle": "Dino Detail",
+  "dinoDetailEdit": "Edit",
+  "dinoDetailDelete": "Delete",
+  "dinoDetailShare": "Share",
+  "dinoDetailStats": "STATISTICS",
+  "dinoDetailColors": "COLORS",
+  "dinoDetailMutations": "MUTATIONS",
+  "dinoDetailNotes": "NOTES",
+  "dinoDetailBreeding": "BREEDING",
+  "dinoDetailConfirmDelete": "Delete this dino?",
+  "dinoDetailConfirmDeleteDesc": "This action is irreversible.",
+
+  "addEditDinoTitle": "Add a Dino",
+  "editDinoTitle": "Edit Dino",
+  "addEditDinoSave": "Save",
+  "addEditDinoCancel": "Cancel",
+  "addEditDinoSpecies": "Species",
+  "addEditDinoName": "Name",
+  "addEditDinoLevel": "Level",
+  "addEditDinoSex": "Sex",
+  "addEditDinoSexMale": "Male",
+  "addEditDinoSexFemale": "Female",
+  "addEditDinoTamed": "Tamed",
+  "addEditDinoBred": "Bred",
+  "addEditDinoNotes": "Notes",
+  "addEditDinoTags": "Tags",
+  "addEditDinoStats": "Statistics",
+  "addEditDinoColors": "Colors",
+  "addEditDinoMutations": "Mutations",
+  "addEditDinoMutPaternal": "Paternal",
+  "addEditDinoMutMaternal": "Maternal",
+
+  "scanTitle": "Scan a Dino",
+  "scanCapture": "Capture",
+  "scanAnalyze": "Analyze",
+  "scanRetry": "Retry",
+  "scanSuccess": "Scan successful!",
+  "scanFailed": "Scan failed",
+  "scanNoText": "No text detected",
+  "scanHint": "Point the camera at ARK stats",
+
+  "trackerTitle": "Trackers",
+  "trackerEmpty": "No active tracker",
+  "trackerAdd": "New tracker",
+  "trackerSpecies": "Tracked species",
+  "trackerGoal": "Goal",
+  "trackerProgress": "Progress",
+  "trackerStatus": "Status",
+  "trackerStatusActive": "Active",
+  "trackerStatusCompleted": "Completed",
+  "trackerStatusPaused": "Paused",
+  "trackerNotes": "Notes",
+
+  "ordersTitle": "Orders",
+  "ordersEmpty": "No orders",
+  "ordersAdd": "New order",
+  "ordersStatus": "Status",
+  "ordersPending": "Pending",
+  "ordersCompleted": "Completed",
+  "ordersCancelled": "Cancelled",
+  "ordersTotal": "Total",
+  "ordersCurrency": "Currency",
+
+  "confirmYes": "Yes",
+  "confirmNo": "No",
+  "confirmDelete": "Delete",
+  "confirmCancel": "Cancel",
+  "confirmOk": "OK",
+  "confirmSave": "Save",
+  "confirmClose": "Close",
+  "confirmApply": "Apply",
+  "confirmReset": "Reset",
+  "confirmResetAll": "Reset all",
+
+  "errorGeneric": "An error occurred",
+  "errorLoading": "Loading error",
+  "errorSaving": "Save error",
+  "errorPermission": "Permission denied",
+  "errorCameraPermission": "Camera permission required",
+
+  "navHome": "Home",
+  "navLibrary": "Library",
+  "navScan": "Scan",
+  "navTracker": "Tracker",
+  "navSettings": "Settings",
+
+  "statHp": "HP",
+  "statStamina": "Stamina",
+  "statTorpor": "Torpor",
+  "statOxygen": "Oxygen",
+  "statFood": "Food",
+  "statWater": "Water",
+  "statTemperature": "Temperature",
+  "statWeight": "Weight",
+  "statMelee": "Melee",
+  "statSpeed": "Speed",
+  "statFortitude": "Fortitude",
+  "statCrafting": "Crafting",
+
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "changelogTitle": "Changelog",
+  "changelogView": "View changelog",
+
+  "searchNoResults": "No results for \"{query}\"",
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {"type": "String"}
+    }
+  },
+
+  "resetConfirmTitle": "Confirm reset",
+  "resetConfirmMessage": "All customizations will be deleted.",
+  "deleteConfirmTitle": "Confirm deletion",
+  "deleteConfirmMessage": "This action is irreversible.",
+
+  "mutationsPaternal": "Paternal",
+  "mutationsMaternal": "Maternal",
+  "mutationsTotal": "Total mutations",
+
+  "sexMale": "Male",
+  "sexFemale": "Female",
+  "sexUnknown": "Unknown",
+
+  "levelLabel": "Lv. {level}",
+  "@levelLabel": {
+    "placeholders": {
+      "level": {"type": "int"}
+    }
+  },
+
+  "colorIdLabel": "ID {id}",
+  "@colorIdLabel": {
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  }
+}

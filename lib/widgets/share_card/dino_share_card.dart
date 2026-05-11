@@ -22,7 +22,7 @@ class DinoShareCard extends StatelessWidget {
 
   // ── Couleurs identiques à ArkDinoCard ────────────────────────────────
   Color get _borderColor => dino.roleColor;
-  Color get _bgColor     => const Color(0xFF1A1F2E);
+
   Color get _textColor   => dino.roleColor;
 
   @override

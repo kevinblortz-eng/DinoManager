@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../models/dino.dart';
 import '../../models/species_tracker.dart';
 import '../../models/ark_color_palette.dart';
+import '../../models/ark_species_color_regions.dart';
 import '../../providers/dino_provider.dart';
 import '../../providers/tracker_provider.dart';
 import '../../theme/app_theme.dart';
@@ -607,6 +608,9 @@ class _SpeciesJournalDetailScreenState
 
   // ─── COLORS SECTION (COLLAPSIBLE) ──────────────────────────────────────────
   Widget _buildColorsSection(Map<int, Set<int>> colorBank) {
+    final visibility = ArkSpeciesColorRegions.visibilityFor(widget.species);
+    final visibleCount = visibility.where((v) => v).length;
+
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.bgCard,
@@ -616,12 +620,16 @@ class _SpeciesJournalDetailScreenState
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── En-tête collapsible ──────────────────────────────────
             GestureDetector(
-              onTap: () => setState(() => _isColorsExpanded = !_isColorsExpanded),
+              onTap: () =>
+                  setState(() => _isColorsExpanded = !_isColorsExpanded),
               child: Row(
                 children: [
-                  const Icon(Icons.palette_outlined, color: Colors.cyanAccent),
+                  const Icon(Icons.palette_outlined,
+                      color: Colors.cyanAccent),
                   const SizedBox(width: 8),
                   const Expanded(
                     child: Text(
@@ -634,6 +642,26 @@ class _SpeciesJournalDetailScreenState
                       ),
                     ),
                   ),
+                  // Badge : nb régions visibles
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.cyanAccent.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                          color: Colors.cyanAccent.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      '$visibleCount/6 visible${visibleCount > 1 ? 's' : ''}',
+                      style: const TextStyle(
+                        color: Colors.cyanAccent,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   Icon(
                     _isColorsExpanded
                         ? Icons.expand_less
@@ -643,13 +671,27 @@ class _SpeciesJournalDetailScreenState
                 ],
               ),
             ),
+
+            // ── Vue compacte 6 cases (toujours visible) ──────────────
+            const SizedBox(height: 12),
+            _buildColorRegionsOverview(visibility),
+
+            // ── Détail par région (collapsible) ──────────────────────
             if (_isColorsExpanded) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
+              const Divider(color: Color(0xFF2A2D35), height: 1),
+              const SizedBox(height: 14),
               ...List.generate(6, (region) {
-                final sorted = (colorBank[region] ?? {}).toList()..sort();
+                final sorted =
+                    (colorBank[region] ?? {}).toList()..sort();
+                final isVisible = visibility[region];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: _buildRegionColorBar(region, sorted),
+                  child: _buildRegionColorBar(
+                    region,
+                    sorted,
+                    isVisible: isVisible,
+                  ),
                 );
               }),
             ],
@@ -659,24 +701,150 @@ class _SpeciesJournalDetailScreenState
     );
   }
 
-  Widget _buildRegionColorBar(int region, List<int> colors) {
-    return Container(
+  /// Vue compacte : 6 cases côte à côte avec badge visible/invisible
+  Widget _buildColorRegionsOverview(List<bool> visibility) {
+    return Row(
+      children: List.generate(6, (i) {
+        final isVisible = visibility[i];
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: i < 5 ? 6 : 0),
+            child: _buildRegionBadge(i, isVisible),
+          ),
+        );
+      }),
+    );
+  }
+
+  /// Case individuelle d'une région : numéro + indicateur visible/invisible
+  Widget _buildRegionBadge(int region, bool isVisible) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      decoration: BoxDecoration(
+        color: isVisible
+            ? Colors.cyanAccent.withValues(alpha: 0.07)
+            : Colors.grey.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isVisible
+              ? Colors.cyanAccent.withValues(alpha: 0.35)
+              : Colors.grey.withValues(alpha: 0.2),
+          width: isVisible ? 1.2 : 1,
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Numéro de région
+          Text(
+            'R$region',
+            style: TextStyle(
+              color: isVisible ? Colors.cyanAccent : Colors.grey,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 5),
+          // Icône visible/invisible
+          Icon(
+            isVisible ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+            size: 14,
+            color: isVisible
+                ? Colors.cyanAccent.withValues(alpha: 0.8)
+                : Colors.grey.withValues(alpha: 0.4),
+          ),
+          const SizedBox(height: 4),
+          // Label
+          Text(
+            isVisible ? 'Visible' : 'Invis.',
+            style: TextStyle(
+              color: isVisible
+                  ? Colors.cyanAccent.withValues(alpha: 0.7)
+                  : Colors.grey.withValues(alpha: 0.4),
+              fontSize: 8,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRegionColorBar(int region, List<int> colors,
+      {bool isVisible = true}) {
+    return Opacity(
+      opacity: isVisible ? 1.0 : 0.45,
+      child: Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppTheme.bgSecondary,
+        color: isVisible
+            ? AppTheme.bgSecondary
+            : AppTheme.bgSecondary.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.borderColor),
+        border: Border.all(
+          color: isVisible
+              ? AppTheme.borderColor
+              : AppTheme.borderColor.withValues(alpha: 0.4),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Region $region',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
+          Row(
+            children: [
+              Text(
+                'Région $region',
+                style: TextStyle(
+                  color: isVisible ? Colors.white : Colors.grey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Badge visible/invisible
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isVisible
+                      ? Colors.cyanAccent.withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: isVisible
+                        ? Colors.cyanAccent.withValues(alpha: 0.3)
+                        : Colors.grey.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isVisible
+                          ? Icons.visibility_rounded
+                          : Icons.visibility_off_rounded,
+                      size: 10,
+                      color: isVisible
+                          ? Colors.cyanAccent.withValues(alpha: 0.8)
+                          : Colors.grey.withValues(alpha: 0.5),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isVisible ? 'Visible' : 'Invisible',
+                      style: TextStyle(
+                        color: isVisible
+                            ? Colors.cyanAccent.withValues(alpha: 0.8)
+                            : Colors.grey.withValues(alpha: 0.5),
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           if (colors.isEmpty)
@@ -721,7 +889,7 @@ class _SpeciesJournalDetailScreenState
             ),
         ],
       ),
-    );
+    ));
   }
 
   // ─── DINOS SECTION ────────────────────────────────────────────────────────

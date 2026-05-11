@@ -1,15 +1,8 @@
-<<<<<<< HEAD
-// lib/screens/library_screen.dart
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/dino_provider.dart';
-<<<<<<< HEAD
-=======
 import '../providers/role_theme_provider.dart';
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 import '../models/dino.dart';
 import '../widgets/ark_dino_card.dart';
 import '../theme/app_theme.dart';
@@ -72,11 +65,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-<<<<<<< HEAD
-  // HEADER — aligné sur le template Home / Simulator
-=======
   // HEADER
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildHeader(BuildContext context) {
     return Consumer<DinoProvider>(
@@ -91,11 +80,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-<<<<<<< HEAD
-                      'BIBLIOTHÈQUE',
-=======
                       'BIBLIOTHEQUE',
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                       style: GoogleFonts.cinzelDecorative(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -136,12 +121,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
               decoration: BoxDecoration(
                 color: const Color(0xFF161B22),
                 borderRadius: BorderRadius.circular(12),
-<<<<<<< HEAD
-                border: Border.all(color: const Color(0xFF21304A), width: 1.2),
-=======
                 border: Border.all(
                     color: const Color(0xFF21304A), width: 1.2),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
               ),
               child: TextField(
                 controller: _searchController,
@@ -166,25 +147,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               color: Color(0xFF4A5568), size: 18),
                           onPressed: () {
                             _searchController.clear();
-<<<<<<< HEAD
-                            context.read<DinoProvider>().setSearchQuery('');
-=======
                             context
                                 .read<DinoProvider>()
                                 .setSearchQuery('');
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                             setState(() {});
                           },
                         )
                       : null,
                   border: InputBorder.none,
-<<<<<<< HEAD
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-=======
                   contentPadding: const EdgeInsets.symmetric(
                       vertical: 10, horizontal: 4),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                 ),
                 onChanged: (v) {
                   context.read<DinoProvider>().setSearchQuery(v);
@@ -252,14 +224,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 margin: const EdgeInsets.only(right: 8),
-<<<<<<< HEAD
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                decoration: BoxDecoration(
-                  gradient: isActive
-                      ? const LinearGradient(
-                          colors: [Color(0xFFFF6B00), Color(0xFFFF9500)])
-=======
                 padding: const EdgeInsets.symmetric(
                     horizontal: 14, vertical: 5),
                 decoration: BoxDecoration(
@@ -268,7 +232,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           Color(0xFFFF6B00),
                           Color(0xFFFF9500)
                         ])
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                       : null,
                   color: isActive ? null : const Color(0xFF161B22),
                   borderRadius: BorderRadius.circular(20),
@@ -282,12 +245,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 child: Text(
                   label,
                   style: GoogleFonts.exo2(
-<<<<<<< HEAD
-                    color: isActive ? Colors.white : const Color(0xFF6B7A8D),
-                    fontSize: 12,
-                    fontWeight:
-                        isActive ? FontWeight.w700 : FontWeight.w500,
-=======
                     color: isActive
                         ? Colors.white
                         : const Color(0xFF6B7A8D),
@@ -295,7 +252,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     fontWeight: isActive
                         ? FontWeight.w700
                         : FontWeight.w500,
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -308,19 +264,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-<<<<<<< HEAD
-  // LISTE DES DINOS
-  // ══════════════════════════════════════════════════════════════════════════
-  Widget _buildDinoList() {
-    return Consumer<DinoProvider>(
-      builder: (context, provider, _) {
-=======
   // LISTE DES DINOS — roleThemeProvider lu via context ✅
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildDinoList() {
     return Consumer2<DinoProvider, RoleThemeProvider>(
       builder: (context, provider, roleThemeProvider, _) {
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
         if (provider.isLoading) {
           return Center(
             child: Column(
@@ -350,10 +298,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         if (provider.dinos.isEmpty) {
           return _buildEmptyState(provider.hasActiveFilters, context);
         }
-<<<<<<< HEAD
-=======
 
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
         final bottomPadding = MediaQuery.of(context).padding.bottom;
 
         return RefreshIndicator(
@@ -362,16 +307,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           onRefresh: () => provider.loadDinos(),
           child: ListView.builder(
             physics: const BouncingScrollPhysics(),
-<<<<<<< HEAD
-            padding: EdgeInsets.fromLTRB(
-              14,
-              4,
-              14,
-              100 + bottomPadding,
-            ),
-=======
             padding: EdgeInsets.fromLTRB(14, 4, 14, 100 + bottomPadding),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             itemCount: provider.dinos.length,
             itemBuilder: (context, i) {
               final dino = provider.dinos[i];
@@ -387,15 +323,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   MaterialPageRoute(
                       builder: (_) => AddEditDinoScreen(dino: dino)),
                 ).then((_) => provider.loadDinos()),
-<<<<<<< HEAD
-                onDelete: () => _confirmDelete(context, provider, dino),
-=======
                 onDelete: () =>
                     _confirmDelete(context, provider, dino),
                 // ✅ Correctement lu depuis le Consumer2
                 roleTheme:
                     roleThemeProvider.themeForRole(dino.role),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
               );
             },
           ),
@@ -437,12 +369,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
-<<<<<<< HEAD
-                  MaterialPageRoute(builder: (_) => const AddEditDinoScreen()),
-=======
                   MaterialPageRoute(
                       builder: (_) => const AddEditDinoScreen()),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                 ).then((_) {
                   if (!mounted) return;
                   // ignore: use_build_context_synchronously
@@ -458,12 +386,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-<<<<<<< HEAD
-                        color: const Color(0xFFFF6B00).withValues(alpha: 0.4),
-=======
                         color: const Color(0xFFFF6B00)
                             .withValues(alpha: 0.4),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -578,14 +502,10 @@ class _SettingsButton extends StatelessWidget {
     ];
     final sortedTags = [
       ...priorityTags.where((t) => tagStats.containsKey(t)),
-<<<<<<< HEAD
-      ...tagStats.keys.where((t) => !priorityTags.contains(t)).toList()..sort()
-=======
       ...tagStats.keys
           .where((t) => !priorityTags.contains(t))
           .toList()
         ..sort()
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     ];
 
     showModalBottomSheet(
@@ -625,35 +545,22 @@ class _SettingsButton extends StatelessWidget {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-<<<<<<< HEAD
-                          content: Text('Fonctionnalité bientôt disponible')),
-=======
                           content: Text(
                               'Fonctionnalité bientôt disponible')),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                     );
                   },
                   icon: const Icon(Icons.save_alt,
                       size: 16, color: AppTheme.accentSecondary),
                   label: const Text('Sauvegarder',
                       style: TextStyle(
-<<<<<<< HEAD
-                          color: AppTheme.accentSecondary, fontSize: 12)),
-=======
                           color: AppTheme.accentSecondary,
                           fontSize: 12)),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                 ),
               ],
             ),
             const SizedBox(height: 16),
-<<<<<<< HEAD
-            _statTile(
-                '🦖', '${dinos.length}', 'Total', AppTheme.accentPrimary),
-=======
             _statTile('🦖', '${dinos.length}', 'Total',
                 AppTheme.accentPrimary),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             const SizedBox(height: 4),
             if (sortedTags.isEmpty)
               const Text('Aucun tag utilisé',
@@ -671,12 +578,8 @@ class _SettingsButton extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppTheme.bgCard,
                       borderRadius: BorderRadius.circular(8),
-<<<<<<< HEAD
-                      border: Border.all(color: AppTheme.borderColor),
-=======
                       border:
                           Border.all(color: AppTheme.borderColor),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -788,14 +691,9 @@ class _FilterSheet extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppTheme.danger.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
-<<<<<<< HEAD
-                  border:
-                      Border.all(color: AppTheme.danger.withValues(alpha: 0.3)),
-=======
                   border: Border.all(
                       color:
                           AppTheme.danger.withValues(alpha: 0.3)),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                 ),
                 child: Text(
                   'Réinitialiser les filtres',
@@ -846,15 +744,10 @@ class _FilterSheet extends StatelessWidget {
                     horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   gradient: isActive
-<<<<<<< HEAD
-                      ? const LinearGradient(
-                          colors: [Color(0xFFFF6B00), Color(0xFFFF9500)])
-=======
                       ? const LinearGradient(colors: [
                           Color(0xFFFF6B00),
                           Color(0xFFFF9500)
                         ])
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                       : null,
                   color: isActive ? null : const Color(0xFF1C2333),
                   borderRadius: BorderRadius.circular(20),
@@ -867,13 +760,6 @@ class _FilterSheet extends StatelessWidget {
                 child: Text(
                   opt.isEmpty ? 'Tous' : opt,
                   style: GoogleFonts.exo2(
-<<<<<<< HEAD
-                    color:
-                        isActive ? Colors.white : const Color(0xFF6B7A8D),
-                    fontSize: 12,
-                    fontWeight:
-                        isActive ? FontWeight.w700 : FontWeight.w500,
-=======
                     color: isActive
                         ? Colors.white
                         : const Color(0xFF6B7A8D),
@@ -881,7 +767,6 @@ class _FilterSheet extends StatelessWidget {
                     fontWeight: isActive
                         ? FontWeight.w700
                         : FontWeight.w500,
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                   ),
                 ),
               ),

@@ -570,12 +570,12 @@ class DinoOcrService {
 
     // L'imprint peut être une ligne "100.0% fr (0|0|0)" avec v=100
     // → distingué par _isImprintPercent
-    if (imprintPercent == null && imprints.isNotEmpty) {
+    if (imprints.isNotEmpty && imprintPercent == null) { // ignore: unnecessary_null_comparison
       imprintPercent = imprints.first.max;
     }
 
     // Fallback imprint dans les pcts si aucune trouvée
-    if (imprintPercent == null) {
+    if (imprintPercent == null) { // ignore: unnecessary_null_comparison
       for (final raw in pcts) {
         final v = raw.max ?? 0;
         if (v <= 100) {
@@ -735,7 +735,7 @@ class DinoOcrService {
       }
     }
 
-    if (imprintPercent == null && imprints.isNotEmpty) {
+    if (imprints.isNotEmpty && imprintPercent == null) { // ignore: unnecessary_null_comparison
       imprintPercent = imprints.first.max;
     }
 

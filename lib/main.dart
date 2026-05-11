@@ -1,26 +1,20 @@
-<<<<<<< HEAD
 // lib/main.dart
-=======
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'providers/dino_provider.dart';
 import 'providers/tracker_provider.dart';
-<<<<<<< HEAD
-import 'theme/app_theme.dart';
-import 'screens/main_navigation_screen.dart';
-import 'database/database_helper.dart';
-=======
 import 'providers/order_provider.dart';
 import 'providers/currency_provider.dart';
+import 'providers/language_provider.dart';
+import 'providers/tag_theme_provider.dart';
+import 'providers/role_theme_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_navigation_screen.dart';
 import 'database/database_helper.dart';
-import '../providers/tag_theme_provider.dart';
-import '../providers/role_theme_provider.dart';
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,39 +33,34 @@ void main() async {
     ),
   );
 
-<<<<<<< HEAD
-  // Charger les données AVANT de lancer l'app
-=======
   // ✅ Charger les données AVANT de lancer l'app
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   final dinoProvider = DinoProvider();
   await dinoProvider.loadDinos();
 
   final trackerProvider = TrackerProvider();
   await trackerProvider.loadTrackers();
 
-<<<<<<< HEAD
-=======
   final orderProvider = OrderProvider();
   await orderProvider.loadOrders();
 
   final currencyProvider = CurrencyProvider();
   await currencyProvider.loadPreferences();
 
+  // ✅ Langue : détection auto au premier lancement
+  final languageProvider = LanguageProvider();
+  await languageProvider.init();
+
   // ✅ UN SEUL runApp
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: dinoProvider),
         ChangeNotifierProvider.value(value: trackerProvider),
-<<<<<<< HEAD
-=======
         ChangeNotifierProvider.value(value: orderProvider),
         ChangeNotifierProvider.value(value: currencyProvider),
+        ChangeNotifierProvider.value(value: languageProvider),
         ChangeNotifierProvider(create: (_) => TagThemeProvider()),
         ChangeNotifierProvider(create: (_) => RoleThemeProvider()),
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
       ],
       child: const DinoManagerApp(),
     ),
@@ -83,10 +72,39 @@ class DinoManagerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = context.watch<LanguageProvider>();
+
     return MaterialApp(
-      title: 'Dino Manager',
+      title: 'ARK Dino Manager',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
+
+      // ── Localisation ──────────────────────────────────────────────
+      locale: languageProvider.locale,
+      supportedLocales: const [
+        Locale('fr'),
+        Locale('en'),
+        Locale('de'),
+      ],
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        // Si la locale du device est supportée, l'utiliser.
+        // Sinon anglais par défaut.
+        if (deviceLocale != null) {
+          for (final supported in supportedLocales) {
+            if (supported.languageCode == deviceLocale.languageCode) {
+              return supported;
+            }
+          }
+        }
+        return const Locale('en');
+      },
+
       home: const MainNavigationScreen(),
     );
   }

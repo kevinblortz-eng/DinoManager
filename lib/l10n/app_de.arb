@@ -1,0 +1,251 @@
+{
+  "@@locale": "de",
+
+  "appTitle": "ARK Dino Manager",
+  "@appTitle": {"description": "App-Titel"},
+
+  "settingsTitle": "Einstellungen & Informationen",
+  "settingsBackup": "SICHERUNG",
+  "settingsBestiary": "BESTIARIUM",
+  "settingsTags": "TAGS & FARBEN",
+  "settingsRoleThemes": "ROLLEN-DESIGNS",
+  "settingsLanguage": "SPRACHE",
+  "settingsNews": "NEUIGKEITEN",
+
+  "languageActive": "Aktive Sprache",
+  "languageSelectorTitle": "Sprache wählen",
+  "languageSelectorSubtitle": "Die Sprache wird sofort angewendet",
+
+  "backupAutoActive": "Google Auto-Backup aktiv",
+  "backupAutoDesc": "Deine Daten werden alle 24h automatisch in Google Drive gesichert und bei der Neuinstallation mit demselben Google-Konto wiederhergestellt.",
+  "backupManage": "Manuelle Sicherungen verwalten",
+
+  "bestiaryDinoCards": "DinoCards",
+  "bestiaryTrackers": "Tracker",
+  "bestiarySpecies": "Spezies",
+  "bestiaryArkBestiary": "ARK-Bestiarium",
+  "bestiarySpeciesCount": "{current} / {total} Spezies",
+  "@bestiarySpeciesCount": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "bestiaryDiscovered": "{percent}% des ARK-Bestiariums entdeckt",
+  "@bestiaryDiscovered": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+
+  "tagsTitle": "TAGS & FARBEN",
+  "tagsTapToChange": "Tippe auf ein Tag, um seine Farbe zu ändern",
+  "tagsLongPressReset": "Langes Tippen auf ein benutzerdefiniertes Tag zum Zurücksetzen",
+  "tagsResetAll": "Alle zurücksetzen",
+
+  "roleThemesTitle": "ROLLEN-DESIGNS",
+  "roleThemesTapHint": "Tippe auf eine Rolle, um ihre 3 Farben anzupassen",
+  "roleThemesResetAll": "Alle zurücksetzen",
+  "roleThemesBackground": "Hintergrund",
+  "roleThemesBorder": "Rahmen",
+  "roleThemesText": "Text",
+  "roleThemesApply": "Anwenden",
+  "roleThemesCancel": "Abbrechen",
+  "roleThemesPreview": "Vorschau",
+  "roleThemesConfirmReset": "Alle Designs zurücksetzen?",
+  "roleThemesConfirmResetDesc": "Alle Rollenanpassungen werden gelöscht.",
+
+  "colorRegionsTitle": "FARBBEREICHE",
+  "colorRegionVisible": "Sichtbar",
+  "colorRegionInvisible": "Unsichtbar",
+  "colorRegionLabel": "R{index}",
+  "@colorRegionLabel": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+  "colorBankTitle": "FARBBANK",
+  "colorBankNoColor": "Keine Farbe gespeichert",
+  "colorBankRegion": "Bereich {index}",
+  "@colorBankRegion": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+
+  "speciesJournalTitle": "Artenbuch",
+  "speciesJournalSubtitle": "Artenbuch",
+  "speciesJournalBestStats": "BESTE WERTE",
+  "speciesJournalLibraryDinos": "DINOS DER BIBLIOTHEK",
+  "speciesJournalNoTracker": "Kein aktiver Tracker",
+  "speciesJournalTotalColors": "{count} Farben",
+  "@speciesJournalTotalColors": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "homeTitle": "ARK MANAGER",
+  "homeSubtitle": "Deine Dino-Bibliothek",
+  "homeNoDinos": "Keine Dinos in der Bibliothek",
+  "homeAddFirst": "Füge deinen ersten Dino hinzu!",
+  "homeSearch": "Suchen...",
+  "homeFilter": "Filtern",
+  "homeSortBy": "Sortieren nach",
+  "homeStats": "Statistiken",
+  "homeSortName": "Name",
+  "homeSortLevel": "Level",
+  "homeSortSpecies": "Spezies",
+  "homeSortDate": "Datum",
+  "homeSortMutations": "Mutationen",
+
+  "libraryTitle": "BIBLIOTHEK",
+  "libraryEmpty": "Bibliothek leer",
+  "libraryAddDino": "Dino hinzufügen",
+  "libraryImport": "Importieren",
+  "libraryExport": "Exportieren",
+  "libraryExportExcel": "Excel exportieren",
+  "libraryShare": "Teilen",
+
+  "dinoDetailTitle": "Dino-Details",
+  "dinoDetailEdit": "Bearbeiten",
+  "dinoDetailDelete": "Löschen",
+  "dinoDetailShare": "Teilen",
+  "dinoDetailStats": "STATISTIKEN",
+  "dinoDetailColors": "FARBEN",
+  "dinoDetailMutations": "MUTATIONEN",
+  "dinoDetailNotes": "NOTIZEN",
+  "dinoDetailBreeding": "ZUCHT",
+  "dinoDetailConfirmDelete": "Diesen Dino löschen?",
+  "dinoDetailConfirmDeleteDesc": "Diese Aktion kann nicht rückgängig gemacht werden.",
+
+  "addEditDinoTitle": "Dino hinzufügen",
+  "editDinoTitle": "Dino bearbeiten",
+  "addEditDinoSave": "Speichern",
+  "addEditDinoCancel": "Abbrechen",
+  "addEditDinoSpecies": "Spezies",
+  "addEditDinoName": "Name",
+  "addEditDinoLevel": "Level",
+  "addEditDinoSex": "Geschlecht",
+  "addEditDinoSexMale": "Männlich",
+  "addEditDinoSexFemale": "Weiblich",
+  "addEditDinoTamed": "Gezähmt",
+  "addEditDinoBred": "Gezüchtet",
+  "addEditDinoNotes": "Notizen",
+  "addEditDinoTags": "Tags",
+  "addEditDinoStats": "Statistiken",
+  "addEditDinoColors": "Farben",
+  "addEditDinoMutations": "Mutationen",
+  "addEditDinoMutPaternal": "Väterlich",
+  "addEditDinoMutMaternal": "Mütterlich",
+
+  "scanTitle": "Dino scannen",
+  "scanCapture": "Aufnehmen",
+  "scanAnalyze": "Analysieren",
+  "scanRetry": "Wiederholen",
+  "scanSuccess": "Scan erfolgreich!",
+  "scanFailed": "Scan fehlgeschlagen",
+  "scanNoText": "Kein Text erkannt",
+  "scanHint": "Kamera auf ARK-Werte richten",
+
+  "trackerTitle": "Tracker",
+  "trackerEmpty": "Kein aktiver Tracker",
+  "trackerAdd": "Neuer Tracker",
+  "trackerSpecies": "Verfolgte Spezies",
+  "trackerGoal": "Ziel",
+  "trackerProgress": "Fortschritt",
+  "trackerStatus": "Status",
+  "trackerStatusActive": "Aktiv",
+  "trackerStatusCompleted": "Abgeschlossen",
+  "trackerStatusPaused": "Pausiert",
+  "trackerNotes": "Notizen",
+
+  "ordersTitle": "Bestellungen",
+  "ordersEmpty": "Keine Bestellungen",
+  "ordersAdd": "Neue Bestellung",
+  "ordersStatus": "Status",
+  "ordersPending": "Ausstehend",
+  "ordersCompleted": "Abgeschlossen",
+  "ordersCancelled": "Abgebrochen",
+  "ordersTotal": "Gesamt",
+  "ordersCurrency": "Währung",
+
+  "confirmYes": "Ja",
+  "confirmNo": "Nein",
+  "confirmDelete": "Löschen",
+  "confirmCancel": "Abbrechen",
+  "confirmOk": "OK",
+  "confirmSave": "Speichern",
+  "confirmClose": "Schließen",
+  "confirmApply": "Anwenden",
+  "confirmReset": "Zurücksetzen",
+  "confirmResetAll": "Alle zurücksetzen",
+
+  "errorGeneric": "Ein Fehler ist aufgetreten",
+  "errorLoading": "Ladefehler",
+  "errorSaving": "Speicherfehler",
+  "errorPermission": "Zugriff verweigert",
+  "errorCameraPermission": "Kameraberechtigung erforderlich",
+
+  "navHome": "Start",
+  "navLibrary": "Bibliothek",
+  "navScan": "Scannen",
+  "navTracker": "Tracker",
+  "navSettings": "Einstellungen",
+
+  "statHp": "LP",
+  "statStamina": "Ausdauer",
+  "statTorpor": "Torpor",
+  "statOxygen": "Sauerstoff",
+  "statFood": "Nahrung",
+  "statWater": "Wasser",
+  "statTemperature": "Temperatur",
+  "statWeight": "Gewicht",
+  "statMelee": "Nahkampf",
+  "statSpeed": "Geschwindigkeit",
+  "statFortitude": "Robustheit",
+  "statCrafting": "Handwerk",
+
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "changelogTitle": "Changelog",
+  "changelogView": "Changelog anzeigen",
+
+  "searchNoResults": "Keine Ergebnisse für \"{query}\"",
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {"type": "String"}
+    }
+  },
+
+  "resetConfirmTitle": "Zurücksetzen bestätigen",
+  "resetConfirmMessage": "Alle Anpassungen werden gelöscht.",
+  "deleteConfirmTitle": "Löschen bestätigen",
+  "deleteConfirmMessage": "Diese Aktion kann nicht rückgängig gemacht werden.",
+
+  "mutationsPaternal": "Väterlich",
+  "mutationsMaternal": "Mütterlich",
+  "mutationsTotal": "Mutationen gesamt",
+
+  "sexMale": "Männlich",
+  "sexFemale": "Weiblich",
+  "sexUnknown": "Unbekannt",
+
+  "levelLabel": "Lv. {level}",
+  "@levelLabel": {
+    "placeholders": {
+      "level": {"type": "int"}
+    }
+  },
+
+  "colorIdLabel": "ID {id}",
+  "@colorIdLabel": {
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  }
+}
