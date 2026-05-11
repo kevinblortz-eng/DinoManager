@@ -1,81 +1,68 @@
 // lib/utils/save_image_helper.dart
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 import '../theme/app_theme.dart';
 
 class SaveImageHelper {
 
-  /// Demande les permissions nécessaires selon la version Android
-  static Future<bool> requestPermissions(BuildContext context) async {
-    if (Platform.isAndroid) {
-      // Android 13+ : READ_MEDIA_IMAGES
-      // Android 10-12 : READ/WRITE_EXTERNAL_STORAGE
-      final androidInfo = await _getAndroidVersion();
+  // ════════════════════════════════════════════════════════════════════════
+  // ANDROID SDK VERSION — via device_info_plus (Process.run ne marche pas)
+  // ════════════════════════════════════════════════════════════════════════
 
-      PermissionStatus status;
-      if (androidInfo >= 33) {
-        status = await Permission.photos.request();
-      } else {
-        status = await Permission.storage.request();
-      }
-
-      if (status.isPermanentlyDenied) {
-        if (context.mounted) {
-          _showPermissionDialog(context);
-        }
-        return false;
-      }
-
-      return status.isGranted;
-    }
-    // iOS : pas de permission nécessaire pour Documents
-    return true;
-  }
-
-  /// Retourne la version Android SDK
-  static Future<int> _getAndroidVersion() async {
+  static Future<int> _getAndroidSdk() async {
     try {
-      final result = await Process.run('getprop', ['ro.build.version.sdk']);
-      return int.tryParse(result.stdout.toString().trim()) ?? 30;
+      final info = await DeviceInfoPlugin().androidInfo;
+      return info.version.sdkInt;
     } catch (_) {
       return 30;
     }
   }
 
-  /// Dossier de sauvegarde : Pictures/DinoManager
-  static Future<Directory> getSaveDirectory() async {
-    Directory baseDir;
+  // ════════════════════════════════════════════════════════════════════════
+  // PERMISSIONS
+  // ════════════════════════════════════════════════════════════════════════
 
+  static Future<bool> requestPermissions(BuildContext context) async {
     if (Platform.isAndroid) {
-      final extDirs = await getExternalStorageDirectories(
-        type: StorageDirectory.pictures,
-      );
-      if (extDirs != null && extDirs.isNotEmpty) {
-        // Remonte de Android/data/.../files/Pictures → Pictures
-        final rawPath = extDirs.first.path;
-        final cleanPath = rawPath.replaceAll(
-          RegExp(r'Android/data/.*'),
-          'Pictures',
-        );
-        baseDir = Directory(cleanPath);
+      final sdk = await _getAndroidSdk();
+
+      if (sdk >= 29) {
+        // Android 10+ : saver_gallery utilise MediaStore, pas besoin de
+        // permission WRITE. READ_MEDIA_IMAGES uniquement si skipIfExists=true.
+        // On laisse saver_gallery gérer.
+        return true;
       } else {
-        baseDir = await getApplicationDocumentsDirectory();
+        // Android < 10 : WRITE_EXTERNAL_STORAGE requis
+        final status = await Permission.storage.request();
+        if (status.isPermanentlyDenied && context.mounted) {
+          _showPermissionDialog(context);
+          return false;
+        }
+        return status.isGranted;
       }
-    } else {
-      baseDir = await getApplicationDocumentsDirectory();
     }
 
-    final dinoDir = Directory('${baseDir.path}/DinoManager');
-    if (!await dinoDir.exists()) {
-      await dinoDir.create(recursive: true);
+    if (Platform.isIOS) {
+      final status = await Permission.photosAddOnly.request();
+      if (status.isPermanentlyDenied && context.mounted) {
+        _showPermissionDialog(context);
+        return false;
+      }
+      return status.isGranted;
     }
-    return dinoDir;
+
+    return false;
   }
 
-  /// Génère un nom de fichier : Espece-Nom-IDXYZ.png
+  // ════════════════════════════════════════════════════════════════════════
+  // NOM DE FICHIER
+  // ════════════════════════════════════════════════════════════════════════
+
   static String generateFileName(String espece, String nom) {
     final especeClean = espece
         .replaceAll(' ', '_')
@@ -87,14 +74,17 @@ class SaveImageHelper {
     return '$especeClean-$nomClean-ID$random.png';
   }
 
-  /// Sauvegarde les bytes PNG et affiche la notification
+  // ════════════════════════════════════════════════════════════════════════
+  // SAUVEGARDE PRINCIPALE
+  // ════════════════════════════════════════════════════════════════════════
+
   static Future<void> saveAndNotify({
     required BuildContext context,
     required List<int> pngBytes,
     required String fileName,
     required String displayName,
   }) async {
-    // Demande permission
+    // ── 1. Permission ───────────────────────────────────────────────────
     final hasPermission = await requestPermissions(context);
     if (!hasPermission) {
       if (context.mounted) {
@@ -106,7 +96,8 @@ class SaveImageHelper {
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Permission refusée — autorise l\'accès au stockage dans les paramètres',
+                    'Permission refusée — autorise l\'accès aux photos '
+                    'dans les paramètres',
                     style: TextStyle(fontSize: 12),
                   ),
                 ),
@@ -121,53 +112,83 @@ class SaveImageHelper {
       return;
     }
 
-    final saveDir = await getSaveDirectory();
-    final savedFile = File('${saveDir.path}/$fileName');
-    await savedFile.writeAsBytes(pngBytes);
+  // ── 2. Conversion en Uint8List ──────────────────────────────────────────
+final Uint8List bytes =
+    pngBytes is Uint8List
+        ? pngBytes
+        : Uint8List.fromList(pngBytes);
 
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$displayName sauvegardé !',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
+// ── 3. Sauvegarde via saver_gallery ────────────────────────────────────
+bool success = false;
+try {
+  final result = await SaverGallery.saveImage(
+    bytes,
+    quality: 100,
+    extension: 'png',
+    fileName: fileName,
+    androidRelativePath: 'Pictures/DinoManager',
+    skipIfExists: false,
+  );
+  success = result.isSuccess;
+} catch (e) {
+  success = false;
+  debugPrint('SaverGallery error: $e');
+}
+
+    // ── 4. Feedback ─────────────────────────────────────────────────────
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              success ? Icons.check_circle : Icons.error_outline,
+              color: Colors.white,
+              size: 16,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    success
+                        ? '$displayName sauvegardé !'
+                        : 'Échec sauvegarde — réessaie',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
                     ),
+                  ),
+                  if (success)
                     Text(
-                      '📁 Pictures/DinoManager/$fileName',
+                      '📁 Galerie › Pictures › DinoManager',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 10,
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
-            ],
-          ),
-          backgroundColor: AppTheme.success,
-          duration: const Duration(seconds: 4),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+            ),
+          ],
         ),
-      );
-    }
+        backgroundColor: success ? AppTheme.success : AppTheme.danger,
+        duration: const Duration(seconds: 4),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
   }
 
-  /// Dialog si permission permanentement refusée
+  // ════════════════════════════════════════════════════════════════════════
+  // DIALOG PERMISSION PERMANENTE
+  // ════════════════════════════════════════════════════════════════════════
+
   static void _showPermissionDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -181,22 +202,28 @@ class SaveImageHelper {
           style: TextStyle(color: Colors.white),
         ),
         content: const Text(
-          'DinoManager a besoin d\'accéder à tes photos pour sauvegarder les DinoCards.\n\nVa dans Paramètres → Applications → DinoManager → Autorisations.',
+          'DinoManager a besoin d\'accéder à tes photos pour sauvegarder '
+          'les DinoCards.\n\n'
+          'Va dans Paramètres → Applications → DinoManager → Autorisations.',
           style: TextStyle(color: Colors.white70, fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler',
-                style: TextStyle(color: Colors.white38)),
+            child: const Text(
+              'Annuler',
+              style: TextStyle(color: Colors.white38),
+            ),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               openAppSettings();
             },
-            child: Text('Ouvrir les paramètres',
-                style: TextStyle(color: AppTheme.accentPrimary)),
+            child: Text(
+              'Ouvrir les paramètres',
+              style: TextStyle(color: AppTheme.accentPrimary),
+            ),
           ),
         ],
       ),

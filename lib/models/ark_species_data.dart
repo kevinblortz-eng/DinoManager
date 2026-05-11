@@ -28,16 +28,27 @@ class ArkSpeciesData {
 'Beelzebufo',
 'Beelzebufo Aberrant',
 'Bison',
+<<<<<<< HEAD
 'Boaratos',
 'Brontosaurus',
 'Bulbdog',
 'Burrowbuck',
+=======
+//'Boaratos',
+'Brontosaurus',
+'Bulbdog',
+//'Burrowbuck',
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 'Carbonemys',
 'Carbonemys Aberrant',
 'Carcharodontosaurus',
 'Carnotaurus',
 'Carnotaurus Aberrant',
 'Castoroides',
+<<<<<<< HEAD
+=======
+'Cat',
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 'Ceratosaurus',
 'Chalicotherium',
 'Chalk Elemental',
@@ -216,6 +227,10 @@ class ArkSpeciesData {
 'Triceratops Tek',
 'Troodon',
 'Tusoteuthis',
+<<<<<<< HEAD
+=======
+'Unicorn',
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 'Veilwyn',
 'Velonasaur',
 'Vulture',
@@ -254,16 +269,27 @@ class ArkSpeciesData {
 'Beelzebufo',
 'Beelzebufo Aberrant',
 'Bison',
+<<<<<<< HEAD
 'Boaratos',
 'Brontosaurus',
 'Bulbdog',
 'Burrowbuck',
+=======
+//'Boaratos',
+'Brontosaurus',
+'Bulbdog',
+//'Burrowbuck',
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 'Carbonemys',
 'Carbonemys Aberrant',
 'Carcharodontosaurus',
 'Carnotaurus',
 'Carnotaurus Aberrant',
 'Castoroides',
+<<<<<<< HEAD
+=======
+'Cat',
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 'Ceratosaurus',
 'Chalicotherium',
 'Chalk Elemental',
@@ -365,7 +391,10 @@ class ArkSpeciesData {
 'Mosasaurus',
 'Moschops',
 'Moschops Aberrant',
+<<<<<<< HEAD
 'Neophyte',
+=======
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 'Oasisaur',
 'Onyc',
 'Ossidon',

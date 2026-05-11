@@ -2,18 +2,30 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:flutter/rendering.dart';
+=======
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';
 import '../theme/app_theme.dart';
 import '../providers/dino_provider.dart';
+<<<<<<< HEAD
+=======
+import '../providers/tag_theme_provider.dart';
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 import '../widgets/dino_image_widget.dart';
 import '../widgets/common/dino_stat_grid.dart';
 import '../widgets/common/dino_color_strip.dart';
 import '../widgets/dino_multi_select_bottom_sheet.dart';
+<<<<<<< HEAD
 import '../utils/dino_helpers.dart';
 import '../utils/save_image_helper.dart';
+=======
+import '../widgets/share_card/dino_share_card_exporter.dart';
+import '../utils/dino_helpers.dart';
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 import 'add_edit_dino_screen.dart';
 import 'dino_variant_screen.dart';
 
@@ -27,9 +39,18 @@ class DinoDetailScreen extends StatefulWidget {
 
 class _DinoDetailScreenState extends State<DinoDetailScreen> {
   late Dino _dino;
+<<<<<<< HEAD
   final GlobalKey _exportKey = GlobalKey();
   bool _isCapturing = false;
   bool _showExportWidget = false;
+=======
+  bool _isCapturing = false;
+
+  // ── Tailles du médaillon LVL sur la dinocard MOBILE uniquement ────────
+  static const double _lvlMobileSize    = 54.0;
+  static const double _lvlMobileFontLvl =  9.0;
+  static const double _lvlMobileFontNum = 18.0;
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   @override
   void initState() {
@@ -37,6 +58,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
     _dino = widget.dino;
   }
 
+<<<<<<< HEAD
   // ═══════════════════════════════════════════════
   // CAPTURE & SAUVEGARDE
   // ═══════════════════════════════════════════════
@@ -412,11 +434,50 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
   // ═══════════════════════════════════════════════
   // BUILD PRINCIPAL
   // ═══════════════════════════════════════════════
+=======
+  // ════════════════════════════════════════════════════════════════════════
+  // RÉSOLUTION COULEUR THÈME
+  // ════════════════════════════════════════════════════════════════════════
+
+  Color _resolveThemeColor(TagThemeProvider tagProvider) {
+    for (final tag in _dino.tags) {
+      final c = tagProvider.colorForTag(tag);
+      if (c != null) return c;
+    }
+    return _dino.roleColor;
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // CAPTURE — délégue entièrement à DinoShareCardExporter
+  // ════════════════════════════════════════════════════════════════════════
+
+  Future<void> _captureAndSave() async {
+    if (_isCapturing) return;
+    setState(() => _isCapturing = true);
+
+    try {
+      final tagProvider = context.read<TagThemeProvider>();
+      final themeColor  = _resolveThemeColor(tagProvider);
+
+      await DinoShareCardExporter(
+        dino:       _dino,
+        themeColor: themeColor,
+      ).captureAndSave(context);
+    } finally {
+      if (mounted) setState(() => _isCapturing = false);
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // BUILD PRINCIPAL
+  // ════════════════════════════════════════════════════════════════════════
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
+<<<<<<< HEAD
     return Scaffold(
       backgroundColor: const Color(0xFF0A0E1A),
       body: Stack(
@@ -427,13 +488,30 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
             child: Column(
               children: [
                 _buildAppBar(),
+=======
+    return Consumer<TagThemeProvider>(
+      builder: (context, tagProvider, _) {
+        final themeColor = _resolveThemeColor(tagProvider);
+
+        return Scaffold(
+          backgroundColor: const Color(0xFF0A0E1A),
+          body: SafeArea(
+            bottom: true,
+            child: Column(
+              children: [
+                _buildAppBar(themeColor),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                 Expanded(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.fromLTRB(
                         16, 16, 16, 16 + bottomPadding),
                     child: Column(
                       children: [
+<<<<<<< HEAD
                         _buildArkCard(),
+=======
+                        _buildArkCard(themeColor),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                         const SizedBox(height: 20),
                         _buildActionButtons(),
                       ],
@@ -443,6 +521,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               ],
             ),
           ),
+<<<<<<< HEAD
           // ── Widget export caché (Offstage) ──
           if (_showExportWidget) _buildOffstageExport(),
         ],
@@ -451,10 +530,23 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
   }
 
   Widget _buildAppBar() {
+=======
+        );
+      },
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // APP BAR
+  // ════════════════════════════════════════════════════════════════════════
+
+  Widget _buildAppBar(Color themeColor) {
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       child: Row(
         children: [
+<<<<<<< HEAD
           Container(
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.6),
@@ -492,12 +584,32 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               tooltip: 'Sauvegarder la DinoCard',
               onPressed: _isCapturing ? null : _captureAndSave,
             ),
+=======
+          _circleButton(
+            child:       const Icon(Icons.arrow_back, color: Colors.white),
+            onTap:       () => Navigator.pop(context),
+            borderColor: Colors.white.withValues(alpha: 0.2),
+          ),
+          const Spacer(),
+          _circleButton(
+            child: _isCapturing
+                ? SizedBox(
+                    width:  20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        color: themeColor, strokeWidth: 2),
+                  )
+                : Icon(Icons.ios_share_rounded, color: themeColor),
+            onTap:       _isCapturing ? null : _captureAndSave,
+            borderColor: themeColor.withValues(alpha: 0.5),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           ),
         ],
       ),
     );
   }
 
+<<<<<<< HEAD
   // ═══════════════════════════════════════════════
   // ARK CARD (affichage mobile)
   // ═══════════════════════════════════════════════
@@ -517,18 +629,69 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
           BoxShadow(
             color: _dino.roleColor.withValues(alpha: 0.3),
             blurRadius: 15,
+=======
+  Widget _circleButton({
+    required Widget  child,
+    VoidCallback?    onTap,
+    required Color   borderColor,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width:  44,
+        height: 44,
+        decoration: BoxDecoration(
+          color:  Colors.black.withValues(alpha: 0.6),
+          shape:  BoxShape.circle,
+          border: Border.all(color: borderColor, width: 1.5),
+        ),
+        child: Center(child: child),
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // ARK CARD MOBILE
+  // ════════════════════════════════════════════════════════════════════════
+
+  Widget _buildArkCard(Color themeColor) {
+    return Container(
+      decoration: BoxDecoration(
+        color:        const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: themeColor.withValues(alpha: 0.7), width: 3),
+        boxShadow: [
+          BoxShadow(
+            color:      Colors.black.withValues(alpha: 0.8),
+            blurRadius: 20,
+            offset:     const Offset(0, 10),
+          ),
+          BoxShadow(
+            color:        themeColor.withValues(alpha: 0.35),
+            blurRadius:   20,
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             spreadRadius: -2,
           ),
         ],
       ),
       child: Column(
         children: [
+<<<<<<< HEAD
           _buildVisualSection(),
           _buildTitleSection(),
           DinoStatGrid(dino: _dino),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: DinoColorStrip(dino: _dino),
+=======
+          _buildVisualSection(themeColor),
+          _buildTitleSection(themeColor),
+          DinoStatGrid(dino: _dino),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child:   DinoColorStrip(dino: _dino),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           ),
           const SizedBox(height: 16),
         ],
@@ -536,23 +699,41 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
     );
   }
 
+<<<<<<< HEAD
   // ── Zone visuelle avec fond flouté (BackdropFilter OK — affichage live) ──
   Widget _buildVisualSection() {
+=======
+  // ════════════════════════════════════════════════════════════════════════
+  // SECTION VISUELLE — image + badges LVL/GENRE (mobile)
+  // ════════════════════════════════════════════════════════════════════════
+
+  Widget _buildVisualSection(Color themeColor) {
+    const double visualHeight = 280.0;
+
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     final hasCustomImage = _dino.image != null && _dino.image!.isNotEmpty;
     final assetPath =
         'assets/images/dinos/${_dino.espece.replaceAll(' ', '_')}_ASA.png';
 
     return SizedBox(
+<<<<<<< HEAD
       height: 280,
       child: Stack(
         children: [
           // ── FOND FLOUTÉ ──
+=======
+      height: visualHeight,
+      child: Stack(
+        children: [
+          // ── Fond flouté ──────────────────────────────────────────────
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           Positioned.fill(
             child: ClipRect(
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   hasCustomImage
+<<<<<<< HEAD
                       ? Image.file(
                           File(_dino.image!),
                           fit: BoxFit.cover,
@@ -566,15 +747,36 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                   BackdropFilter(
                     filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                     child: const SizedBox.expand(),
+=======
+                      ? Image.file(File(_dino.image!),
+                          fit:          BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _buildFallbackBg(themeColor))
+                      : Image.asset(assetPath,
+                          fit:          BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _buildFallbackBg(themeColor)),
+                  BackdropFilter(
+                    filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child:  const SizedBox.expand(),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                   ),
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
+<<<<<<< HEAD
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.black.withValues(alpha: 0.50),
                           _dino.roleColor.withValues(alpha: 0.20),
+=======
+                        begin:  Alignment.topCenter,
+                        end:    Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.50),
+                          themeColor.withValues(alpha: 0.20),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                           Colors.black.withValues(alpha: 0.65),
                         ],
                       ),
@@ -584,18 +786,32 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               ),
             ),
           ),
+<<<<<<< HEAD
           // ── BORDURE BASSE ──
           Positioned(
             left: 0, right: 0, bottom: 0,
             child: Container(height: 2, color: const Color(0xFF5A5A5A)),
           ),
           // ── IMAGE DINO PRINCIPALE ──
+=======
+
+          // ── Ligne de séparation bas ──────────────────────────────────
+          Positioned(
+            left: 0, right: 0, bottom: 0,
+            child: Container(
+                height: 2,
+                color:  themeColor.withValues(alpha: 0.6)),
+          ),
+
+          // ── Image dino centrée ───────────────────────────────────────
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           Positioned.fill(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Hero(
                 tag: 'dino_${_dino.id}',
                 child: hasCustomImage
+<<<<<<< HEAD
                     ? Image.file(
                         File(_dino.image!),
                         fit: BoxFit.contain,
@@ -640,20 +856,179 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
             Positioned(
               top: 16, right: 16,
               child: _buildSexBadge(),
+=======
+                    ? Image.file(File(_dino.image!),
+                        fit:          BoxFit.contain,
+                        errorBuilder: (_, __, ___) =>
+                            _buildMobileSpeciesImage())
+                    : _buildMobileSpeciesImage(),
+              ),
+            ),
+          ),
+
+          // ── Badge LVL mobile — petit (54 px) ────────────────────────
+          Positioned(
+            top:  9,
+            left: 9,
+            child: _buildMobileLevelBadge(),
+          ),
+
+          // ── Badge genre mobile ───────────────────────────────────────
+          if (_dino.sexe != 'Inconnu')
+            Positioned(
+              top:   9,
+              right: 9,
+              child: _buildMobileGenderBadge(),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             ),
         ],
       ),
     );
   }
 
+<<<<<<< HEAD
   Widget _buildFallbackBg() {
+=======
+  // ════════════════════════════════════════════════════════════════════════
+  // BADGE LVL MOBILE — taille fixe 54 px, stylistique dinocard
+  // ════════════════════════════════════════════════════════════════════════
+
+  Widget _buildMobileLevelBadge() {
+    final rarityColor = DinoHelpers.getCardRarityColor(_dino.niveau);
+    return Container(
+      width:  _lvlMobileSize,
+      height: _lvlMobileSize,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.black.withValues(alpha: 0.82),
+        border: Border.all(color: rarityColor, width: 2.0),
+        boxShadow: [
+          BoxShadow(
+            color:      rarityColor.withValues(alpha: 0.6),
+            blurRadius: _lvlMobileSize * 0.25,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'LVL',
+            style: GoogleFonts.exo2(
+              color:         rarityColor.withValues(alpha: 0.85),
+              fontSize:      _lvlMobileFontLvl,
+              fontWeight:    FontWeight.w700,
+              letterSpacing: 1.5,
+              height:        1.1,
+            ),
+          ),
+          Text(
+            '${_dino.niveau}',
+            style: GoogleFonts.exo2(
+              color:      rarityColor,
+              fontSize:   _lvlMobileFontNum,
+              fontWeight: FontWeight.w900,
+              height:     1.0,
+              shadows: [
+                Shadow(
+                  color:      rarityColor.withValues(alpha: 0.7),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // BADGE GENRE MOBILE — taille fixe 36 px
+  // ════════════════════════════════════════════════════════════════════════
+
+  Widget _buildMobileGenderBadge() {
+    final isBoth = _dino.sexe == 'Mâle+Femelle';
+    final isMale = _dino.sexe == 'Mâle';
+
+    if (isBoth) {
+      return Container(
+        width:  46,
+        height: 36,
+        decoration: BoxDecoration(
+          color:        Colors.black.withValues(alpha: 0.75),
+          borderRadius: BorderRadius.circular(6),
+          border:       Border.all(color: Colors.purple, width: 2.0),
+          boxShadow: [
+            BoxShadow(
+              color:      Colors.purple.withValues(alpha: 0.4),
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('♂',
+                style: TextStyle(
+                    color:      Colors.blue[300],
+                    fontSize:   16,
+                    fontWeight: FontWeight.w900)),
+            const SizedBox(width: 2),
+            Text('♀',
+                style: TextStyle(
+                    color:      Colors.pink[300],
+                    fontSize:   16,
+                    fontWeight: FontWeight.w900)),
+          ],
+        ),
+      );
+    }
+
+    final genderColor  = isMale ? Colors.blue[300]! : Colors.pink[300]!;
+    final genderSymbol = isMale ? '♂' : '♀';
+
+    return Container(
+      width:  36,
+      height: 36,
+      decoration: BoxDecoration(
+        color:  Colors.black.withValues(alpha: 0.75),
+        shape:  BoxShape.circle,
+        border: Border.all(color: genderColor, width: 2.0),
+        boxShadow: [
+          BoxShadow(
+            color:      genderColor.withValues(alpha: 0.45),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        genderSymbol,
+        style: TextStyle(
+            color:      genderColor,
+            fontSize:   18,
+            fontWeight: FontWeight.w900),
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // HELPERS VISUELS
+  // ════════════════════════════════════════════════════════════════════════
+
+  Widget _buildFallbackBg(Color themeColor) {
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     return Container(
       decoration: BoxDecoration(
         gradient: RadialGradient(
           center: Alignment.center,
           radius: 1.2,
           colors: [
+<<<<<<< HEAD
             _dino.roleColor.withValues(alpha: 0.35),
+=======
+            themeColor.withValues(alpha: 0.35),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             const Color(0xFF0F1115),
           ],
         ),
@@ -661,6 +1036,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
     );
   }
 
+<<<<<<< HEAD
   Widget _buildSexBadge() {
     final isBoth = _dino.sexe.contains('Mâle+Femelle');
 
@@ -728,25 +1104,64 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
   }
 
   Widget _buildTitleSection() {
+=======
+  Widget _buildMobileSpeciesImage() {
+    return DinoImageWidget(
+      species:       _dino.espece,
+      regionColors:  _dino.colorRegions,
+      width:         double.infinity,
+      height:        280,
+      fit:           BoxFit.contain,
+      showColorBand: false,
+      alignment:     Alignment.center,
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // SECTION TITRE
+  // ════════════════════════════════════════════════════════════════════════
+
+  Widget _buildTitleSection(Color themeColor) {
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
+<<<<<<< HEAD
           colors: [Colors.black.withValues(alpha: 0.4), Colors.transparent],
         ),
         border: const Border(
             bottom: BorderSide(color: Color(0xFF5A5A5A), width: 1)),
+=======
+          colors: [
+            Colors.black.withValues(alpha: 0.4),
+            Colors.transparent,
+          ],
+        ),
+        border: Border(
+          bottom: BorderSide(
+            color: themeColor.withValues(alpha: 0.4),
+            width: 1,
+          ),
+        ),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
       ),
       child: Column(
         children: [
           ShaderMask(
+<<<<<<< HEAD
             shaderCallback: (bounds) => const LinearGradient(
               colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+=======
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [themeColor, themeColor.withValues(alpha: 0.7)],
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             ).createShader(bounds),
             child: Text(
               DinoHelpers.toTitleCase(_dino.espece),
               style: GoogleFonts.cinzelDecorative(
+<<<<<<< HEAD
                 color: Colors.white,
                 fontSize: 32,
                 fontWeight: FontWeight.w900,
@@ -761,6 +1176,16 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+=======
+                color:         Colors.white,
+                fontSize:      32,
+                fontWeight:    FontWeight.w900,
+                letterSpacing: 2.5,
+              ),
+              textAlign: TextAlign.center,
+              maxLines:  1,
+              overflow:  TextOverflow.ellipsis,
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             ),
           ),
           const SizedBox(height: 10),
@@ -768,10 +1193,17 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
             padding: const EdgeInsets.symmetric(
                 horizontal: 20, vertical: 8),
             decoration: BoxDecoration(
+<<<<<<< HEAD
               color: Colors.black.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                   color: _dino.roleColor.withValues(alpha: 0.6), width: 1),
+=======
+              color:        Colors.black.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                  color: themeColor.withValues(alpha: 0.55), width: 1),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -780,9 +1212,15 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                   child: Text(
                     _dino.nom,
                     style: GoogleFonts.exo2(
+<<<<<<< HEAD
                       color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 16,
                       fontStyle: FontStyle.italic,
+=======
+                      color:      Colors.white.withValues(alpha: 0.9),
+                      fontSize:   16,
+                      fontStyle:  FontStyle.italic,
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                       fontWeight: FontWeight.w600,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -793,16 +1231,27 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
+<<<<<<< HEAD
                     color: _dino.roleColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(6),
                     border:
                         Border.all(color: _dino.roleColor, width: 1),
+=======
+                    color:        themeColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: themeColor, width: 1),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                   ),
                   child: Text(
                     _dino.role.toUpperCase(),
                     style: TextStyle(
+<<<<<<< HEAD
                       color: _dino.roleColor,
                       fontSize: 10,
+=======
+                      color:      themeColor,
+                      fontSize:   10,
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -815,9 +1264,15 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
     );
   }
 
+<<<<<<< HEAD
   // ═══════════════════════════════════════════════
   // BOUTONS D'ACTION
   // ═══════════════════════════════════════════════
+=======
+  // ════════════════════════════════════════════════════════════════════════
+  // BOUTONS D'ACTION
+  // ════════════════════════════════════════════════════════════════════════
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   Widget _buildActionButtons() {
     return Column(
@@ -825,6 +1280,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
         Row(
           children: [
             Expanded(
+<<<<<<< HEAD
                 child: _buildActionButton(
               icon: Icons.edit_rounded,
               label: 'MODIFIER',
@@ -839,12 +1295,31 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               color: AppTheme.accentGreen,
               onPressed: _duplicateDino,
             )),
+=======
+              child: _buildActionButton(
+                icon:      Icons.edit_rounded,
+                label:     'MODIFIER',
+                color:     AppTheme.accentSecondary,
+                onPressed: _editDino,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildActionButton(
+                icon:      Icons.copy_all_rounded,
+                label:     'DUPLIQUER',
+                color:     AppTheme.accentGreen,
+                onPressed: _duplicateDino,
+              ),
+            ),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
+<<<<<<< HEAD
                 child: _buildActionButton(
               icon: Icons.delete_outline_rounded,
               label: 'SUPPRIMER',
@@ -859,6 +1334,24 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               color: const Color(0xFF9C27B0),
               onPressed: _viewVariants,
             )),
+=======
+              child: _buildActionButton(
+                icon:      Icons.delete_outline_rounded,
+                label:     'SUPPRIMER',
+                color:     AppTheme.danger,
+                onPressed: _confirmDelete,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildActionButton(
+                icon:      Icons.palette_outlined,
+                label:     'VARIANTES',
+                color:     const Color(0xFF9C27B0),
+                onPressed: _viewVariants,
+              ),
+            ),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           ],
         ),
       ],
@@ -866,19 +1359,30 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
   }
 
   Widget _buildActionButton({
+<<<<<<< HEAD
     required IconData icon,
     required String label,
     required Color color,
+=======
+    required IconData     icon,
+    required String       label,
+    required Color        color,
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     required VoidCallback onPressed,
   }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+<<<<<<< HEAD
         onTap: onPressed,
+=======
+        onTap:        onPressed,
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
+<<<<<<< HEAD
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: color.withValues(alpha: 0.6), width: 2),
@@ -887,6 +1391,18 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
                   color: color.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4)),
+=======
+            color:        color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+                color: color.withValues(alpha: 0.6), width: 2),
+            boxShadow: [
+              BoxShadow(
+                color:      color.withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset:     const Offset(0, 4),
+              ),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
             ],
           ),
           child: Row(
@@ -897,8 +1413,13 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
               Text(
                 label,
                 style: GoogleFonts.exo2(
+<<<<<<< HEAD
                     color: color,
                     fontSize: 14,
+=======
+                    color:      color,
+                    fontSize:   14,
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
                     fontWeight: FontWeight.w800),
               ),
             ],
@@ -908,14 +1429,25 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
     );
   }
 
+<<<<<<< HEAD
   // ═══════════════════════════════════════════════
   // ACTIONS
   // ═══════════════════════════════════════════════
+=======
+  // ════════════════════════════════════════════════════════════════════════
+  // ACTIONS
+  // ════════════════════════════════════════════════════════════════════════
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 
   Future<void> _editDino() async {
     final updated = await Navigator.push<Dino>(
       context,
+<<<<<<< HEAD
       MaterialPageRoute(builder: (_) => AddEditDinoScreen(dino: _dino)),
+=======
+      MaterialPageRoute(
+          builder: (_) => AddEditDinoScreen(dino: _dino)),
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     );
     if (updated != null && mounted) {
       setState(() => _dino = updated);
@@ -942,6 +1474,7 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
         backgroundColor: AppTheme.bgCard,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16)),
+<<<<<<< HEAD
         title: Text('Supprimer ${_dino.nom}?',
             style: const TextStyle(color: AppTheme.textPrimary)),
         content: const Text('Cette action est irréversible.',
@@ -961,6 +1494,26 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
       ),
     );
 
+=======
+        title: Text(
+            'Supprimer ${_dino.nom}?',
+            style: const TextStyle(color: AppTheme.textPrimary)),
+        content: const Text(
+            'Cette action est irréversible.',
+            style: TextStyle(color: AppTheme.textSecondary)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Annuler',
+                  style: TextStyle(color: AppTheme.textMuted))),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Supprimer',
+                  style: TextStyle(color: AppTheme.danger))),
+        ],
+      ),
+    );
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
     if (confirm == true && mounted) {
       if (_dino.id != null) {
         await Provider.of<DinoProvider>(context, listen: false)
@@ -971,13 +1524,20 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
   }
 
   Future<void> _viewVariants() async {
+<<<<<<< HEAD
     final provider = Provider.of<DinoProvider>(context, listen: false);
     final sameSpecies = provider.dinos
         .where((dino) => dino.espece == _dino.espece)
+=======
+    final provider    = Provider.of<DinoProvider>(context, listen: false);
+    final sameSpecies = provider.dinos
+        .where((d) => d.espece == _dino.espece)
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
         .toList();
 
     if (sameSpecies.length <= 1) {
       if (!mounted) return;
+<<<<<<< HEAD
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Aucun autre dinosaure de cette espèce trouvé'),
@@ -997,17 +1557,45 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
       builder: (context) => DinoMultiSelectBottomSheet(
         availableDinos: sameSpecies,
         referenceDino: _dino,
+=======
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content:         Text('Aucun autre dinosaure de cette espèce'),
+        backgroundColor: AppTheme.bgCard,
+        behavior:        SnackBarBehavior.floating,
+      ));
+      return;
+    }
+    if (!mounted) return;
+
+    final selected = await showModalBottomSheet<List<Dino>>(
+      context:            context,
+      useSafeArea:        true,
+      isScrollControlled: true,
+      backgroundColor:    Colors.transparent,
+      builder: (context) => DinoMultiSelectBottomSheet(
+        availableDinos:   sameSpecies,
+        referenceDino:    _dino,
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
         preSelectedDinos: const [],
       ),
     );
 
+<<<<<<< HEAD
     if (selectedDinos != null && selectedDinos.isNotEmpty && mounted) {
+=======
+    if (selected != null && selected.isNotEmpty && mounted) {
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => DinoVariantsScreen(
+<<<<<<< HEAD
             baseDino: _dino,
             selectedVariants: selectedDinos,
+=======
+            baseDino:         _dino,
+            selectedVariants: selected,
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
           ),
         ),
       );

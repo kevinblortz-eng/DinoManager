@@ -110,7 +110,11 @@ class Dino {
 
   // Tags par défaut (en mémoire, extensibles via shared_prefs ou Hive)
   static const List<String> tagsParDefaut = [
+<<<<<<< HEAD
     'Boss', 'Breeding',
+=======
+    'Boss', 'Breeding','Solid','Farm','Collection','Combat',
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
   ];
   // Pour la compat ascendante
   static const List<String> tagsDisponibles = [
@@ -514,4 +518,46 @@ class Dino {
       dateAjout: dateAjout ?? this.dateAjout,
     );
   }
+<<<<<<< HEAD
+=======
+    /// Factory pour créer un dino vide (utilisé comme fallback)
+  factory Dino.empty() {
+    return Dino(
+      id: null,
+      nom: 'N/A',
+      espece: 'N/A',
+      sexe: 'Inconnu',
+      role: 'Breed',
+      niveau: 0,
+      hp: 0,
+      stamina: 0,
+      oxygene: 0,
+      nourriture: 0,
+      poids: 0,
+      degats: 0.0,
+      vitesse: 0.0,
+      hpPoints: 0,
+      staminaPoints: 0,
+      oxygenePoints: 0,
+      nourriturePoints: 0,
+      poidsPoints: 0,
+      degatsPoints: 0,
+      vitessePoints: 0,
+      mutations: '0/0',
+      mutationsMaternal: 0,
+      mutationsPaternal: 0,
+      couleur0: '0:#808080',
+      couleur1: '0:#808080',
+      couleur2: '0:#808080',
+      couleur3: '0:#808080',
+      couleur4: '0:#808080',
+      couleur5: '0:#808080',
+      tagVersion: '',
+      tags: const [],
+      image: null,
+      notes: '',
+      dateAjout: DateTime.now(),
+    );
+  }
+>>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
 }
