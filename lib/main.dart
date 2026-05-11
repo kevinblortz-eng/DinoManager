@@ -1,13 +1,16 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'providers/dino_provider.dart';
 import 'providers/tracker_provider.dart';
+import 'providers/order_provider.dart';
+import 'providers/currency_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_navigation_screen.dart';
 import 'database/database_helper.dart';
+import '../providers/tag_theme_provider.dart';
+import '../providers/role_theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,18 +29,29 @@ void main() async {
     ),
   );
 
-  // Charger les données AVANT de lancer l'app
+  // ✅ Charger les données AVANT de lancer l'app
   final dinoProvider = DinoProvider();
   await dinoProvider.loadDinos();
 
   final trackerProvider = TrackerProvider();
   await trackerProvider.loadTrackers();
 
+  final orderProvider = OrderProvider();
+  await orderProvider.loadOrders();
+
+  final currencyProvider = CurrencyProvider();
+  await currencyProvider.loadPreferences();
+
+  // ✅ UN SEUL runApp
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: dinoProvider),
         ChangeNotifierProvider.value(value: trackerProvider),
+        ChangeNotifierProvider.value(value: orderProvider),
+        ChangeNotifierProvider.value(value: currencyProvider),
+        ChangeNotifierProvider(create: (_) => TagThemeProvider()),
+        ChangeNotifierProvider(create: (_) => RoleThemeProvider()),
       ],
       child: const DinoManagerApp(),
     ),

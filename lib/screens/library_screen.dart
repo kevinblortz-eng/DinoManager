@@ -1,8 +1,8 @@
-// lib/screens/library_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/dino_provider.dart';
+import '../providers/role_theme_provider.dart';
 import '../models/dino.dart';
 import '../widgets/ark_dino_card.dart';
 import '../theme/app_theme.dart';
@@ -65,7 +65,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // HEADER — aligné sur le template Home / Simulator
+  // HEADER
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildHeader(BuildContext context) {
     return Consumer<DinoProvider>(
@@ -80,7 +80,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'BIBLIOTHÈQUE',
+                      'BIBLIOTHEQUE',
                       style: GoogleFonts.cinzelDecorative(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -121,7 +121,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
               decoration: BoxDecoration(
                 color: const Color(0xFF161B22),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF21304A), width: 1.2),
+                border: Border.all(
+                    color: const Color(0xFF21304A), width: 1.2),
               ),
               child: TextField(
                 controller: _searchController,
@@ -146,14 +147,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               color: Color(0xFF4A5568), size: 18),
                           onPressed: () {
                             _searchController.clear();
-                            context.read<DinoProvider>().setSearchQuery('');
+                            context
+                                .read<DinoProvider>()
+                                .setSearchQuery('');
                             setState(() {});
                           },
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10, horizontal: 4),
                 ),
                 onChanged: (v) {
                   context.read<DinoProvider>().setSearchQuery(v);
@@ -221,12 +224,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 margin: const EdgeInsets.only(right: 8),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 5),
                 decoration: BoxDecoration(
                   gradient: isActive
-                      ? const LinearGradient(
-                          colors: [Color(0xFFFF6B00), Color(0xFFFF9500)])
+                      ? const LinearGradient(colors: [
+                          Color(0xFFFF6B00),
+                          Color(0xFFFF9500)
+                        ])
                       : null,
                   color: isActive ? null : const Color(0xFF161B22),
                   borderRadius: BorderRadius.circular(20),
@@ -240,10 +245,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 child: Text(
                   label,
                   style: GoogleFonts.exo2(
-                    color: isActive ? Colors.white : const Color(0xFF6B7A8D),
+                    color: isActive
+                        ? Colors.white
+                        : const Color(0xFF6B7A8D),
                     fontSize: 12,
-                    fontWeight:
-                        isActive ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: isActive
+                        ? FontWeight.w700
+                        : FontWeight.w500,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -256,11 +264,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // LISTE DES DINOS
+  // LISTE DES DINOS — roleThemeProvider lu via context ✅
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildDinoList() {
-    return Consumer<DinoProvider>(
-      builder: (context, provider, _) {
+    return Consumer2<DinoProvider, RoleThemeProvider>(
+      builder: (context, provider, roleThemeProvider, _) {
         if (provider.isLoading) {
           return Center(
             child: Column(
@@ -290,6 +298,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         if (provider.dinos.isEmpty) {
           return _buildEmptyState(provider.hasActiveFilters, context);
         }
+
         final bottomPadding = MediaQuery.of(context).padding.bottom;
 
         return RefreshIndicator(
@@ -298,12 +307,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           onRefresh: () => provider.loadDinos(),
           child: ListView.builder(
             physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(
-              14,
-              4,
-              14,
-              100 + bottomPadding,
-            ),
+            padding: EdgeInsets.fromLTRB(14, 4, 14, 100 + bottomPadding),
             itemCount: provider.dinos.length,
             itemBuilder: (context, i) {
               final dino = provider.dinos[i];
@@ -319,7 +323,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   MaterialPageRoute(
                       builder: (_) => AddEditDinoScreen(dino: dino)),
                 ).then((_) => provider.loadDinos()),
-                onDelete: () => _confirmDelete(context, provider, dino),
+                onDelete: () =>
+                    _confirmDelete(context, provider, dino),
+                // ✅ Correctement lu depuis le Consumer2
+                roleTheme:
+                    roleThemeProvider.themeForRole(dino.role),
               );
             },
           ),
@@ -361,7 +369,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const AddEditDinoScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const AddEditDinoScreen()),
                 ).then((_) {
                   if (!mounted) return;
                   // ignore: use_build_context_synchronously
@@ -377,7 +386,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF6B00).withValues(alpha: 0.4),
+                        color: const Color(0xFFFF6B00)
+                            .withValues(alpha: 0.4),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -492,7 +502,10 @@ class _SettingsButton extends StatelessWidget {
     ];
     final sortedTags = [
       ...priorityTags.where((t) => tagStats.containsKey(t)),
-      ...tagStats.keys.where((t) => !priorityTags.contains(t)).toList()..sort()
+      ...tagStats.keys
+          .where((t) => !priorityTags.contains(t))
+          .toList()
+        ..sort()
     ];
 
     showModalBottomSheet(
@@ -532,20 +545,22 @@ class _SettingsButton extends StatelessWidget {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Fonctionnalité bientôt disponible')),
+                          content: Text(
+                              'Fonctionnalité bientôt disponible')),
                     );
                   },
                   icon: const Icon(Icons.save_alt,
                       size: 16, color: AppTheme.accentSecondary),
                   label: const Text('Sauvegarder',
                       style: TextStyle(
-                          color: AppTheme.accentSecondary, fontSize: 12)),
+                          color: AppTheme.accentSecondary,
+                          fontSize: 12)),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            _statTile(
-                '🦖', '${dinos.length}', 'Total', AppTheme.accentPrimary),
+            _statTile('🦖', '${dinos.length}', 'Total',
+                AppTheme.accentPrimary),
             const SizedBox(height: 4),
             if (sortedTags.isEmpty)
               const Text('Aucun tag utilisé',
@@ -563,7 +578,8 @@ class _SettingsButton extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppTheme.bgCard,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.borderColor),
+                      border:
+                          Border.all(color: AppTheme.borderColor),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -675,8 +691,9 @@ class _FilterSheet extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppTheme.danger.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
-                  border:
-                      Border.all(color: AppTheme.danger.withValues(alpha: 0.3)),
+                  border: Border.all(
+                      color:
+                          AppTheme.danger.withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   'Réinitialiser les filtres',
@@ -727,8 +744,10 @@ class _FilterSheet extends StatelessWidget {
                     horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   gradient: isActive
-                      ? const LinearGradient(
-                          colors: [Color(0xFFFF6B00), Color(0xFFFF9500)])
+                      ? const LinearGradient(colors: [
+                          Color(0xFFFF6B00),
+                          Color(0xFFFF9500)
+                        ])
                       : null,
                   color: isActive ? null : const Color(0xFF1C2333),
                   borderRadius: BorderRadius.circular(20),
@@ -741,11 +760,13 @@ class _FilterSheet extends StatelessWidget {
                 child: Text(
                   opt.isEmpty ? 'Tous' : opt,
                   style: GoogleFonts.exo2(
-                    color:
-                        isActive ? Colors.white : const Color(0xFF6B7A8D),
+                    color: isActive
+                        ? Colors.white
+                        : const Color(0xFF6B7A8D),
                     fontSize: 12,
-                    fontWeight:
-                        isActive ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: isActive
+                        ? FontWeight.w700
+                        : FontWeight.w500,
                   ),
                 ),
               ),

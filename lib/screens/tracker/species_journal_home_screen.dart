@@ -1,4 +1,5 @@
 // lib/screens/tracker/species_journal_home_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -10,15 +11,36 @@ import '../../theme/app_theme.dart';
 import '../../widgets/dino_image_widget.dart';
 import 'species_journal_detail_screen.dart';
 
-class SpeciesJournalHomeScreen extends StatefulWidget {
-  const SpeciesJournalHomeScreen({super.key});
+class SpeciesJournalHomeScreen extends StatelessWidget {
+  final Dino? initialSelectedDino;
+
+  const SpeciesJournalHomeScreen({
+    super.key,
+    this.initialSelectedDino,
+  });
 
   @override
-  State<SpeciesJournalHomeScreen> createState() =>
-      _SpeciesJournalHomeScreenState();
+  Widget build(BuildContext context) {
+    return _SpeciesJournalHomeScreenBody(
+      initialSelectedDino: initialSelectedDino,
+    );
+  }
 }
 
-class _SpeciesJournalHomeScreenState extends State<SpeciesJournalHomeScreen> {
+class _SpeciesJournalHomeScreenBody extends StatefulWidget {
+  final Dino? initialSelectedDino;
+
+  const _SpeciesJournalHomeScreenBody({
+    this.initialSelectedDino,
+  });
+
+  @override
+  State<_SpeciesJournalHomeScreenBody> createState() =>
+      _SpeciesJournalHomeScreenBodyState();
+}
+
+class _SpeciesJournalHomeScreenBodyState
+    extends State<_SpeciesJournalHomeScreenBody> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
 
@@ -84,6 +106,10 @@ class _SpeciesJournalHomeScreenState extends State<SpeciesJournalHomeScreen> {
         ];
       }
 
+      // Prendre le premier dino comme favoris par défaut
+      final defaultFavoriteDino =
+          speciesDinos.isNotEmpty ? speciesDinos.first : null;
+
       result.add(_SpeciesJournalItem(
         species: species,
         previewColors: previewColors,
@@ -91,6 +117,7 @@ class _SpeciesJournalHomeScreenState extends State<SpeciesJournalHomeScreen> {
         bestStatsCount: tracker?.bestStats.length ?? 0,
         totalUniqueColors: colorSet.length,
         hasTracker: tracker != null,
+        defaultFavoriteDino: defaultFavoriteDino,
       ));
     }
 
@@ -299,8 +326,10 @@ class _SpeciesJournalHomeScreenState extends State<SpeciesJournalHomeScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) =>
-                  SpeciesJournalDetailScreen(species: item.species),
+              builder: (_) => SpeciesJournalDetailScreen(
+                species: item.species,
+                initialSelectedDino: item.defaultFavoriteDino,
+              ),
             ),
           );
         },
@@ -396,6 +425,7 @@ class _SpeciesJournalItem {
   final int bestStatsCount;
   final int totalUniqueColors;
   final bool hasTracker;
+  final Dino? defaultFavoriteDino;
 
   _SpeciesJournalItem({
     required this.species,
@@ -404,5 +434,6 @@ class _SpeciesJournalItem {
     required this.bestStatsCount,
     required this.totalUniqueColors,
     required this.hasTracker,
+    this.defaultFavoriteDino,
   });
 }

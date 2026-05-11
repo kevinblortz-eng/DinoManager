@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../models/dino.dart';
 import '../../models/species_tracker.dart';
 import '../../models/ark_color_palette.dart';
@@ -14,13 +15,31 @@ import '../dino_detail_screen.dart';
 import '../add_edit_dino_screen.dart';
 import 'species_tracker_detail_screen.dart';
 
-class SpeciesJournalDetailScreen extends StatelessWidget {
+class SpeciesJournalDetailScreen extends StatefulWidget {
   final String species;
+  final Dino? initialSelectedDino;
 
   const SpeciesJournalDetailScreen({
     super.key,
     required this.species,
+    this.initialSelectedDino, 
   });
+
+  @override
+  State<SpeciesJournalDetailScreen> createState() =>
+      _SpeciesJournalDetailScreenState();
+}
+
+class _SpeciesJournalDetailScreenState
+    extends State<SpeciesJournalDetailScreen> {
+  late Dino? _selectedDino;
+  bool _isColorsExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDino = widget.initialSelectedDino;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +48,12 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
         final bottomPadding = MediaQuery.of(context).padding.bottom;
 
         final libraryDinos = dinoProvider.dinos
-            .where((dino) => dino.espece.toLowerCase() == species.toLowerCase())
+            .where((dino) =>
+                dino.espece.toLowerCase() == widget.species.toLowerCase())
             .toList();
 
         final tracker = trackerProvider.trackers.cast<SpeciesTracker?>().firstWhere(
-              (t) => t?.species.toLowerCase() == species.toLowerCase(),
+              (t) => t?.species.toLowerCase() == widget.species.toLowerCase(),
               orElse: () => null,
             );
 
@@ -51,16 +71,30 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
                 libraryDinos: libraryDinos,
               );
 
-        final previewColors = libraryDinos.isNotEmpty
+        // ✅ CORRIGÉ : Vérifier que le dino sélectionné existe toujours dans la liste
+        // Si elle n'existe pas, prendre le premier disponible
+        if (_selectedDino == null || 
+            !libraryDinos.any((d) => d.id == _selectedDino!.id)) {
+          if (libraryDinos.isNotEmpty) {
+            _selectedDino = libraryDinos.first;
+          } else {
+            _selectedDino = null;
+          }
+        }
+
+        final previewColors = _selectedDino != null
             ? [
-                libraryDinos.first.colorHex0,
-                libraryDinos.first.colorHex1,
-                libraryDinos.first.colorHex2,
-                libraryDinos.first.colorHex3,
-                libraryDinos.first.colorHex4,
-                libraryDinos.first.colorHex5,
+                _selectedDino!.colorHex0,
+                _selectedDino!.colorHex1,
+                _selectedDino!.colorHex2,
+                _selectedDino!.colorHex3,
+                _selectedDino!.colorHex4,
+                _selectedDino!.colorHex5,
               ]
             : List.generate(6, (_) => '#808080');
+
+        final totalColors = mergedColorBank.values
+            .fold<int>(0, (sum, set) => sum + set.length);
 
         return Scaffold(
           backgroundColor: AppTheme.bgPrimary,
@@ -70,7 +104,7 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  species.toUpperCase(),
+                  widget.species.toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -91,12 +125,12 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
               children: [
                 _buildHeaderCard(
                   context,
-                  species: species,
+                  species: widget.species,
                   previewColors: previewColors,
                   libraryDinos: libraryDinos,
                   tracker: tracker,
-                  mergedBestStats: mergedBestStats,
-                  mergedColorBank: mergedColorBank,
+                  selectedDino: _selectedDino,
+                  totalColors: totalColors,
                 ),
                 const SizedBox(height: 20),
                 _buildStatsSection(mergedBestStats),
@@ -119,12 +153,9 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
     required List<String> previewColors,
     required List<Dino> libraryDinos,
     required SpeciesTracker? tracker,
-    required Map<String, BestStatRecord> mergedBestStats,
-    required Map<int, Set<int>> mergedColorBank,
+    required Dino? selectedDino,
+    required int totalColors,
   }) {
-    final totalColors =
-        mergedColorBank.values.fold<int>(0, (sum, set) => sum + set.length);
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -134,24 +165,57 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 110,
-            height: 90,
-            decoration: BoxDecoration(
-              color: AppTheme.bgSecondary,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.borderColor),
-            ),
-            child: DinoImageWidget(
-              species: species,
-              regionColors: previewColors,
+          // ── DINO VISUEL CLIQUABLE ──
+          GestureDetector(
+            onTap: libraryDinos.length > 1
+                ? () => _showDinoSelector(context, libraryDinos)
+                : null,
+            child: Container(
               width: 110,
               height: 90,
-              fit: BoxFit.contain,
-              showColorBand: false,
+              decoration: BoxDecoration(
+                color: AppTheme.bgSecondary,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.borderColor),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  DinoImageWidget(
+                    species: species,
+                    regionColors: previewColors,
+                    width: 110,
+                    height: 90,
+                    fit: BoxFit.contain,
+                    showColorBand: false,
+                  ),
+                  if (libraryDinos.length > 1)
+                    Positioned(
+                      bottom: 4,
+                      right: 4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.7),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.cyanAccent,
+                            width: 1,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.edit,
+                          color: Colors.cyanAccent,
+                          size: 12,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 14),
+          // ── INFOS ──
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,11 +229,9 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                _infoLine('Dinos', '${libraryDinos.length}'),
-                _infoLine('Stats max', '${mergedBestStats.length}/7'),
+                _infoLine('DinoCards', '${libraryDinos.length}'),
+                _infoLine('Trackers', tracker != null ? '1' : '0'),
                 _infoLine('Couleurs', '$totalColors'),
-                _infoLine(
-                    'Tracker', tracker != null ? 'Disponible' : 'Absent'),
                 const SizedBox(height: 10),
                 if (tracker != null)
                   SizedBox(
@@ -211,20 +273,132 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
     );
   }
 
+  // ─── DINO SELECTOR MODAL ──────────────────────────────────────────────────
+  void _showDinoSelector(BuildContext context, List<Dino> dinos) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.bgSecondary,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Choisir un dino favoris',
+              style: GoogleFonts.exo2(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView.builder(
+                itemCount: dinos.length,
+                itemBuilder: (_, idx) {
+                  final dino = dinos[idx];
+                  final isSelected = _selectedDino?.id == dino.id;
+                  return GestureDetector(
+                    onTap: () {
+                      // ✅ IMPORTANT : Mettre à jour l'état AVANT de fermer le modal
+                      setState(() => _selectedDino = dino);
+                      Navigator.pop(ctx);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppTheme.accentPrimary.withValues(alpha: 0.15)
+                            : AppTheme.bgCard,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? AppTheme.accentPrimary
+                              : AppTheme.borderColor,
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  dino.nom,
+                                  style: GoogleFonts.exo2(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'Lvl ${dino.niveau}',
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(
+                              Icons.check_circle,
+                              color: AppTheme.accentPrimary,
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ─── STATS SECTION ────────────────────────────────────────────────────────
   Widget _buildStatsSection(Map<String, BestStatRecord> stats) {
     const statOrder = [
-      'hp', 'stamina', 'oxygene', 'nourriture', 'poids', 'degats', 'vitesse',
+      'hp',
+      'stamina',
+      'oxygene',
+      'nourriture',
+      'poids',
+      'degats',
     ];
 
     const labels = {
-      'hp': 'HP',
-      'stamina': 'Stamina',
-      'oxygene': 'Oxygene',
-      'nourriture': 'Food',
-      'poids': 'Poids',
-      'degats': 'Degats',
-      'vitesse': 'Vitesse',
+      'hp': 'VIE',
+      'stamina': 'STAM',
+      'oxygene': 'OXYGÈNE',
+      'nourriture': 'FOOD',
+      'poids': 'POIDS',
+      'degats': 'ATTAQUE',
+    };
+
+    const emojis = {
+      'hp': '❤️',
+      'stamina': '⚡',
+      'oxygene': '🫧',
+      'nourriture': '🍖',
+      'poids': '⚖️',
+      'degats': '⚔️',
+    };
+
+    const colors = {
+      'hp': Color(0xFF4CAF50),
+      'stamina': Color(0xFFFFD700),
+      'oxygene': Color(0xFF10B981),
+      'nourriture': Color(0xFF8B5CF6),
+      'poids': Color(0xFF3B82F6),
+      'degats': Color(0xFFEF4444),
     };
 
     return Container(
@@ -253,101 +427,74 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            GridView.builder(
-              itemCount: statOrder.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1.7,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemBuilder: (context, index) {
-                final key = statOrder[index];
-                final record = stats[key];
-
-                if (record == null) {
-                  return Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.bgSecondary,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.borderColor),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          labels[key]!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          'Non enregistre',
-                          style: TextStyle(color: Colors.grey, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                final displayValue = record.value % 1 == 0
-                    ? record.value.toInt().toString()
-                    : record.value.toStringAsFixed(1);
-
-                return Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.bgSecondary,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppTheme.borderColor),
+            // Ligne 1 : 3 stats
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMaxStatCard(
+                    statOrder[0],
+                    labels[statOrder[0]]!,
+                    emojis[statOrder[0]]!,
+                    colors[statOrder[0]]!,
+                    stats[statOrder[0]],
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        labels[key]!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$displayValue${key == 'degats' || key == 'vitesse' ? '%' : ''}',
-                        style: const TextStyle(
-                          color: Colors.greenAccent,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${record.points ?? 0} pts',
-                        style: const TextStyle(
-                          color: Colors.cyanAccent,
-                          fontSize: 11,
-                        ),
-                      ),
-                      Text(
-                        record.source ?? 'Inconnu',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildMaxStatCard(
+                    statOrder[1],
+                    labels[statOrder[1]]!,
+                    emojis[statOrder[1]]!,
+                    colors[statOrder[1]]!,
+                    stats[statOrder[1]],
                   ),
-                );
-              },
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildMaxStatCard(
+                    statOrder[2],
+                    labels[statOrder[2]]!,
+                    emojis[statOrder[2]]!,
+                    colors[statOrder[2]]!,
+                    stats[statOrder[2]],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            // Ligne 2 : 3 stats
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMaxStatCard(
+                    statOrder[3],
+                    labels[statOrder[3]]!,
+                    emojis[statOrder[3]]!,
+                    colors[statOrder[3]]!,
+                    stats[statOrder[3]],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildMaxStatCard(
+                    statOrder[4],
+                    labels[statOrder[4]]!,
+                    emojis[statOrder[4]]!,
+                    colors[statOrder[4]]!,
+                    stats[statOrder[4]],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildMaxStatCard(
+                    statOrder[5],
+                    labels[statOrder[5]]!,
+                    emojis[statOrder[5]]!,
+                    colors[statOrder[5]]!,
+                    stats[statOrder[5]],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -355,7 +502,110 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
     );
   }
 
-  // ─── COLORS SECTION ───────────────────────────────────────────────────────
+  Widget _buildMaxStatCard(
+    String statKey,
+    String label,
+    String emoji,
+    Color color,
+    BestStatRecord? record,
+  ) {
+    if (record == null) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF15181E),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFF454545), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.5),
+              offset: const Offset(2, 2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 22)),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: GoogleFonts.exo2(
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 9,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'N/A',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final displayValue = record.value % 1 == 0
+        ? record.value.toInt().toString()
+        : record.value.toStringAsFixed(1);
+
+    final suffixe = statKey == 'degats' ? '%' : '';
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF15181E),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF454545), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            offset: const Offset(2, 2),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 22)),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.exo2(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$displayValue$suffixe',
+            style: GoogleFonts.exo2(
+              color: Colors.greenAccent,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${record.points ?? 0} pts',
+            style: const TextStyle(
+              color: Colors.cyanAccent,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── COLORS SECTION (COLLAPSIBLE) ──────────────────────────────────────────
   Widget _buildColorsSection(Map<int, Set<int>> colorBank) {
     return Container(
       decoration: BoxDecoration(
@@ -367,29 +617,42 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const Row(
-              children: [
-                Icon(Icons.palette_outlined, color: Colors.cyanAccent),
-                SizedBox(width: 8),
-                Text(
-                  'BANQUE DE COULEURS',
-                  style: TextStyle(
-                    color: Colors.cyanAccent,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    letterSpacing: 1.1,
+            GestureDetector(
+              onTap: () => setState(() => _isColorsExpanded = !_isColorsExpanded),
+              child: Row(
+                children: [
+                  const Icon(Icons.palette_outlined, color: Colors.cyanAccent),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'BANQUE DE COULEURS',
+                      style: TextStyle(
+                        color: Colors.cyanAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  Icon(
+                    _isColorsExpanded
+                        ? Icons.expand_less
+                        : Icons.expand_more,
+                    color: Colors.cyanAccent,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            ...List.generate(6, (region) {
-              final sorted = (colorBank[region] ?? {}).toList()..sort();
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _buildRegionColorBar(region, sorted),
-              );
-            }),
+            if (_isColorsExpanded) ...[
+              const SizedBox(height: 16),
+              ...List.generate(6, (region) {
+                final sorted = (colorBank[region] ?? {}).toList()..sort();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _buildRegionColorBar(region, sorted),
+                );
+              }),
+            ],
           ],
         ),
       ),
@@ -606,13 +869,48 @@ class SpeciesJournalDetailScreen extends StatelessWidget {
       final src = dino.nom.isNotEmpty ? dino.nom : 'Dino#${dino.id ?? 0}';
       final date = dino.dateAjout;
 
-      considerStat(statName: 'hp', value: dino.hp, points: dino.hpPoints, sourceName: src, recordedAt: date);
-      considerStat(statName: 'stamina', value: dino.stamina, points: dino.staminaPoints, sourceName: src, recordedAt: date);
-      considerStat(statName: 'oxygene', value: dino.oxygene, points: dino.oxygenePoints, sourceName: src, recordedAt: date);
-      considerStat(statName: 'nourriture', value: dino.nourriture, points: dino.nourriturePoints, sourceName: src, recordedAt: date);
-      considerStat(statName: 'poids', value: dino.poids, points: dino.poidsPoints, sourceName: src, recordedAt: date);
-      considerStat(statName: 'degats', value: dino.degats, points: dino.degatsPoints, sourceName: src, recordedAt: date);
-      considerStat(statName: 'vitesse', value: dino.vitesse, points: dino.vitessePoints, sourceName: src, recordedAt: date);
+      considerStat(
+          statName: 'hp',
+          value: dino.hp,
+          points: dino.hpPoints,
+          sourceName: src,
+          recordedAt: date);
+      considerStat(
+          statName: 'stamina',
+          value: dino.stamina,
+          points: dino.staminaPoints,
+          sourceName: src,
+          recordedAt: date);
+      considerStat(
+          statName: 'oxygene',
+          value: dino.oxygene,
+          points: dino.oxygenePoints,
+          sourceName: src,
+          recordedAt: date);
+      considerStat(
+          statName: 'nourriture',
+          value: dino.nourriture,
+          points: dino.nourriturePoints,
+          sourceName: src,
+          recordedAt: date);
+      considerStat(
+          statName: 'poids',
+          value: dino.poids,
+          points: dino.poidsPoints,
+          sourceName: src,
+          recordedAt: date);
+      considerStat(
+          statName: 'degats',
+          value: dino.degats,
+          points: dino.degatsPoints,
+          sourceName: src,
+          recordedAt: date);
+      considerStat(
+          statName: 'vitesse',
+          value: dino.vitesse,
+          points: dino.vitessePoints,
+          sourceName: src,
+          recordedAt: date);
     }
 
     return merged;
@@ -678,13 +976,48 @@ Map<String, BestStatRecord> _mergeTrackerAndLibraryBestStats({
     final src = dino.nom.isNotEmpty ? dino.nom : 'Dino#${dino.id ?? 0}';
     final date = dino.dateAjout;
 
-    considerStat(statName: 'hp', value: dino.hp, points: dino.hpPoints, sourceName: src, recordedAt: date);
-    considerStat(statName: 'stamina', value: dino.stamina, points: dino.staminaPoints, sourceName: src, recordedAt: date);
-    considerStat(statName: 'oxygene', value: dino.oxygene, points: dino.oxygenePoints, sourceName: src, recordedAt: date);
-    considerStat(statName: 'nourriture', value: dino.nourriture, points: dino.nourriturePoints, sourceName: src, recordedAt: date);
-    considerStat(statName: 'poids', value: dino.poids, points: dino.poidsPoints, sourceName: src, recordedAt: date);
-    considerStat(statName: 'degats', value: dino.degats, points: dino.degatsPoints, sourceName: src, recordedAt: date);
-    considerStat(statName: 'vitesse', value: dino.vitesse, points: dino.vitessePoints, sourceName: src, recordedAt: date);
+    considerStat(
+        statName: 'hp',
+        value: dino.hp,
+        points: dino.hpPoints,
+        sourceName: src,
+        recordedAt: date);
+    considerStat(
+        statName: 'stamina',
+        value: dino.stamina,
+        points: dino.staminaPoints,
+        sourceName: src,
+        recordedAt: date);
+    considerStat(
+        statName: 'oxygene',
+        value: dino.oxygene,
+        points: dino.oxygenePoints,
+        sourceName: src,
+        recordedAt: date);
+    considerStat(
+        statName: 'nourriture',
+        value: dino.nourriture,
+        points: dino.nourriturePoints,
+        sourceName: src,
+        recordedAt: date);
+    considerStat(
+        statName: 'poids',
+        value: dino.poids,
+        points: dino.poidsPoints,
+        sourceName: src,
+        recordedAt: date);
+    considerStat(
+        statName: 'degats',
+        value: dino.degats,
+        points: dino.degatsPoints,
+        sourceName: src,
+        recordedAt: date);
+    considerStat(
+        statName: 'vitesse',
+        value: dino.vitesse,
+        points: dino.vitessePoints,
+        sourceName: src,
+        recordedAt: date);
   }
 
   return merged;
@@ -716,3 +1049,4 @@ Map<int, Set<int>> _mergeTrackerAndLibraryColorBank({
 
   return merged;
 }
+

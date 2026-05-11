@@ -8,11 +8,9 @@ plugins {
 }
 
 val keystoreProperties = Properties()
-// Cherche key.properties d'abord dans android/app/ (votre fichier original),
-// puis à la racine android/ en fallback pour les builds CI.
 val keystorePropertiesFile = let {
-    val appFile = file("key.properties")          // android/app/key.properties
-    val rootFile = rootProject.file("key.properties") // android/key.properties
+    val appFile = file("key.properties")
+    val rootFile = rootProject.file("key.properties")
     when {
         appFile.exists()  -> appFile
         rootFile.exists() -> rootFile
@@ -65,8 +63,16 @@ android {
             isShrinkResources = false
         }
     }
+
+    lint {
+        disable += "UnsafeOperations"
+    }
 }
 
 flutter {
     source = "../.."
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-nowarn")
 }

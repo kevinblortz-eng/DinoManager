@@ -52,6 +52,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
   // ── Scan en cours ──────────────────────────────────────────────────────────
   bool _processing = false;
   String _processingStep = '';
+  File? _frozenImage; // ✅ image gelée pendant le traitement OC
 
   // ── Type de source attendu ─────────────────────────────────────────────────
   OcrSourceType _expectedSource = OcrSourceType.unknown;
@@ -75,6 +76,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     }
     // mode galerie : l'image est passée via Navigator.push arguments
     // ou ouverte dès l'init
+    
   }
 
   @override
@@ -146,90 +148,109 @@ class _DinoScanScreenState extends State<DinoScanScreen>
 
   /// Capture la photo, recadre selon _cropRect, prétraite et lance l'OCR
   Future<void> _captureAndScan() async {
-    if (_processing) return;
+  if (_processing) return;
 
-    setState(() {
-      _processing     = true;
-      _processingStep = 'Capture en cours…';
-    });
+  setState(() {
+    _processing     = true;
+    _processingStep = 'Capture en cours…';
+  });
 
-    try {
-      File rawFile;
+  try {
+    File rawFile;
 
-      if (widget.mode == ScanMode.camera) {
-        // ── 1a. Prise de vue caméra ──
-        final xFile = await _cameraController!.takePicture();
-        rawFile = File(xFile.path);
-      } else {
-        // ── 1b. Image galerie déjà chargée ──
-        if (_galleryImage == null) return;
-        rawFile = _galleryImage!;
+    if (widget.mode == ScanMode.camera) {
+      // ── 1a. Prise de vue caméra ──
+      final xFile = await _cameraController!.takePicture();
+      rawFile = File(xFile.path);
+
+      // ✅ BUG 4 CORRIGÉ : geler le preview immédiatement après la capture
+      // pour que l'utilisateur voie que la photo est prise et ne bouge plus
+      // On pause le preview en désactivant temporairement le controller
+      // Afficher l'image capturée à la place du live preview
+      if (mounted) {
+        setState(() {
+          _frozenImage   = rawFile; // ← image gelée affichée pendant le traitement
+          _processingStep = 'Analyse qualité…';
+        });
       }
+    } else {
+      if (_galleryImage == null) return;
+      rawFile = _galleryImage!;
+    }
 
-      // ── 2. Vérification qualité ──
-      setState(() => _processingStep = 'Analyse qualité…');
-      final quality = await ImagePreprocessor.checkQuality(rawFile);
+    // ── 2. Vérification qualité ──
+    setState(() => _processingStep = 'Analyse qualité…');
+    final quality = await ImagePreprocessor.checkQuality(rawFile);
 
-      if (!quality.isAcceptable && mounted) {
-        final continueAnyway = await _showQualityWarning(quality);
-        if (continueAnyway != true) {
-          setState(() => _processing = false);
-          return;
-        }
-      }
-
-      // ── 3. Recadrage selon la zone sélectionnée ──
-      setState(() => _processingStep = 'Recadrage de la zone…');
-      final croppedFile = await _cropToRegion(rawFile);
-
-      // ── 4. Prétraitement (grayscale → contraste → binarisation) ──
-      setState(() => _processingStep = 'Amélioration de l\'image…');
-      final processedFile = await ImagePreprocessor.preprocess(croppedFile);
-
-      // ── 5. OCR ──
-      setState(() => _processingStep = 'Lecture des données…');
-      final ocrService = DinoOcrService();
-      final result     = await ocrService.scanImage(processedFile);
-
-      // Nettoyage fichiers temporaires
-      _cleanTemp([croppedFile, processedFile], rawFile);
-
-      if (!mounted) return;
-
-      if (!result.hasData) {
-        _showNoDataSnackBar();
-        setState(() => _processing = false);
+    if (!quality.isAcceptable && mounted) {
+      final continueAnyway = await _showQualityWarning(quality);
+      if (continueAnyway != true) {
+        setState(() {
+          _processing  = false;
+          _frozenImage = null; // ← débloquer le preview
+        });
         return;
       }
+    }
 
-      // ── 6. Afficher résultat pour confirmation ──
-      setState(() => _processing = false);
-      final confirmed = await showModalBottomSheet<DinoOcrResult>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => ScanResultReviewSheet(
-          result: result,
-          onConfirm: (r) => Navigator.pop(context, r),
-          onRetry:   () => Navigator.pop(context),
+    // ── 3. Recadrage ──
+    setState(() => _processingStep = 'Recadrage de la zone…');
+    final croppedFile = await _cropToRegion(rawFile);
+
+    // ── 4. Prétraitement ──
+    setState(() => _processingStep = 'Amélioration de l\'image…');
+    final processedFile = await ImagePreprocessor.preprocess(croppedFile);
+
+    // ── 5. OCR ──
+    setState(() => _processingStep = 'Lecture des données…');
+    final ocrService = DinoOcrService();
+    final result     = await ocrService.scanImage(processedFile);
+
+    _cleanTemp([croppedFile, processedFile], rawFile);
+
+    if (!mounted) return;
+
+    // ✅ Débloquer le preview après traitement
+    setState(() {
+      _processing  = false;
+      _frozenImage = null;
+    });
+
+    if (!result.hasData) {
+      _showNoDataSnackBar();
+      return;
+    }
+
+    // ── 6. Résultat ──
+    final confirmed = await showModalBottomSheet<DinoOcrResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ScanResultReviewSheet(
+        result: result,
+        onConfirm: (r) => Navigator.pop(context, r),
+        onRetry:   () => Navigator.pop(context),
+      ),
+    );
+
+    if (confirmed != null && mounted) {
+      Navigator.of(context).pop(confirmed);
+    }
+  } catch (e) {
+    if (mounted) {
+      setState(() {
+        _processing  = false;
+        _frozenImage = null;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur scan : $e'),
+          backgroundColor: Colors.red.shade700,
         ),
       );
-
-      if (confirmed != null && mounted) {
-        Navigator.of(context).pop(confirmed);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _processing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur scan : $e'),
-            backgroundColor: Colors.red.shade700,
-          ),
-        );
-      }
     }
   }
+}
 
   /// Recadre l'image selon [_cropRect] (coordonnées normalisées)
   Future<File> _cropToRegion(File source) async {
@@ -374,63 +395,66 @@ class _DinoScanScreenState extends State<DinoScanScreen>
   }
 
   // ── VUE CAMÉRA ─────────────────────────────────────────────────────────────
-  Widget _buildCameraView() {
-    if (_cameraError != null) return _buildErrorView(_cameraError!);
-    if (!_cameraReady)        return _buildLoadingView();
+ Widget _buildCameraView() {
+  if (_cameraError != null) return _buildErrorView(_cameraError!);
+  if (!_cameraReady)        return _buildLoadingView();
 
-    final size = MediaQuery.of(context).size;
+  final size = MediaQuery.of(context).size;
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // ── Preview caméra ──
+  return Stack(
+    fit: StackFit.expand,
+    children: [
+      // ✅ Si image gelée disponible → l'afficher à la place du live preview
+      if (_frozenImage != null)
+        Image.file(_frozenImage!, fit: BoxFit.cover)
+      else
         _buildCameraPreview(size),
 
-        // ── Overlay de cadrage interactif ──
+      // Overlay de cadrage (masqué pendant le traitement)
+      if (!_processing)
         ScanCropOverlay(
           cropRect: _cropRect,
           onCropChanged: (r) => setState(() => _cropRect = r),
           expectedSource: _expectedSource,
         ),
 
-        // ── Barre supérieure ──
-        Positioned(
-          top: 0, left: 0, right: 0,
-          child: _buildTopBar(),
-        ),
+      Positioned(
+        top: 0, left: 0, right: 0,
+        child: _buildTopBar(),
+      ),
 
-        // ── Contrôles inférieurs ──
-        Positioned(
-          bottom: 0, left: 0, right: 0,
-          child: _buildBottomControls(),
-        ),
+      Positioned(
+        bottom: 0, left: 0, right: 0,
+        child: _buildBottomControls(),
+      ),
 
-        // ── Overlay de traitement ──
-        if (_processing) _buildProcessingOverlay(),
-      ],
-    );
-  }
+      if (_processing) _buildProcessingOverlay(),
+    ],
+  );
+}
 
-  Widget _buildCameraPreview(Size size) {
-    final controller = _cameraController!;
-    final previewSize = controller.value.previewSize!;
-    final previewAspect = previewSize.height / previewSize.width;
-    // ignore: unused_local_variable
-    final screenAspect  = size.width / size.height;
+ Widget _buildCameraPreview(Size size) {
+  final controller = _cameraController!;
+  final previewSize = controller.value.previewSize!;
+  
 
-    return OverflowBox(
+
+  // previewSize est en orientation landscape physique (width > height)
+  // on veut le ratio portrait donc height/width
+  final double previewAspect = previewSize.width / previewSize.height;
+
+  return ClipRect(
+    child: OverflowBox(
+      alignment: Alignment.center,
       maxWidth:  size.width,
       maxHeight: size.height,
-      child: FittedBox(
-        fit: BoxFit.cover,
-        child: SizedBox(
-          width:  size.width,
-          height: size.width * previewAspect,
-          child: CameraPreview(controller),
-        ),
+      child: AspectRatio(
+        aspectRatio: 1.0 / previewAspect,
+        child: CameraPreview(controller),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ── VUE GALERIE ────────────────────────────────────────────────────────────
   Widget _buildGalleryView() {
@@ -607,32 +631,87 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     );
   }
 
-  Widget _buildZoomSlider() {
-    return Row(
-      children: [
-        Icon(Icons.zoom_out, color: Colors.white54, size: 18),
-        Expanded(
+ Widget _buildZoomSlider() {
+  final double displayMax = _maxZoom.clamp(_minZoom, _minZoom + 6);
+  final double percent = _maxZoom > _minZoom
+      ? ((_currentZoom - _minZoom) / (_maxZoom.clamp(_minZoom, _minZoom + 6) - _minZoom))
+          .clamp(0.0, 1.0)
+      : 0.0;
+
+  return Row(
+    children: [
+      // ── Icône zoom out ──
+      Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.zoom_out, color: Colors.white70, size: 18),
+      ),
+      const SizedBox(width: 8),
+
+      // ── Track personnalisé bien visible ──
+      Expanded(
+        child: SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            // Track épais et opaque
+            trackHeight: 6.0,
+            activeTrackColor: Colors.white,
+            inactiveTrackColor: Colors.white.withValues(alpha: 0.25),
+            // Thumb blanc cerclé de noir pour contraste sur fond clair ou sombre
+            thumbColor: Colors.white,
+            thumbShape: const _ZoomThumbShape(
+              thumbRadius: 10,
+              borderColor: Colors.black,
+              borderWidth: 2,
+            ),
+            overlayColor: Colors.white.withValues(alpha: 0.15),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+            // Pas de tick marks
+            showValueIndicator: ShowValueIndicator.never,
+          ),
           child: Slider(
-            value:   _currentZoom,
-            min:     _minZoom,
-            max:     _maxZoom.clamp(_minZoom, _minZoom + 6),
+            value: _currentZoom,
+            min: _minZoom,
+            max: displayMax,
             onChanged: _setZoom,
-            activeColor:   const Color(0xFF00E5FF),
-            inactiveColor: Colors.white24,
           ),
         ),
-        Icon(Icons.zoom_in, color: Colors.white54, size: 18),
-        SizedBox(
-          width: 36,
-          child: Text(
-            '${_currentZoom.toStringAsFixed(1)}×',
-            style: const TextStyle(color: Colors.white54, fontSize: 11),
-            textAlign: TextAlign.right,
+      ),
+
+      const SizedBox(width: 8),
+      // ── Icône zoom in ──
+      Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.zoom_in, color: Colors.white70, size: 18),
+      ),
+      const SizedBox(width: 6),
+
+      // ── Valeur zoom en badge ──
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Text(
+          '${_currentZoom.toStringAsFixed(1)}×',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
           ),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   Widget _buildScanButton({String label = 'CAPTURER'}) {
     return GestureDetector(
@@ -815,6 +894,7 @@ class _DinoScanScreenState extends State<DinoScanScreen>
         ),
       ),
     );
+    
   }
 
   Widget _tipRow(IconData icon, String text) => Padding(
@@ -831,3 +911,52 @@ class _DinoScanScreenState extends State<DinoScanScreen>
         ),
       );
 }
+/// Thumb personnalisé avec bordure noire pour rester visible
+/// quel que soit le fond (cyan du cadre ou fond sombre)
+class _ZoomThumbShape extends SliderComponentShape {
+  final double thumbRadius;
+  final Color  borderColor;
+  final double borderWidth;
+
+  const _ZoomThumbShape({
+    required this.thumbRadius,
+    required this.borderColor,
+    required this.borderWidth,
+  });
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) =>
+      Size.fromRadius(thumbRadius);
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
+    final canvas = context.canvas;
+
+    // Bordure noire
+    canvas.drawCircle(
+      center,
+      thumbRadius,
+      Paint()..color = borderColor,
+    );
+    // Remplissage blanc
+    canvas.drawCircle(
+      center,
+      thumbRadius - borderWidth,
+      Paint()..color = sliderTheme.thumbColor ?? Colors.white,
+    );
+  }
+}
+

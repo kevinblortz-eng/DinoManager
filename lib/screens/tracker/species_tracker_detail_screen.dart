@@ -710,6 +710,42 @@ class _ColorsTabState extends State<_ColorsTab> {
   final _dinoNameCtrl = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _loadColorsFromTracker();
+  }
+
+  /// ✅ Charger les couleurs depuis le tracker
+  void _loadColorsFromTracker() {
+    if (widget.tracker.colorBank.isEmpty) return;
+    
+    for (int r = 0; r < 6; r++) {
+      final ids = widget.tracker.colorBank[r];
+      if (ids != null && ids.isNotEmpty) {
+        _colors[r] = ids.last; // Dernière couleur enregistrée
+      }
+    }
+  }
+
+  /// ✅ IMPORTANT : Recharger si le widget change (revenir de la navigation)
+  @override
+  void didUpdateWidget(_ColorsTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Si le tracker a changé, recharger les couleurs
+    if (oldWidget.tracker.id != widget.tracker.id ||
+        oldWidget.tracker.colorBank != widget.tracker.colorBank) {
+      setState(() {
+        // Reset avant de recharger
+        for (int i = 0; i < 6; i++) {
+          _colors[i] = null;
+        }
+        _loadColorsFromTracker();
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _dinoNameCtrl.dispose();
     super.dispose();
@@ -1156,6 +1192,7 @@ class _ColorsTabState extends State<_ColorsTab> {
     setState(() => _colors[region] = selected);
   }
 
+  /// ✅ Sauvegarde PERMANENTE
   Future<void> _saveObservation() async {
     final regionColors = <int, int>{};
     for (int i = 0; i < 6; i++) {
@@ -1178,17 +1215,14 @@ class _ColorsTabState extends State<_ColorsTab> {
       regionColors: regionColors,
     );
 
-    setState(() {
-      for (int i = 0; i < 6; i++) {
-        _colors[i] = null;
-      }
-    });
-    _dinoNameCtrl.clear();
+    // ✅ Recharger depuis la base
     widget.onRefresh();
+
+    _dinoNameCtrl.clear();
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Observation enregistree'),
+      content: Text('✓ Observation enregistrée et sauvegardée'),
       backgroundColor: AppTheme.success,
     ));
   }
@@ -1275,8 +1309,6 @@ class _ColorsTabState extends State<_ColorsTab> {
                 final c = ark?.color ?? Colors.grey;
                 return GestureDetector(
                   onTap: () {
-                    // Tap to apply to simulator
-                    // Find first empty region or region 0
                     for (int i = 0; i < 6; i++) {
                       if (_colors[i] == null) {
                         setState(() => _colors[i] = id);

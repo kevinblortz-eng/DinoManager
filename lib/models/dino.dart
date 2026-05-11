@@ -514,4 +514,43 @@ class Dino {
       dateAjout: dateAjout ?? this.dateAjout,
     );
   }
+    /// Factory pour créer un dino vide (utilisé comme fallback)
+  factory Dino.empty() {
+    return Dino(
+      id: null,
+      nom: 'N/A',
+      espece: 'N/A',
+      sexe: 'Inconnu',
+      role: 'Breed',
+      niveau: 0,
+      hp: 0,
+      stamina: 0,
+      oxygene: 0,
+      nourriture: 0,
+      poids: 0,
+      degats: 0.0,
+      vitesse: 0.0,
+      hpPoints: 0,
+      staminaPoints: 0,
+      oxygenePoints: 0,
+      nourriturePoints: 0,
+      poidsPoints: 0,
+      degatsPoints: 0,
+      vitessePoints: 0,
+      mutations: '0/0',
+      mutationsMaternal: 0,
+      mutationsPaternal: 0,
+      couleur0: '0:#808080',
+      couleur1: '0:#808080',
+      couleur2: '0:#808080',
+      couleur3: '0:#808080',
+      couleur4: '0:#808080',
+      couleur5: '0:#808080',
+      tagVersion: '',
+      tags: const [],
+      image: null,
+      notes: '',
+      dateAjout: DateTime.now(),
+    );
+  }
 }
