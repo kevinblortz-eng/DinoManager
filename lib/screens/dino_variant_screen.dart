@@ -8,6 +8,7 @@ import '../models/dino.dart';
 import '../theme/app_theme.dart';
 import '../widgets/dino_image_widget.dart';
 import '../widgets/common/dino_stat_grid.dart';
+import '../widgets/common/dino_color_strip.dart';
 import '../utils/dino_helpers.dart';
 import '../utils/save_image_helper.dart';
 
@@ -36,6 +37,9 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
     if (_isCapturing) return;
     setState(() => _isCapturing = true);
 
+    // Récupérer le pixel ratio réel du device AVANT tout await
+    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
+
     try {
       const double targetWidth = 1080;
       const double targetHeight = 1350;
@@ -50,7 +54,7 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
           child: MediaQuery(
             data: const MediaQueryData(
               size: Size(targetWidth, targetHeight),
-              devicePixelRatio: 1.0,
+              devicePixelRatio: 1.0, // 1.0 ici : la carte est en coords logiques
               padding: EdgeInsets.zero,
             ),
             child: Container(
@@ -100,7 +104,8 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
       pipelineOwner.flushCompositingBits();
       pipelineOwner.flushPaint();
 
-      final image = await repaintBoundary.toImage(pixelRatio: 1.0);
+      // Capturer avec le pixel ratio réel → image nette sur Android
+      final image = await repaintBoundary.toImage(pixelRatio: devicePixelRatio);
       final byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
       buildOwner.finalizeTree();
@@ -461,68 +466,12 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
             ),
           ),
 
-          // Bande de couleurs (inchangée)
+          // Bande de couleurs — widget partagé DinoColorStrip
           Expanded(
             flex: 3,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFF111111),
-                border: Border(
-                  top: BorderSide(color: Color(0xFF3A3A3A), width: 1),
-                ),
-              ),
-              padding: const EdgeInsets.all(6),
-              child: Row(
-                children: List.generate(6, (i) {
-                  final id = DinoHelpers.getColorId(variantDino, i);
-                  final hex = DinoHelpers.getColorHex(variantDino, i);
-                  final isActive =
-                      id > 0 && hex != '#808080' && hex != '#7F7F7F';
-                  final color = isActive
-                      ? DinoHelpers.parseHex(hex)
-                      : const Color(0xFF2A2A2A);
-
-                  return Expanded(
-                    child: Container(
-                      margin: EdgeInsets.only(right: i < 5 ? 3 : 0),
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                          color: isActive
-                              ? Colors.white.withValues(alpha: 0.6)
-                              : Colors.white.withValues(alpha: 0.1),
-                          width: 1,
-                        ),
-                        boxShadow: isActive
-                            ? [
-                                BoxShadow(
-                                  color: color!.withValues(alpha: 0.5),
-                                  blurRadius: 4,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      alignment: Alignment.center,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          isActive ? '$id' : '-',
-                          style: TextStyle(
-                            color: isActive
-                                ? (DinoHelpers.isLight(color!)
-                                    ? Colors.black87
-                                    : Colors.white)
-                                : Colors.white.withValues(alpha: 0.3),
-                            fontSize: isLarge ? 14 : 12,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
+            child: DinoColorStrip(
+              dino:   variantDino,
+              height: isLarge ? 36 : 28,
             ),
           ),
         ],

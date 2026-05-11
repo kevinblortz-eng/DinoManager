@@ -6,6 +6,7 @@ import '../providers/tracker_provider.dart';
 import '../providers/tag_theme_provider.dart';
 import '../providers/role_theme_provider.dart';
 import '../providers/language_provider.dart';
+import '../providers/gemini_provider.dart';
 import '../theme/app_theme.dart';
 import '../models/dino.dart';
 import '../models/role_theme.dart';
@@ -30,9 +31,16 @@ class SettingScreen extends StatelessWidget {
   }
 }
 
-class _SettingScreenContent extends StatelessWidget {
+class _SettingScreenContent extends StatefulWidget {
   final LanguageProvider languageProvider;
   const _SettingScreenContent({required this.languageProvider});
+
+  @override
+  State<_SettingScreenContent> createState() => _SettingScreenContentState();
+}
+
+class _SettingScreenContentState extends State<_SettingScreenContent> {
+  LanguageProvider get languageProvider => widget.languageProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +48,7 @@ class _SettingScreenContent extends StatelessWidget {
         RoleThemeProvider>(
       builder: (context, dinoProvider, trackerProvider, tagThemeProvider,
           roleThemeProvider, _) {
+
         final dinos = dinoProvider.dinos;
         final totalDinos = dinos.length;
         final totalSpecies =
@@ -93,6 +102,10 @@ class _SettingScreenContent extends StatelessWidget {
 
                 // ── Bloc 7 : Langue ──
                 _buildLanguageSection(context, languageProvider),
+                const SizedBox(height: 24),
+
+                // ── Bloc 8 : OCR / Gemini IA ──
+                _buildGeminiSection(context),
                 const SizedBox(height: 24),
 
                 // ── Bloc 3 : Actualités ──
@@ -804,6 +817,325 @@ class _SettingScreenContent extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════
+  // BLOC 8 — OCR / Intelligence Artificielle (Gemini)
+  // ═══════════════════════════════════════════════════════
+  Widget _buildGeminiSection(BuildContext context) {
+    return Consumer<GeminiProvider>(
+      builder: (context, gemini, _) {
+        return Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: AppTheme.bgCard,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.borderColor),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── En-tête ──
+              Row(
+                children: [
+                  Icon(Icons.auto_awesome_rounded,
+                      color: const Color(0xFF4285F4).withValues(alpha: 0.9),
+                      size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'OCR / INTELLIGENCE ARTIFICIELLE',
+                    style: GoogleFonts.exo2(
+                      color: const Color(0xFF4285F4),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Utilise Gemini AI pour lire les stats ARK avec une précision supérieure',
+                style: GoogleFonts.exo2(
+                    color: AppTheme.textMuted, fontSize: 10),
+              ),
+              const SizedBox(height: 16),
+
+              // ── Info quota ──
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4285F4).withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                      color: const Color(0xFF4285F4).withValues(alpha: 0.2)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('🤖', style: TextStyle(fontSize: 18)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Gemini 2.0 Flash — Gratuit',
+                            style: GoogleFonts.exo2(
+                              color: const Color(0xFF4285F4),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            '1 500 requêtes/jour • 15 req/min\n'
+                            'Lit cryopod, jumelles TEK et inventaire',
+                            style: GoogleFonts.exo2(
+                              color: AppTheme.textSecondary,
+                              fontSize: 10,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // ── Tuto rapide ──
+              _buildGeminiTutorial(),
+              const SizedBox(height: 16),
+
+              // ── Champ clé API ──
+              _GeminiApiKeyField(gemini: gemini),
+              const SizedBox(height: 12),
+
+              // ── Toggle Gemini activé ──
+              if (gemini.hasKey) ...[
+                GestureDetector(
+                  onTap: () => gemini.setEnabled(!gemini.isEnabled),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: gemini.isEnabled
+                          ? const Color(0xFF4285F4).withValues(alpha: 0.08)
+                          : AppTheme.bgPrimary,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: gemini.isEnabled
+                            ? const Color(0xFF4285F4).withValues(alpha: 0.4)
+                            : AppTheme.borderColor,
+                        width: gemini.isEnabled ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          gemini.isEnabled
+                              ? Icons.psychology_rounded
+                              : Icons.psychology_alt_outlined,
+                          color: gemini.isEnabled
+                              ? const Color(0xFF4285F4)
+                              : AppTheme.textMuted,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                gemini.isEnabled
+                                    ? 'Gemini OCR activé'
+                                    : 'Gemini OCR désactivé',
+                                style: GoogleFonts.exo2(
+                                  color: gemini.isEnabled
+                                      ? Colors.white
+                                      : AppTheme.textSecondary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(
+                                gemini.isEnabled
+                                    ? 'Mode IA — Clé : ${gemini.maskedKey}'
+                                    : 'Mode OCR local (ML Kit)',
+                                style: GoogleFonts.exo2(
+                                  color: AppTheme.textMuted,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch(
+                          value: gemini.isEnabled,
+                          onChanged: (v) => gemini.setEnabled(v),
+                          activeThumbColor: const Color(0xFF4285F4),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              // ── Statut si pas de clé ──
+              if (!gemini.hasKey)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: Colors.orange.withValues(alpha: 0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline,
+                          color: Colors.orange, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Sans clé API, l\'OCR local ML Kit est utilisé',
+                          style: GoogleFonts.exo2(
+                            color: Colors.orange.withValues(alpha: 0.8),
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGeminiTutorial() {
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: EdgeInsets.zero,
+      iconColor: const Color(0xFF4285F4),
+      collapsedIconColor: AppTheme.textMuted,
+      title: Row(
+        children: [
+          const Icon(Icons.help_outline_rounded,
+              color: Color(0xFF4285F4), size: 14),
+          const SizedBox(width: 6),
+          Text(
+            'Comment obtenir une clé API Gemini ?',
+            style: GoogleFonts.exo2(
+              color: AppTheme.textSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppTheme.bgPrimary,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppTheme.borderColor),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _tutorialStep('1', 'Allez sur', 'aistudio.google.com',
+                  Colors.blue),
+              _tutorialStep('2', 'Connectez-vous avec votre compte Google',
+                  '', Colors.green),
+              _tutorialStep('3', 'Cliquez sur', '"Get API key" → "Create API key"',
+                  Colors.orange),
+              _tutorialStep('4', 'Copiez la clé (commence par', '"AIza..."',
+                  Colors.purple),
+              _tutorialStep('5', 'Collez-la dans le champ ci-dessous',
+                  '→ Dino Manager l\'active automatiquement', Colors.cyan),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4285F4).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '💡 La clé est stockée localement sur votre téléphone, '
+                  'jamais envoyée à nos serveurs.',
+                  style: GoogleFonts.exo2(
+                    color: AppTheme.textSecondary,
+                    fontSize: 9,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _tutorialStep(
+      String num, String text, String highlight, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+              border: Border.all(color: color.withValues(alpha: 0.4)),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              num,
+              style: GoogleFonts.exo2(
+                color: color,
+                fontSize: 9,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: GoogleFonts.exo2(
+                    color: AppTheme.textSecondary, fontSize: 10, height: 1.3),
+                children: [
+                  TextSpan(text: text),
+                  if (highlight.isNotEmpty) ...[
+                    const TextSpan(text: ' '),
+                    TextSpan(
+                      text: highlight,
+                      style: GoogleFonts.exo2(
+                        color: color,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
   // BLOC 7 — Langue (placeholder i18n)
   // ═══════════════════════════════════════════════════════
   Widget _buildLanguageSection(
@@ -1355,6 +1687,207 @@ class _SettingScreenContent extends StatelessWidget {
       if (h.length == 6) return Color(int.parse('FF$h', radix: 16));
     } catch (_) {}
     return Colors.grey;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// CHAMP CLÉ API GEMINI — Widget StatefulWidget
+// ════════════════════════════════════════════════════════════════════════════
+class _GeminiApiKeyField extends StatefulWidget {
+  final GeminiProvider gemini;
+  const _GeminiApiKeyField({required this.gemini});
+
+  @override
+  State<_GeminiApiKeyField> createState() => _GeminiApiKeyFieldState();
+}
+
+class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
+  late final TextEditingController _ctrl;
+  bool _obscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.gemini.apiKey);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final key = _ctrl.text.trim();
+    if (key == widget.gemini.apiKey) return; // Pas de changement
+
+    if (key.isEmpty) {
+      // Supprimer la clé
+      await widget.gemini.clearApiKey();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Clé API supprimée — OCR local activé'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Valider et sauvegarder
+    final ok = await widget.gemini.setApiKey(key);
+    if (!mounted) return;
+
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white, size: 18),
+              const SizedBox(width: 8),
+              Text('Clé Gemini valide — OCR IA activé !',
+                  style: GoogleFonts.exo2(fontWeight: FontWeight.w700)),
+            ],
+          ),
+          backgroundColor: const Color(0xFF4CAF50),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.gemini.validationError ?? 'Clé invalide'),
+          backgroundColor: Colors.red.shade700,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final gemini = widget.gemini;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'CLÉ API GEMINI',
+          style: GoogleFonts.exo2(
+            color: AppTheme.textMuted,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.bgPrimary,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: gemini.hasKey
+                        ? const Color(0xFF4285F4).withValues(alpha: 0.4)
+                        : AppTheme.borderColor,
+                    width: gemini.hasKey ? 1.5 : 1,
+                  ),
+                ),
+                child: TextField(
+                  controller: _ctrl,
+                  obscureText: _obscure,
+                  style: GoogleFonts.exo2(
+                    color: Colors.white,
+                    fontSize: 12,
+                    letterSpacing: _obscure ? 2 : 0,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'AIzaSy...',
+                    hintStyle: GoogleFonts.exo2(
+                        color: AppTheme.textMuted, fontSize: 12),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscure ? Icons.visibility_off : Icons.visibility,
+                        color: AppTheme.textMuted,
+                        size: 18,
+                      ),
+                      onPressed: () => setState(() => _obscure = !_obscure),
+                    ),
+                  ),
+                  onSubmitted: (_) => _save(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Bouton Sauvegarder
+            GestureDetector(
+              onTap: gemini.isValidating ? null : _save,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4285F4).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                      color: const Color(0xFF4285F4).withValues(alpha: 0.4)),
+                ),
+                child: gemini.isValidating
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFF4285F4),
+                        ),
+                      )
+                    : Text(
+                        'OK',
+                        style: GoogleFonts.exo2(
+                          color: const Color(0xFF4285F4),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+              ),
+            ),
+            // Bouton Supprimer (si clé présente)
+            if (gemini.hasKey) ...[
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: () async {
+                  _ctrl.clear();
+                  await gemini.clearApiKey();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.danger.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: AppTheme.danger.withValues(alpha: 0.3)),
+                  ),
+                  child: const Icon(Icons.delete_outline,
+                      color: AppTheme.danger, size: 18),
+                ),
+              ),
+            ],
+          ],
+        ),
+        if (gemini.validationError != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            gemini.validationError!,
+            style: GoogleFonts.exo2(
+                color: AppTheme.danger, fontSize: 10),
+          ),
+        ],
+      ],
+    );
   }
 }
 

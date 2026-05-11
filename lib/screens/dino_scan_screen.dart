@@ -9,6 +9,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
+import 'package:provider/provider.dart';
+import '../providers/gemini_provider.dart';
 import '../services/dino_ocr_service.dart';
 import '../services/image_preprocessor.dart';
 import '../widgets/scan_crop_overlay.dart';
@@ -74,9 +76,21 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     if (widget.mode == ScanMode.camera) {
       _initCamera();
     }
-    // mode galerie : l'image est passée via Navigator.push arguments
-    // ou ouverte dès l'init
-    
+    // mode galerie : l'image est passée via RouteSettings.arguments
+    // → récupérée dans didChangeDependencies (context disponible)
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Récupérer l'image galerie depuis les arguments de la route
+    // (passée par DinoScanHelper.scanFromGallery via RouteSettings)
+    if (widget.mode == ScanMode.gallery && _galleryImage == null) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is File) {
+        setState(() => _galleryImage = args);
+      }
+    }
   }
 
   @override
@@ -150,6 +164,9 @@ class _DinoScanScreenState extends State<DinoScanScreen>
   Future<void> _captureAndScan() async {
   if (_processing) return;
 
+  // ✅ Capturer le provider AVANT tout await (use_build_context_synchronously)
+  final geminiProvider = context.read<GeminiProvider>();
+
   setState(() {
     _processing     = true;
     _processingStep = 'Capture en cours…';
@@ -201,10 +218,26 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     setState(() => _processingStep = 'Amélioration de l\'image…');
     final processedFile = await ImagePreprocessor.preprocess(croppedFile);
 
-    // ── 5. OCR ──
-    setState(() => _processingStep = 'Lecture des données…');
-    final ocrService = DinoOcrService();
-    final result     = await ocrService.scanImage(processedFile);
+    // ── 5. OCR (Gemini si dispo, sinon ML Kit local) ──
+    final geminiService  = geminiProvider.service;
+
+    DinoOcrResult result;
+    if (geminiService != null) {
+      setState(() => _processingStep = 'Analyse IA Gemini…');
+      try {
+        // Gemini peut lire directement l'image cropée (pas besoin du preprocessing N&B)
+        result = await geminiService.scanImage(croppedFile);
+      } catch (e) {
+        // Fallback OCR local si Gemini échoue
+        if (mounted) {
+          setState(() => _processingStep = 'Fallback OCR local…');
+        }
+        result = await DinoOcrService().scanImage(processedFile);
+      }
+    } else {
+      setState(() => _processingStep = 'Lecture des données…');
+      result = await DinoOcrService().scanImage(processedFile);
+    }
 
     _cleanTemp([croppedFile, processedFile], rawFile);
 

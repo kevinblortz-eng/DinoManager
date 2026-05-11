@@ -11,6 +11,7 @@ import 'providers/currency_provider.dart';
 import 'providers/language_provider.dart';
 import 'providers/tag_theme_provider.dart';
 import 'providers/role_theme_provider.dart';
+import 'providers/gemini_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_navigation_screen.dart';
 import 'database/database_helper.dart';
@@ -50,6 +51,10 @@ void main() async {
   final languageProvider = LanguageProvider();
   await languageProvider.init();
 
+  // ✅ Gemini OCR : charge la clé API depuis les prefs
+  final geminiProvider = GeminiProvider();
+  await geminiProvider.init();
+
   // ✅ UN SEUL runApp
   runApp(
     MultiProvider(
@@ -59,6 +64,7 @@ void main() async {
         ChangeNotifierProvider.value(value: orderProvider),
         ChangeNotifierProvider.value(value: currencyProvider),
         ChangeNotifierProvider.value(value: languageProvider),
+        ChangeNotifierProvider.value(value: geminiProvider),
         ChangeNotifierProvider(create: (_) => TagThemeProvider()),
         ChangeNotifierProvider(create: (_) => RoleThemeProvider()),
       ],

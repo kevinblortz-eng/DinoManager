@@ -18,9 +18,11 @@ class DinoShareCardPortraitExporter {
   });
 
   Future<void> captureAndSave(BuildContext context) async {
-    // ignore: use_build_context_synchronously
     final repaintKey = GlobalKey();
     OverlayEntry? entry;
+
+    // Récupérer le pixel ratio réel du device AVANT tout await
+    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
 
     try {
       entry = OverlayEntry(
@@ -55,6 +57,7 @@ class DinoShareCardPortraitExporter {
         ),
       );
 
+      // ignore: use_build_context_synchronously
       Overlay.of(context).insert(entry);
 
       await Future.delayed(const Duration(milliseconds: 400));
@@ -64,10 +67,12 @@ class DinoShareCardPortraitExporter {
       final ctx = repaintKey.currentContext;
       if (ctx == null) throw Exception('Context null après rendu');
 
+      // ignore: use_build_context_synchronously
       final boundary = ctx.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) throw Exception('RenderRepaintBoundary introuvable');
 
-      final image    = await boundary.toImage(pixelRatio: 1.0);
+      // Capturer avec le pixel ratio réel → image nette sur Android
+      final image    = await boundary.toImage(pixelRatio: devicePixelRatio);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) throw Exception('Erreur génération PNG');
 

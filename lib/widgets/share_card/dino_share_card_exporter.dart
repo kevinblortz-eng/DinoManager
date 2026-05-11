@@ -16,9 +16,11 @@ class DinoShareCardExporter {
   });
 
   Future<void> captureAndSave(BuildContext context) async {
-    // ignore: use_build_context_synchronously
     final repaintKey = GlobalKey();
     OverlayEntry? entry;
+
+    // Récupérer le pixel ratio réel du device AVANT tout await
+    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
 
     try {
       // ── 1. Insérer le widget hors-écran dans l'Overlay ─────────
@@ -30,6 +32,8 @@ class DinoShareCardExporter {
             textDirection: TextDirection.ltr,
             child: MediaQuery(
               // Force rendu propre sans influence du device
+              // devicePixelRatio: 1.0 ici car la carte est en taille logique fixe
+              // Le pixelRatio réel est appliqué à la capture toImage()
               data: const MediaQueryData(
                 textScaler:       TextScaler.noScaling,
                 padding:          EdgeInsets.zero,
@@ -56,6 +60,7 @@ class DinoShareCardExporter {
         ),
       );
 
+      // ignore: use_build_context_synchronously
       Overlay.of(context).insert(entry);
 
       // ── 2. Attendre le rendu complet ───────────────────────────
@@ -63,16 +68,19 @@ class DinoShareCardExporter {
       await WidgetsBinding.instance.endOfFrame;
       await Future.delayed(const Duration(milliseconds: 200));
 
-      // ── 3. Capturer en pixelRatio 1.0 (logical pixels purs) ───
       final ctx = repaintKey.currentContext;
       if (ctx == null) throw Exception('Context null après rendu');
 
+      // ignore: use_build_context_synchronously
       final boundary = ctx.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) {
         throw Exception('RenderRepaintBoundary introuvable');
       }
 
-      final image = await boundary.toImage(pixelRatio: 1.0);
+      // ── 3. Capturer avec le pixel ratio réel du device ────────
+      // pixelRatio: 1.0 donnait une image basse résolution sur Android
+      // On utilise le ratio réel pour une capture nette (2.0, 2.75, 3.0…)
+      final image = await boundary.toImage(pixelRatio: devicePixelRatio);
       final byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) throw Exception('Erreur génération PNG');
