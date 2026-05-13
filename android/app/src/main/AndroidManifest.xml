@@ -7,7 +7,6 @@
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
-    <!-- ✅ tools:replace + tools:node ajoutés pour résoudre le conflit avec camera_android_camerax -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29"
@@ -15,8 +14,6 @@
         tools:node="merge" />
 
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-
-    <!-- ✅ Caméra requise par le nouveau DinoScanScreen -->
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
@@ -32,14 +29,10 @@
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
-<<<<<<< HEAD
-            android:windowSoftInputMode="adjustResize">
-=======
             android:windowSoftInputMode="adjustResize"
             android:allowBackup="true"
-    android:fullBackupContent="@xml/backup_rules"
-    android:dataExtractionRules="@xml/data_extraction_rules">
->>>>>>> 530e4a57806049aaca6c1391e8e01e58391f871b
+            android:fullBackupContent="@xml/backup_rules"
+            android:dataExtractionRules="@xml/data_extraction_rules">
 
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
@@ -55,7 +48,6 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <!-- Autoriser le partage de fichiers via FileProvider -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -73,7 +65,7 @@
             <action android:name="android.intent.action.PROCESS_TEXT" />
             <data android:mimeType="text/plain" />
         </intent>
-        <!-- Pour partage de fichiers -->
+
         <intent>
             <action android:name="android.intent.action.SEND" />
             <data android:mimeType="application/json" />
