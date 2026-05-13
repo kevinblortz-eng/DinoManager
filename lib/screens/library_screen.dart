@@ -20,6 +20,20 @@ class _LibraryScreenState extends State<LibraryScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _activeRoleFilter = '';
 
+  /// Calcule les 4 tags les plus utilisés dans la bibliothèque (max 4)
+  List<String> _getTopTags(List<Dino> dinos) {
+    final counts = <String, int>{};
+    for (final d in dinos) {
+      for (final tag in d.tags) {
+        counts[tag] = (counts[tag] ?? 0) + 1;
+      }
+    }
+    if (counts.isEmpty) return [];
+    final sorted = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return sorted.take(4).map((e) => e.key).toList();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -200,66 +214,72 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // FILTER CHIPS
+  // FILTER CHIPS — 4 tags les plus utilisés (dynamiques)
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildRoleFilterChips() {
-    final tags = ['Boss', 'Breed', 'Solid', 'Farm', 'Volant', 'Aquatique'];
-    return Container(
-      color: const Color(0xFF0D1117),
-      padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
-      child: SizedBox(
-        height: 32,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: tags.length + 1,
-          itemBuilder: (context, i) {
-            final label = i == 0 ? 'Tous' : tags[i - 1];
-            final val = i == 0 ? '' : tags[i - 1];
-            final isActive = _activeRoleFilter == val;
-            return GestureDetector(
-              onTap: () {
-                setState(() => _activeRoleFilter = val);
-                context.read<DinoProvider>().setFilterTag(val);
+    return Consumer<DinoProvider>(
+      builder: (context, provider, _) {
+        final topTags = _getTopTags(provider.allDinos);
+        final chips = ['', ...topTags]; // '' = "Tous"
+
+        return Container(
+          color: const Color(0xFF0D1117),
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+          child: SizedBox(
+            height: 32,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: chips.length,
+              itemBuilder: (context, i) {
+                final val = chips[i];
+                final label = val.isEmpty ? 'Tous' : val;
+                final isActive = _activeRoleFilter == val;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() => _activeRoleFilter = val);
+                    context.read<DinoProvider>().setFilterTag(val);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 5),
+                    decoration: BoxDecoration(
+                      gradient: isActive
+                          ? const LinearGradient(colors: [
+                              Color(0xFFFF6B00),
+                              Color(0xFFFF9500)
+                            ])
+                          : null,
+                      color: isActive ? null : const Color(0xFF161B22),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isActive
+                            ? Colors.transparent
+                            : const Color(0xFF21304A),
+                        width: 1.2,
+                      ),
+                    ),
+                    child: Text(
+                      label,
+                      style: GoogleFonts.exo2(
+                        color: isActive
+                            ? Colors.white
+                            : const Color(0xFF6B7A8D),
+                        fontSize: 12,
+                        fontWeight: isActive
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                );
               },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 5),
-                decoration: BoxDecoration(
-                  gradient: isActive
-                      ? const LinearGradient(colors: [
-                          Color(0xFFFF6B00),
-                          Color(0xFFFF9500)
-                        ])
-                      : null,
-                  color: isActive ? null : const Color(0xFF161B22),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isActive
-                        ? Colors.transparent
-                        : const Color(0xFF21304A),
-                    width: 1.2,
-                  ),
-                ),
-                child: Text(
-                  label,
-                  style: GoogleFonts.exo2(
-                    color: isActive
-                        ? Colors.white
-                        : const Color(0xFF6B7A8D),
-                    fontSize: 12,
-                    fontWeight: isActive
-                        ? FontWeight.w700
-                        : FontWeight.w500,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -311,23 +331,28 @@ class _LibraryScreenState extends State<LibraryScreen> {
             itemCount: provider.dinos.length,
             itemBuilder: (context, i) {
               final dino = provider.dinos[i];
-              return ArkDinoCard(
-                dino: dino,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => DinoDetailScreen(dino: dino)),
-                ).then((_) => provider.loadDinos()),
-                onEdit: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => AddEditDinoScreen(dino: dino)),
-                ).then((_) => provider.loadDinos()),
-                onDelete: () =>
-                    _confirmDelete(context, provider, dino),
-                // ✅ Correctement lu depuis le Consumer2
-                roleTheme:
-                    roleThemeProvider.themeForRole(dino.role),
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 640),
+                  child: ArkDinoCard(
+                    dino: dino,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => DinoDetailScreen(dino: dino)),
+                    ).then((_) => provider.loadDinos()),
+                    onEdit: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => AddEditDinoScreen(dino: dino)),
+                    ).then((_) => provider.loadDinos()),
+                    onDelete: () =>
+                        _confirmDelete(context, provider, dino),
+                    // ✅ Correctement lu depuis le Consumer2
+                    roleTheme:
+                        roleThemeProvider.themeForRole(dino.role),
+                  ),
+                ),
               );
             },
           ),
@@ -678,6 +703,8 @@ class _FilterSheet extends StatelessWidget {
               provider.filterEspece,
               provider.setFilterEspece),
           const SizedBox(height: 12),
+          _filterRowTags(context, provider),
+          const SizedBox(height: 12),
           if (provider.hasActiveFilters) ...[
             const SizedBox(height: 8),
             GestureDetector(
@@ -708,6 +735,77 @@ class _FilterSheet extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _filterRowTags(BuildContext context, DinoProvider provider) {
+    // Tous les tags présents dans la collection
+    final usedTags = <String>{};
+    for (final d in provider.allDinos) {
+      usedTags.addAll(d.tags);
+    }
+    if (usedTags.isEmpty) return const SizedBox.shrink();
+
+    final sortedTags = usedTags.toList()..sort();
+    final opts = ['', ...sortedTags];
+    final current = provider.filterTag;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Tag',
+            style: GoogleFonts.exo2(
+              color: const Color(0xFF6B7A8D),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
+            )),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: opts.map((opt) {
+            final isActive = current == opt;
+            return GestureDetector(
+              onTap: () {
+                provider.setFilterTag(isActive ? '' : opt);
+                Navigator.pop(context);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  gradient: isActive
+                      ? const LinearGradient(colors: [
+                          Color(0xFFFF6B00),
+                          Color(0xFFFF9500)
+                        ])
+                      : null,
+                  color: isActive ? null : const Color(0xFF1C2333),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isActive
+                        ? Colors.transparent
+                        : const Color(0xFF2D3748),
+                  ),
+                ),
+                child: Text(
+                  opt.isEmpty ? 'Tous' : opt,
+                  style: GoogleFonts.exo2(
+                    color: isActive
+                        ? Colors.white
+                        : const Color(0xFF6B7A8D),
+                    fontSize: 12,
+                    fontWeight: isActive
+                        ? FontWeight.w700
+                        : FontWeight.w500,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 

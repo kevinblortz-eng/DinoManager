@@ -10,6 +10,7 @@ import '../../providers/tracker_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/dino_image_widget.dart';
 import 'species_journal_detail_screen.dart';
+import 'species_tracker_detail_screen.dart';
 
 class SpeciesJournalHomeScreen extends StatelessWidget {
   final Dino? initialSelectedDino;
@@ -42,6 +43,8 @@ class _SpeciesJournalHomeScreenBody extends StatefulWidget {
 class _SpeciesJournalHomeScreenBodyState
     extends State<_SpeciesJournalHomeScreenBody> {
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _speciesController = TextEditingController();
+  final TextEditingController _projectController = TextEditingController();
   String _query = '';
 
   @override
@@ -56,7 +59,256 @@ class _SpeciesJournalHomeScreenBodyState
   @override
   void dispose() {
     _searchController.dispose();
+    _speciesController.dispose();
+    _projectController.dispose();
     super.dispose();
+  }
+
+  // ── Crée un tracker directement depuis le journal ──────────────────────────
+  Future<void> _showCreateTrackerDialog() async {
+    _speciesController.clear();
+    _projectController.clear();
+
+    List<String> suggestions = [];
+    String? selectedSpecies;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (ctx, setStateDialog) {
+            return AlertDialog(
+              backgroundColor: AppTheme.bgCard,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18)),
+              title: Row(
+                children: [
+                  const Icon(Icons.track_changes_rounded,
+                      color: AppTheme.accentPrimary, size: 22),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Nouveau tracker',
+                    style: GoogleFonts.exo2(
+                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 420,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // ── Champ espèce avec auto-complétion ──
+                    TextField(
+                      controller: _speciesController,
+                      style: const TextStyle(color: AppTheme.textPrimary),
+                      decoration: InputDecoration(
+                        labelText: 'Espèce',
+                        hintText: 'Ex: Rex',
+                        suffixIcon: selectedSpecies != null
+                            ? const Icon(Icons.check_circle_rounded,
+                                color: AppTheme.success, size: 22)
+                            : null,
+                      ),
+                      onChanged: (value) {
+                        final input = value.trim().toLowerCase();
+                        setStateDialog(() {
+                          if (input.isEmpty) {
+                            suggestions = [];
+                            selectedSpecies = null;
+                          } else {
+                            suggestions = Dino.especesDisponibles
+                                .where((s) => s.toLowerCase().contains(input))
+                                .toList();
+                            final exactMatch = Dino.especesDisponibles
+                                .where((s) => s.toLowerCase() == input)
+                                .toList();
+                            selectedSpecies =
+                                exactMatch.isNotEmpty ? exactMatch.first : null;
+                          }
+                        });
+                      },
+                    ),
+
+                    // ── Liste de suggestions ──
+                    if (suggestions.isNotEmpty && selectedSpecies == null)
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        constraints: const BoxConstraints(maxHeight: 160),
+                        decoration: BoxDecoration(
+                          color: AppTheme.bgSecondary,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppTheme.accentPrimary.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          itemCount: suggestions.length,
+                          itemBuilder: (_, i) {
+                            final species = suggestions[i];
+                            return InkWell(
+                              onTap: () {
+                                _speciesController.text = species;
+                                _speciesController.selection =
+                                    TextSelection.fromPosition(
+                                  TextPosition(offset: species.length),
+                                );
+                                setStateDialog(() {
+                                  selectedSpecies = species;
+                                  suggestions = [];
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                child: Text(
+                                  species,
+                                  style: GoogleFonts.exo2(
+                                    color: AppTheme.textPrimary,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+                    // ── Avertissement espèce non reconnue ──
+                    if (_speciesController.text.trim().isNotEmpty &&
+                        suggestions.isEmpty &&
+                        selectedSpecies == null)
+                      Container(
+                        margin: const EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppTheme.warning.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                              color: AppTheme.warning.withValues(alpha: 0.4)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded,
+                                color: AppTheme.warning, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Espèce non reconnue.',
+                                style: GoogleFonts.exo2(
+                                    color: AppTheme.warning, fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    const SizedBox(height: 12),
+
+                    // ── Champ projet (optionnel) ──
+                    TextField(
+                      controller: _projectController,
+                      style: const TextStyle(color: AppTheme.textPrimary),
+                      decoration: const InputDecoration(
+                        labelText: 'Nom du projet (optionnel)',
+                        hintText: 'Ex: Lignée mutation mêlée',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text('Annuler',
+                      style: GoogleFonts.exo2(color: AppTheme.textSecondary)),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final species = _speciesController.text.trim();
+                    final project = _projectController.text.trim();
+
+                    if (species.isEmpty) {
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        const SnackBar(
+                            content: Text('Le nom de l\'espèce est requis')),
+                      );
+                      return;
+                    }
+
+                    final isValid = Dino.especesDisponibles.any(
+                        (s) => s.toLowerCase() == species.toLowerCase());
+
+                    if (!isValid) {
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(SnackBar(
+                        content: Text('Espèce "$species" non reconnue.'),
+                        backgroundColor: AppTheme.warning,
+                      ));
+                      return;
+                    }
+
+                    final officialName = Dino.especesDisponibles
+                        .firstWhere(
+                            (s) => s.toLowerCase() == species.toLowerCase());
+
+                    try {
+                      final tp = context.read<TrackerProvider>();
+                      await tp.createTracker(officialName, project);
+                      final created = tp.trackers
+                          .cast<SpeciesTracker?>()
+                          .firstWhere(
+                            (t) =>
+                                t?.species.toLowerCase() ==
+                                officialName.toLowerCase(),
+                            orElse: () => null,
+                          );
+
+                      if (!mounted) return;
+                      // ignore: use_build_context_synchronously
+                      Navigator.pop(dialogContext);
+
+                      // Naviguer directement vers le tracker créé
+                      if (created != null && mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SpeciesTrackerDetailScreen(
+                                tracker: created),
+                          ),
+                        );
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content:
+                              Text('Tracker créé pour $officialName'),
+                          backgroundColor: AppTheme.success,
+                        ));
+                      }
+                    } catch (e) {
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        SnackBar(content: Text('Erreur: $e')),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: Text('Créer',
+                      style: GoogleFonts.exo2(fontWeight: FontWeight.w700)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.accentPrimary),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   List<_SpeciesJournalItem> _buildAndFilter(
@@ -151,6 +403,17 @@ class _SpeciesJournalHomeScreenBodyState
 
         return Scaffold(
           backgroundColor: AppTheme.bgPrimary,
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: _showCreateTrackerDialog,
+            backgroundColor: AppTheme.accentPrimary,
+            foregroundColor: Colors.white,
+            icon: const Icon(Icons.track_changes_rounded, size: 20),
+            label: Text(
+              'Nouveau tracker',
+              style: GoogleFonts.exo2(
+                  fontWeight: FontWeight.w700, fontSize: 13),
+            ),
+          ),
           body: SafeArea(
             child: Column(
               children: [
@@ -259,8 +522,14 @@ class _SpeciesJournalHomeScreenBodyState
                               horizontal: 16, vertical: 4),
                           itemCount: allItems.length,
                           itemBuilder: (context, index) {
-                            return _buildSpeciesCard(
-                                context, allItems[index]);
+                            return Center(
+                              child: ConstrainedBox(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 640),
+                                child: _buildSpeciesCard(
+                                    context, allItems[index]),
+                              ),
+                            );
                           },
                         ),
                 ),

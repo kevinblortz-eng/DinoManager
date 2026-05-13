@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/ark_species_data.dart';
+import '../models/ark_species_color_regions.dart';
 import '../models/dino.dart';
 
 
@@ -359,16 +360,37 @@ class _DinoImageWidgetState extends State<DinoImageWidget> {
   }
 
   Widget _buildColorBand() {
+    final visibility = ArkSpeciesColorRegions.visibilityFor(widget.species);
     return Padding(
       padding: const EdgeInsets.only(top: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(6, (i) {
+          final isActive = i < visibility.length ? visibility[i] : true;
           final hex =
               i < widget.regionColors.length ? widget.regionColors[i] : null;
           final isGray = hex == null ||
               hex.toUpperCase().replaceAll('#', '') == '808080' ||
               hex.toUpperCase().replaceAll('#', '') == '7F7F7F';
+
+          // Région inactive : case barrée (transparente + motif)
+          if (!isActive) {
+            return Expanded(
+              child: Container(
+                height: 5,
+                margin: const EdgeInsets.symmetric(horizontal: 1),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(2),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    width: 0.5,
+                  ),
+                ),
+              ),
+            );
+          }
+
           final color = isGray
               ? Colors.grey.withValues(alpha: 0.25)
               : (_parseHexColor(hex) ?? Colors.grey.withValues(alpha: 0.25));

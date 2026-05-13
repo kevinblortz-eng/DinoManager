@@ -431,25 +431,30 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
                 Positioned(
                   top: 4,
                   left: 4,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: DinoHelpers.getCardRarityColor(
-                            variantDino.niveau),
-                        width: 1,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 72),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.82),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: DinoHelpers.getCardRarityColor(
+                              variantDino.niveau),
+                          width: 1,
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      'LVL ${variantDino.niveau}',
-                      style: GoogleFonts.exo2(
-                        color: DinoHelpers.getCardRarityColor(
-                            variantDino.niveau),
-                        fontSize: isLarge ? 11 : 9,
-                        fontWeight: FontWeight.w900,
+                      child: Text(
+                        'LVL ${variantDino.niveau}',
+                        style: GoogleFonts.exo2(
+                          color: DinoHelpers.getCardRarityColor(
+                              variantDino.niveau),
+                          fontSize: isLarge ? 10 : 8,
+                          fontWeight: FontWeight.w900,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),
@@ -460,7 +465,10 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
                   Positioned(
                     top: 4,
                     right: 4,
-                    child: _buildCompactSexBadge(variantDino, isLarge),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 48),
+                      child: _buildCompactSexBadge(variantDino, isLarge),
+                    ),
                   ),
               ],
             ),
@@ -683,11 +691,12 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: double.infinity,
             padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -703,18 +712,16 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
               'Stats Communes',
               style: GoogleFonts.exo2(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.5,
               ),
               textAlign: TextAlign.center,
             ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: DinoStatGrid(dino: widget.baseDino),
-            ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: DinoStatGrid(dino: widget.baseDino),
           ),
         ],
       ),
@@ -799,10 +806,10 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
                   flex: dinoCount <= 2 ? 5 : 4,
                   child: _buildVariantsGrid(dinoCount),
                 ),
-                const SizedBox(height: 16),
-                _buildSpeciesTitle(),
                 const SizedBox(height: 12),
-                Expanded(
+                _buildSpeciesTitle(),
+                const SizedBox(height: 8),
+                Flexible(
                   flex: 3,
                   child: _buildCommonStats(),
                 ),

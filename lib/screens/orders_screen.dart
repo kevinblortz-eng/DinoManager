@@ -394,8 +394,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
             physics: const BouncingScrollPhysics(),
             padding: EdgeInsets.fromLTRB(14, 8, 14, 100 + bottomPadding),
             itemCount: filtered.length,
-            itemBuilder: (context, i) =>
-                _buildOrderCard(context, provider, filtered[i]),
+            itemBuilder: (context, i) => Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 640),
+                child: _buildOrderCard(context, provider, filtered[i]),
+              ),
+            ),
           ),
         );
       },

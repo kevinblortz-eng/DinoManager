@@ -53,6 +53,11 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
 
   static const String _headerBgAsset = 'assets/images/ui/ark_header_bg.png';
 
+  // ── Historique des validations pour annulation (max 3) ──────────────────
+  // Chaque entrée = snapshot de la map {itemId: {maleCount, femaleCount}}
+  final List<Map<String, Map<String, int>>> _validationHistory = [];
+  static const int _maxHistory = 3;
+
   // ══════════════════════════════════════════════════════════════════════════
   // INIT
   // ══════════════════════════════════════════════════════════════════════════
@@ -143,6 +148,107 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
         await provider.createOrder(orderToSave);
       }
     } catch (_) {}
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // HISTORIQUE VALIDATIONS (UNDO)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  /// Sauvegarde l'état actuel des validations dans l'historique
+  void _saveValidationSnapshot() {
+    final snapshot = <String, Map<String, int>>{};
+    for (final item in _currentOrder.items) {
+      snapshot[item.id] = {
+        'male': item.validation?.maleValidatedCount ?? 0,
+        'female': item.validation?.femaleValidatedCount ?? 0,
+      };
+    }
+    _validationHistory.add(snapshot);
+    if (_validationHistory.length > _maxHistory) {
+      _validationHistory.removeAt(0);
+    }
+  }
+
+  /// Annule la dernière modification de validation
+  void _undoLastValidation() {
+    if (_validationHistory.isEmpty) return;
+    final snapshot = _validationHistory.removeLast();
+    setState(() {
+      for (final item in _currentOrder.items) {
+        final saved = snapshot[item.id];
+        if (saved == null) continue;
+        item.validation ??= OrderItemValidation(quantity: item.quantity);
+        item.validation!.maleValidatedCount = saved['male'] ?? 0;
+        item.validation!.femaleValidatedCount = saved['female'] ?? 0;
+      }
+    });
+    _markDirtyAndAutoSave();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Annulation effectuée (${_validationHistory.length} restante${_validationHistory.length > 1 ? 's' : ''})'),
+        duration: const Duration(milliseconds: 1200),
+        backgroundColor: AppTheme.warning,
+      ),
+    );
+  }
+
+  /// Validation manuelle complète de la commande
+  Future<void> _manualValidateOrder() async {
+    final allDone = _completionRatio >= 0.99;
+    
+    String confirmMessage;
+    if (allDone) {
+      confirmMessage = 'Tous les dinos sont prêts. Valider la commande ?';
+    } else {
+      final pct = (_completionRatio * 100).toStringAsFixed(0);
+      confirmMessage = 'La commande n\'est complète qu\'à $pct%.\nValider quand même ?';
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.bgCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.check_circle_rounded, color: AppTheme.success, size: 22),
+            const SizedBox(width: 10),
+            Text('Valider la commande',
+                style: GoogleFonts.exo2(color: AppTheme.textPrimary, fontWeight: FontWeight.w700)),
+          ],
+        ),
+        content: Text(confirmMessage,
+            style: GoogleFonts.exo2(color: AppTheme.textSecondary, fontSize: 13)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Annuler', style: GoogleFonts.exo2(color: AppTheme.textMuted)),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(ctx, true),
+            icon: const Icon(Icons.check_rounded, size: 16),
+            label: const Text('Valider'),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    if (!mounted) return;
+    
+    final provider = context.read<OrderProvider>();
+    await provider.validateOrder(_currentOrder.id);
+    if (!mounted) return;
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Commande validée !'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
+    Navigator.pop(context);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -1918,28 +2024,120 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
       ),
       bottomSheet: Container(
         color: AppTheme.bgSecondary,
-        padding: EdgeInsets.all(16).copyWith(bottom: bottomPadding + 16),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: _isLoading ? null : _saveOrder,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.accentPrimary,
-              disabledBackgroundColor:
-                  AppTheme.accentPrimary.withValues(alpha: 0.5),
+        padding: EdgeInsets.all(12).copyWith(bottom: bottomPadding + 12),
+        child: Row(
+          children: [
+            // ── Bouton Annuler (Undo) ──────────────────────────────────
+            AnimatedOpacity(
+              opacity: _validationHistory.isEmpty ? 0.35 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              child: Tooltip(
+                message: _validationHistory.isEmpty
+                    ? 'Aucune action à annuler'
+                    : 'Annuler (${_validationHistory.length}/$_maxHistory)',
+                child: SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: Material(
+                    color: _validationHistory.isEmpty
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : AppTheme.warning.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: _validationHistory.isEmpty
+                          ? null
+                          : _undoLastValidation,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Icon(
+                            Icons.undo_rounded,
+                            color: _validationHistory.isEmpty
+                                ? AppTheme.textMuted
+                                : AppTheme.warning,
+                            size: 22,
+                          ),
+                          if (_validationHistory.isNotEmpty)
+                            Positioned(
+                              top: 6,
+                              right: 6,
+                              child: Container(
+                                width: 14,
+                                height: 14,
+                                decoration: BoxDecoration(
+                                  color: AppTheme.warning,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${_validationHistory.length}',
+                                    style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.w900),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            child: _isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white))
-                : Text(
-                    widget.order == null ? 'Créer' : 'Mettre à jour',
-                    style: GoogleFonts.exo2(
-                        fontWeight: FontWeight.w700, fontSize: 14)),
-          ),
+            const SizedBox(width: 8),
+
+            // ── Bouton Enregistrer ─────────────────────────────────────
+            Expanded(
+              child: SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _saveOrder,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.accentPrimary,
+                    disabledBackgroundColor:
+                        AppTheme.accentPrimary.withValues(alpha: 0.5),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white))
+                      : Text(
+                          widget.order == null ? 'Créer' : 'Mettre à jour',
+                          style: GoogleFonts.exo2(
+                              fontWeight: FontWeight.w700, fontSize: 13)),
+                ),
+              ),
+            ),
+
+            // ── Bouton Valider (uniquement si commande existante avec items) ──
+            if (widget.order != null && _currentOrder.items.isNotEmpty) ...[  
+              const SizedBox(width: 8),
+              SizedBox(
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _manualValidateOrder,
+                  icon: const Icon(Icons.check_circle_rounded, size: 16),
+                  label: Text('Valider',
+                      style: GoogleFonts.exo2(
+                          fontWeight: FontWeight.w700, fontSize: 13)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.success,
+                    disabledBackgroundColor:
+                        AppTheme.success.withValues(alpha: 0.5),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
@@ -2014,6 +2212,7 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
+                        _saveValidationSnapshot();
                         setState(() {
                           final idx = _currentOrder.items
                               .indexWhere((i) => i.id == item.id);
@@ -2078,6 +2277,7 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
                         total: qty,
                         isFullyDone: maleFullyDone,
                         onDecrement: () {
+                          _saveValidationSnapshot();
                           setState(() {
                             final idx = _currentOrder.items
                                 .indexWhere((i) => i.id == item.id);
@@ -2092,6 +2292,7 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
                           _markDirtyAndAutoSave();
                         },
                         onIncrement: () {
+                          _saveValidationSnapshot();
                           setState(() {
                             final idx = _currentOrder.items
                                 .indexWhere((i) => i.id == item.id);
@@ -2114,6 +2315,7 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
                         total: qty,
                         isFullyDone: femaleFullyDone,
                         onDecrement: () {
+                          _saveValidationSnapshot();
                           setState(() {
                             final idx = _currentOrder.items
                                 .indexWhere((i) => i.id == item.id);
@@ -2128,6 +2330,7 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
                           _markDirtyAndAutoSave();
                         },
                         onIncrement: () {
+                          _saveValidationSnapshot();
                           setState(() {
                             final idx = _currentOrder.items
                                 .indexWhere((i) => i.id == item.id);
