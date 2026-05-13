@@ -1227,6 +1227,80 @@ class _ColorsTabState extends State<_ColorsTab> {
     ));
   }
 
+  /// Confirme puis supprime une couleur du colorBank du tracker
+  Future<void> _confirmDeleteColor(int region, int colorId) async {
+    final ark = ArkColorPalette.fromId(colorId);
+    final colorName = ark?.name ?? 'Couleur $colorId';
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.bgSecondary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: ark?.color ?? Colors.grey,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: Colors.white24),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Supprimer $colorName ?',
+                style: GoogleFonts.exo2(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'La couleur ID $colorId sera retirée de la région $region du tracker.\n\nCette action est irréversible.',
+          style: GoogleFonts.exo2(
+              color: Colors.white70, fontSize: 12),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Annuler',
+                style: GoogleFonts.exo2(color: Colors.white54)),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(ctx, true),
+            icon: const Icon(Icons.delete_outline_rounded, size: 16),
+            label: Text('Supprimer',
+                style: GoogleFonts.exo2(fontWeight: FontWeight.w700)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final tp = Provider.of<TrackerProvider>(context, listen: false);
+    await tp.removeColorFromBank(
+      trackerId: widget.tracker.id,
+      region: region,
+      colorId: colorId,
+    );
+
+    widget.onRefresh();
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Couleur $colorId supprimée de la région $region'),
+      backgroundColor: Colors.redAccent,
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
   Widget _buildColorBank(int libCount, int obsCount) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -1317,8 +1391,9 @@ class _ColorsTabState extends State<_ColorsTab> {
                     }
                     setState(() => _colors[0] = id);
                   },
+                  onLongPress: () => _confirmDeleteColor(region, id),
                   child: Tooltip(
-                    message: '${ark?.name ?? "?"} (ID: $id)',
+                    message: '${ark?.name ?? "?"} (ID: $id) — Maintenir pour supprimer',
                     child: Container(
                       width: 30,
                       height: 30,

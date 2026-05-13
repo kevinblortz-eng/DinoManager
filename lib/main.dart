@@ -98,18 +98,8 @@ class DinoManagerApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      localeResolutionCallback: (deviceLocale, supportedLocales) {
-        // Si la locale du device est supportée, l'utiliser.
-        // Sinon anglais par défaut.
-        if (deviceLocale != null) {
-          for (final supported in supportedLocales) {
-            if (supported.languageCode == deviceLocale.languageCode) {
-              return supported;
-            }
-          }
-        }
-        return const Locale('en');
-      },
+      // ✅ localeResolutionCallback supprimé — c'est `locale: languageProvider.locale`
+      // qui fait foi. Le callback écrasait le choix utilisateur avec la locale système.
 
       home: const MainNavigationScreen(),
     );

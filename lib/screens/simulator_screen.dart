@@ -7,6 +7,7 @@ import '../models/dino.dart';
 import '../models/species_tracker.dart';
 import '../models/ark_color_palette.dart';
 import '../models/ark_species_data.dart';
+import '../models/ark_species_color_regions.dart';
 import '../providers/dino_provider.dart';
 import '../providers/tracker_provider.dart';
 import '../theme/app_theme.dart';
@@ -561,7 +562,10 @@ class _SimulatorScreenState extends State<SimulatorScreen> {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                child: Column(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 640),
+                    child: Column(
                   children: [
                     // ── Dino visuel ──
                     GestureDetector(
@@ -661,148 +665,185 @@ class _SimulatorScreenState extends State<SimulatorScreen> {
                     const SizedBox(height: 16),
 
                     // ── 6 cases de couleur ──
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.bgCard,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.borderColor),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'REGIONS DE COULEUR',
-                            style: GoogleFonts.exo2(
-                              color: Colors.cyanAccent,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: List.generate(6, (i) {
-                              final id = _selectedColors[i];
-                              final color = id == null
-                                  ? Colors.grey.withValues(alpha: 0.25)
-                                  : ArkColorPalette.fromId(id)?.color ??
-                                      Colors.grey;
-
-                              return Expanded(
-                                child: GestureDetector(
-                                  onTap: () => _pickColor(i),
-                                  child: Container(
-                                    height: 50,
-                                    margin: EdgeInsets.only(
-                                        right: i < 5 ? 4 : 0),
-                                    decoration: BoxDecoration(
-                                      color: color,
-                                      borderRadius:
-                                          BorderRadius.circular(10),
-                                      border: Border.all(
-                                        color: Colors.white
-                                            .withValues(alpha: 0.4),
-                                      ),
-                                      boxShadow: id != null
-                                          ? [
-                                              BoxShadow(
-                                                color: color.withValues(
-                                                    alpha: 0.3),
-                                                blurRadius: 6,
-                                                offset:
-                                                    const Offset(0, 2),
-                                              ),
-                                            ]
-                                          : null,
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        if (id == null)
-                                          Icon(Icons.add_rounded,
-                                              color: Colors.white
-                                                  .withValues(
-                                                      alpha: 0.5),
-                                              size: 20)
-                                        else
-                                          Text(
-                                            '$id',
-                                            style: TextStyle(
-                                              color: _isLight(color)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        Text(
-                                          'Case $i',
-                                          style: TextStyle(
-                                            color: id == null
-                                                ? Colors.white.withValues(
-                                                    alpha: 0.3)
-                                                : (_isLight(color)
-                                                    ? Colors.black
-                                                        .withValues(
-                                                            alpha: 0.5)
-                                                    : Colors.white
-                                                        .withValues(
-                                                            alpha: 0.5)),
-                                            fontSize: 8,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _QuickButton(
-                                  icon: Icons.shuffle_rounded,
-                                  label: 'Aleatoire',
-                                  color: Colors.purpleAccent,
-                                  onTap: _randomize,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: _QuickButton(
-                                  icon: Icons.star_rounded,
-                                  label: 'Solid',
-                                  color: Colors.amber,
-                                  onTap: _testSolid,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: _QuickButton(
-                                  icon: Icons.refresh_rounded,
-                                  label: 'Reset',
-                                  color: AppTheme.danger,
-                                  onTap: _resetColors,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                    _buildColorRegionsCard(),
                     const SizedBox(height: 16),
                     _buildColorSources(),
                   ],
+                ),
+                  ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Carte de sélection des 6 régions de couleur avec style optimisé.
+  /// Les zones inactives pour l'espèce sont affichées grisées et non cliquables.
+  Widget _buildColorRegionsCard() {
+    final visibility = ArkSpeciesColorRegions.visibilityFor(_species);
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppTheme.bgCard,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Titre + compteur de zones actives ──
+          Row(
+            children: [
+              Text(
+                'RÉGIONS DE COULEUR',
+                style: GoogleFonts.exo2(
+                  color: Colors.cyanAccent,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.cyanAccent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  '${ArkSpeciesColorRegions.visibleCount(_species)}/6 actives',
+                  style: GoogleFonts.exo2(
+                    color: Colors.cyanAccent,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // ── 6 cases de couleur (style card) ──
+          Row(
+            children: List.generate(6, (i) {
+              final isActive = i < visibility.length ? visibility[i] : true;
+              final id = _selectedColors[i];
+              final color = !isActive
+                  ? Colors.white.withValues(alpha: 0.04)
+                  : id == null
+                      ? Colors.grey.withValues(alpha: 0.18)
+                      : ArkColorPalette.fromId(id)?.color ?? Colors.grey;
+
+              return Expanded(
+                child: GestureDetector(
+                  onTap: isActive ? () => _pickColor(i) : null,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: 56,
+                    margin: EdgeInsets.only(right: i < 5 ? 5 : 0),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: !isActive
+                            ? Colors.white.withValues(alpha: 0.06)
+                            : id != null
+                                ? Colors.white.withValues(alpha: 0.5)
+                                : Colors.white.withValues(alpha: 0.2),
+                        width: id != null && isActive ? 1.5 : 1,
+                      ),
+                      boxShadow: id != null && isActive
+                          ? [
+                              BoxShadow(
+                                color: color.withValues(alpha: 0.45),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (!isActive)
+                          Icon(Icons.block_rounded,
+                              color: Colors.white.withValues(alpha: 0.15),
+                              size: 16)
+                        else if (id == null)
+                          Icon(Icons.add_rounded,
+                              color: Colors.white.withValues(alpha: 0.45),
+                              size: 20)
+                        else
+                          Text(
+                            '$id',
+                            style: TextStyle(
+                              color: _isLight(color) ? Colors.black : Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        const SizedBox(height: 2),
+                        Text(
+                          isActive ? 'R$i' : '—',
+                          style: TextStyle(
+                            color: !isActive
+                                ? Colors.white.withValues(alpha: 0.12)
+                                : id == null
+                                    ? Colors.white.withValues(alpha: 0.3)
+                                    : (_isLight(color)
+                                        ? Colors.black.withValues(alpha: 0.5)
+                                        : Colors.white.withValues(alpha: 0.5)),
+                            fontSize: 8,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 12),
+
+          // ── Boutons rapides ──
+          Row(
+            children: [
+              Expanded(
+                child: _QuickButton(
+                  icon: Icons.shuffle_rounded,
+                  label: 'Aléatoire',
+                  color: Colors.purpleAccent,
+                  onTap: _randomize,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _QuickButton(
+                  icon: Icons.star_rounded,
+                  label: 'Solid',
+                  color: Colors.amber,
+                  onTap: _testSolid,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _QuickButton(
+                  icon: Icons.refresh_rounded,
+                  label: 'Reset',
+                  color: AppTheme.danger,
+                  onTap: _resetColors,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/dino.dart';
+import '../../models/ark_species_stat.dart';
 import '../../utils/dino_helpers.dart';
 import '../../widgets/dino_image_widget.dart';
 
@@ -327,34 +328,104 @@ class _SexBadge extends StatelessWidget {
   }
 }
 
-// ── Badge rôle — copie exacte de _buildRoleBadge ─────────────────────────────
+// ── Tags + Diet badges (remplace l'ancien _RoleBadge) ────────────────────────
 class _RoleBadge extends StatelessWidget {
   final Dino  dino;
   final Color textColor;
   const _RoleBadge({required this.dino, required this.textColor});
 
+  Color _tagColor(String tag) {
+    switch (tag.toLowerCase()) {
+      case 'boss':        return const Color(0xFFEF4444);
+      case 'breeding':    return const Color(0xFFF48FB1);
+      case 'solid':       return const Color(0xFFFFD700);
+      case 'visualsolid': return const Color(0xFFFFD700);
+      case 'farm':        return const Color(0xFF4CAF50);
+      case 'collection':  return const Color(0xFF8B5CF6);
+      case 'combat':      return const Color(0xFFFF6B00);
+      default:            return textColor;
+    }
+  }
+
+  Color _dietColor(ArkDiet diet) {
+    switch (diet) {
+      case ArkDiet.carnivore: return const Color(0xFFEF5350);
+      case ArkDiet.herbivore: return const Color(0xFF66BB6A);
+      case ArkDiet.omnivore:  return const Color(0xFFFF9800);
+      case ArkDiet.special:   return const Color(0xFFAB47BC);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      decoration: BoxDecoration(
-        color: textColor.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: textColor.withValues(alpha: 0.50),
-          width: 1.5,
-        ),
-      ),
-      child: Text(
-        dino.role.toUpperCase(),
-        style: TextStyle(
-          color: textColor,
-          fontSize: 20,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.5,
-          decoration: TextDecoration.none,
-        ),
-      ),
+    final tags  = dino.tags.take(3).toList();
+    final stats = ArkSpeciesStatsDb.get(dino.espece);
+
+    return Wrap(
+      spacing: 6,
+      runSpacing: 4,
+      alignment: WrapAlignment.end,
+      children: [
+        // Diet chip
+        if (stats != null)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: _dietColor(stats.diet).withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: _dietColor(stats.diet).withValues(alpha: 0.50),
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(stats.dietEmoji,
+                    style: const TextStyle(
+                      fontSize: 16, height: 1.0,
+                      decoration: TextDecoration.none,
+                    )),
+                const SizedBox(width: 5),
+                Text(
+                  stats.dietLabel.toUpperCase(),
+                  style: TextStyle(
+                    color: _dietColor(stats.diet),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // Tag chips
+        ...tags.map((tag) {
+          final tc = _tagColor(tag);
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            decoration: BoxDecoration(
+              color: tc.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: tc.withValues(alpha: 0.50),
+                width: 1.5,
+              ),
+            ),
+            child: Text(
+              tag.toUpperCase(),
+              style: TextStyle(
+                color: tc,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          );
+        }),
+      ],
     );
   }
 }

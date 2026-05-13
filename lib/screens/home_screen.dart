@@ -235,34 +235,44 @@ Widget build(BuildContext context) {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 0),
                       children: [
-                        if (_spotlightDino != null) ...[
-                          _buildSpotlightCardEnhanced(_spotlightDino!),
-                          const SizedBox(height: 20),
-                        ] else ...[
-                          _buildEmptySpotlight(),
-                          const SizedBox(height: 20),
-                        ],
+                        // Responsive centering: constrain content on wide screens
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 640),
+                            child: Column(
+                              children: [
+                                if (_spotlightDino != null) ...[
+                                  _buildSpotlightCardEnhanced(_spotlightDino!),
+                                  const SizedBox(height: 20),
+                                ] else ...[
+                                  _buildEmptySpotlight(),
+                                  const SizedBox(height: 20),
+                                ],
 
-                        if (sortedRoles.isNotEmpty) ...[
-                          _buildRoleDistributionEnhanced(
-                              sortedRoles.take(4).toList(),
-                              dinos.length),
-                          const SizedBox(height: 20),
-                        ],
+                                if (sortedRoles.isNotEmpty) ...[
+                                  _buildRoleDistributionEnhanced(
+                                      sortedRoles.take(4).toList(),
+                                      dinos.length),
+                                  const SizedBox(height: 20),
+                                ],
 
-                        if (topSpecies.length > 1) ...[
-                          _buildTopSpecies(
-                              topSpecies.take(5).toList()),
-                          const SizedBox(height: 20),
-                        ],
+                                if (topSpecies.length > 1) ...[
+                                  _buildTopSpecies(
+                                      topSpecies.take(5).toList()),
+                                  const SizedBox(height: 20),
+                                ],
 
-                        if (untrackedSpecies.isNotEmpty) ...[
-                          _buildUntrackedHint(untrackedSpecies),
-                          const SizedBox(height: 20),
-                        ],
+                                if (untrackedSpecies.isNotEmpty) ...[
+                                  _buildUntrackedHint(untrackedSpecies),
+                                  const SizedBox(height: 20),
+                                ],
 
-                        _buildTipCard(),
-                        const SizedBox(height: 24),
+                                _buildTipCard(),
+                                const SizedBox(height: 24),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -347,36 +357,6 @@ Widget build(BuildContext context) {
                       ),
 
                       const Spacer(),
-
-                      // ✅ Bouton actualiser : emoji 🔄 à droite du titre
-                      GestureDetector(
-                        onTap: () {
-                          _pickSpotlightDino();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Dino aléatoire généré'),
-                              duration: Duration(milliseconds: 800),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppTheme.accentPrimary
-                                .withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: AppTheme.accentPrimary
-                                  .withValues(alpha: 0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: const Text(
-                            '🔄',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),

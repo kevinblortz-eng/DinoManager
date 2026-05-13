@@ -130,6 +130,45 @@ class ImagePreprocessor {
     return sqrt(max(0.0, variance));
   }
 
+  /// ── Pipeline léger pour Gemini : N&B + contraste (sans binarisation dure) ──
+  /// Gemini lit mieux une image nette N&B qu'une image couleur floue ou sombre.
+  /// On évite l'adaptive threshold qui détruit la structure pour les modèles IA.
+  static Future<File> preprocessForGemini(File imageFile) async {
+    final bytes = await imageFile.readAsBytes();
+    final img.Image? decoded = img.decodeImage(bytes);
+    if (decoded == null) return imageFile;
+
+    img.Image image = decoded;
+
+    // ── 1. Grayscale ──
+    image = img.grayscale(image);
+
+    // ── 2. Réduction de bruit légère ──
+    image = img.gaussianBlur(image, radius: 1);
+
+    // ── 3. Étirement d'histogramme (contraste max) ──
+    image = _stretchHistogram(image);
+
+    // ── 4. Upscale si trop petit (meilleure lecture IA) ──
+    if (image.width < 800) {
+      final double scale = (800.0 / image.width.toDouble()).clamp(1.0, 2.5);
+      image = img.copyResize(
+        image,
+        width: (image.width.toDouble() * scale).round(),
+        height: (image.height.toDouble() * scale).round(),
+        interpolation: img.Interpolation.cubic,
+      );
+    }
+
+    // ── Sauvegarder ──
+    final tempDir = await getTemporaryDirectory();
+    final outputPath =
+        '${tempDir.path}/gemini_preprocessed_${DateTime.now().millisecondsSinceEpoch}.png';
+    final outputFile = File(outputPath);
+    await outputFile.writeAsBytes(img.encodePng(image));
+    return outputFile;
+  }
+
   /// ── Pipeline de prétraitement complet ──
   static Future<File> preprocess(File imageFile) async {
     final bytes = await imageFile.readAsBytes();

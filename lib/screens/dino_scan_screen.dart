@@ -225,8 +225,13 @@ class _DinoScanScreenState extends State<DinoScanScreen>
     if (geminiService != null) {
       setState(() => _processingStep = 'Analyse IA Gemini…');
       try {
-        // Gemini peut lire directement l'image cropée (pas besoin du preprocessing N&B)
-        result = await geminiService.scanImage(croppedFile);
+        // Appliquer N&B + contraste avant Gemini pour améliorer la lisibilité
+        final geminiFile = await ImagePreprocessor.preprocessForGemini(croppedFile);
+        result = await geminiService.scanImage(geminiFile);
+        // Nettoyage du fichier temporaire gemini
+        if (geminiFile.path != croppedFile.path) {
+          geminiFile.delete().catchError((_) => geminiFile);
+        }
       } catch (e) {
         // Fallback OCR local si Gemini échoue
         if (mounted) {

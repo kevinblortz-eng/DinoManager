@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/dino.dart';
 import '../../models/role_theme.dart';
+import '../../models/ark_species_color_regions.dart';
+import '../../models/ark_species_stat.dart';
 import '../../utils/dino_helpers.dart';
 import '../../widgets/dino_image_widget.dart';
 
@@ -120,7 +122,10 @@ class DinoShareCardPortrait extends StatelessWidget {
             _statAt(_sc6, dino, 5),
 
             // ── 12. COULEURS ───────────────────────────────────────
-            _pos(_colorR, _ColorStrip(colors: dino.colorRegions)),
+            _pos(_colorR, _ColorStrip(
+              colors: dino.colorRegions,
+              species: dino.espece,
+            )),
           ]),
         ),
       ),
@@ -135,7 +140,7 @@ class DinoShareCardPortrait extends StatelessWidget {
   );
 
   Widget _statAt(_Rect r, Dino dino, int idx) =>
-      _pos(r, _StatBox(data: _stats(dino)[idx]));
+      _pos(r, _StatBox(data: _stats(dino)[idx], species: dino.espece));
 
   List<_StatData> _stats(Dino d) => [
     _StatData('assets/images/icons/hp.png',      'HP',
@@ -370,66 +375,145 @@ class _SpeciesScroll extends StatelessWidget {
   }
 }
 
-// ── Bandeau nom + badge rôle — copié de ArkDinoCard ──────────────────────────
+// ── Bandeau nom + tags + diet — remplace l'ancien badge rôle ─────────────────
 class _NameBand extends StatelessWidget {
   final Dino  dino;
   final Color textColor;
   const _NameBand({required this.dino, required this.textColor});
 
+  Color _tagColor(String tag, Color fallback) {
+    switch (tag.toLowerCase()) {
+      case 'boss':        return const Color(0xFFEF4444);
+      case 'breeding':    return const Color(0xFFF48FB1);
+      case 'solid':       return const Color(0xFFFFD700);
+      case 'visualsolid': return const Color(0xFFFFD700);
+      case 'farm':        return const Color(0xFF4CAF50);
+      case 'collection':  return const Color(0xFF8B5CF6);
+      case 'combat':      return const Color(0xFFFF6B00);
+      default:            return fallback;
+    }
+  }
+
+  Color _dietColor(ArkDiet diet) {
+    switch (diet) {
+      case ArkDiet.carnivore: return const Color(0xFFEF5350);
+      case ArkDiet.herbivore: return const Color(0xFF66BB6A);
+      case ArkDiet.omnivore:  return const Color(0xFFFF9800);
+      case ArkDiet.special:   return const Color(0xFFAB47BC);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final stats  = ArkSpeciesStatsDb.get(dino.espece);
+    final tags   = dino.tags.take(3).toList();
+
     return LayoutBuilder(builder: (_, cs) {
       final h  = cs.maxHeight;
-      final fs = h * 0.42;
+      final fs = h * 0.38;
 
-      return Row(
+      return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Nom
-          Flexible(
-            child: Text(
-              dino.nom,
-              style: GoogleFonts.exo2(
-                color: Colors.white,
-                fontSize: fs,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
-                height: 1.0,
-                decoration: TextDecoration.none,
-                shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5),
-                                 blurRadius: 4)],
+          // Ligne 1 : nom + tags
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  dino.nom,
+                  style: GoogleFonts.exo2(
+                    color: Colors.white,
+                    fontSize: fs,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                    height: 1.0,
+                    decoration: TextDecoration.none,
+                    shadows: [Shadow(
+                      color: Colors.black.withValues(alpha: 0.60),
+                      blurRadius: 4,
+                    )],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+              if (tags.isNotEmpty) ...[  
+                const SizedBox(width: 6),
+                ...tags.map((tag) {
+                  final tc = _tagColor(tag, textColor);
+                  return Container(
+                    margin: const EdgeInsets.only(left: 3),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: h * 0.18,
+                      vertical:   h * 0.06,
+                    ),
+                    decoration: BoxDecoration(
+                      color: tc.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: tc.withValues(alpha: 0.55),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      tag.toUpperCase(),
+                      style: TextStyle(
+                        color: tc,
+                        fontSize: fs * 0.52,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.4,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ],
           ),
-          const SizedBox(width: 8),
-          // Badge rôle — copie exacte de _buildRoleBadge
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: h * 0.30,
-              vertical:   h * 0.10,
+          // Ligne 2 : diet chip (si connu)
+          if (stats != null) ...[  
+            const SizedBox(height: 2),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: h * 0.22,
+                    vertical:   h * 0.05,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _dietColor(stats.diet).withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: _dietColor(stats.diet).withValues(alpha: 0.50),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(stats.dietEmoji,
+                        style: TextStyle(fontSize: fs * 0.48, height: 1.0)),
+                      const SizedBox(width: 3),
+                      Text(
+                        stats.dietLabel.toUpperCase(),
+                        style: TextStyle(
+                          color: _dietColor(stats.diet),
+                          fontSize: fs * 0.44,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            decoration: BoxDecoration(
-              color: textColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(
-                color: textColor.withValues(alpha: 0.50),
-                width: 1,
-              ),
-            ),
-            child: Text(
-              dino.role.toUpperCase(),
-              style: TextStyle(
-                color: textColor,
-                fontSize: fs * 0.55,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-                decoration: TextDecoration.none,
-              ),
-            ),
-          ),
+          ],
         ],
       );
     });
@@ -439,7 +523,8 @@ class _NameBand extends StatelessWidget {
 // ── Case stat — layout vertical centré (adapté au format portrait) ────────────
 class _StatBox extends StatelessWidget {
   final _StatData data;
-  const _StatBox({required this.data});
+  final String    species;
+  const _StatBox({required this.data, required this.species});
 
   @override
   Widget build(BuildContext context) {
@@ -505,13 +590,16 @@ class _StatBox extends StatelessWidget {
   }
 }
 
-// ── Bande couleurs — copie exacte de ArkDinoCard._buildColorStrip ─────────────
+// ── Bande couleurs avec zones inactives masquées ─────────────────────────────
 class _ColorStrip extends StatelessWidget {
   final List<String?> colors;
-  const _ColorStrip({required this.colors});
+  final String        species;
+  const _ColorStrip({required this.colors, required this.species});
 
   @override
   Widget build(BuildContext context) {
+    final visibility = ArkSpeciesColorRegions.visibilityFor(species);
+
     return LayoutBuilder(builder: (_, cs) {
       const gap = 6.0;
       final cw  = (cs.maxWidth - gap * 5) / 6;
@@ -527,8 +615,25 @@ class _ColorStrip extends StatelessWidget {
         ),
         child: Row(
           children: List.generate(6, (i) {
+            final isZoneActive = i < visibility.length ? visibility[i] : true;
+
+            // Zone inactive → case transparente
+            if (!isZoneActive) {
+              return Container(
+                width: cw, height: ch,
+                margin: EdgeInsets.only(right: i < 5 ? gap : 0),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.03),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.04),
+                    width: 0.5,
+                  ),
+                ),
+              );
+            }
+
             final hex      = i < colors.length ? colors[i] : null;
-            // Copie exacte de la logique ArkDinoCard
             final inactive = hex == null ||
                              hex == '#808080' ||
                              hex == '#7F7F7F';
