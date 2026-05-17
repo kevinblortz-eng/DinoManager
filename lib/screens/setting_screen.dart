@@ -1,3 +1,4 @@
+// lib/screens/setting_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +15,7 @@ import '../models/ark_color_palette.dart';
 import '../utils/changelog_data.dart';
 import '../widgets/changelog_dialog.dart';
 import '../widgets/ark_color_picker.dart';
+import '../l10n/app_localizations.dart';
 import 'backup_screen.dart';
 
 class SettingScreen extends StatelessWidget {
@@ -23,9 +25,7 @@ class SettingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<LanguageProvider>(
       builder: (context, languageProvider, _) {
-        return _SettingScreenContent(
-          languageProvider: languageProvider,
-        );
+        return _SettingScreenContent(languageProvider: languageProvider);
       },
     );
   }
@@ -44,11 +44,14 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
+
     return Consumer4<DinoProvider, TrackerProvider, TagThemeProvider,
         RoleThemeProvider>(
       builder: (context, dinoProvider, trackerProvider, tagThemeProvider,
           roleThemeProvider, _) {
-
         final dinos = dinoProvider.dinos;
         final totalDinos = dinos.length;
         final totalSpecies =
@@ -66,54 +69,58 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
         usedTags.addAll(Dino.tagsParDefaut);
         final sortedTags = usedTags.toList()..sort();
 
+        final hPad = isTablet ? 32.0 : 20.0;
+
         return Scaffold(
           backgroundColor: AppTheme.bgPrimary,
           body: SafeArea(
             child: ListView(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 20, vertical: 16),
+              padding:
+                  EdgeInsets.symmetric(horizontal: hPad, vertical: 16),
               children: [
-                _buildHeader(),
+                // ── Header ──
+                _buildHeader(l10n),
                 const SizedBox(height: 24),
 
-                // ── Bloc 6 : Sauvegarde ──
-                _buildBackupSection(context),
-                const SizedBox(height: 24),
+                // ── Langue ──
+                _buildLanguageSection(context, l10n, languageProvider),
+                const SizedBox(height: 20),
 
-                // ── Bloc 2 : Bestiaire ──
+                // ── Sauvegarde ──
+                _buildBackupSection(context, l10n),
+                const SizedBox(height: 20),
+
+                // ── Bestiaire ──
                 _buildBestiaryStats(
                   context,
+                  l10n: l10n,
                   totalDinos: totalDinos,
                   totalSpecies: totalSpecies,
                   totalTrackers: totalTrackers,
                   totalAvailableSpecies: totalAvailableSpecies,
                   speciesProgress: speciesProgress,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
-                // ── Bloc 4 : Tags ──
+                // ── Tags ──
                 _buildTagsSection(
-                    context, sortedTags, tagThemeProvider, dinoProvider),
-                const SizedBox(height: 24),
+                    context, l10n, sortedTags, tagThemeProvider, dinoProvider),
+                const SizedBox(height: 20),
 
-                // ── Bloc 5 : Thèmes rôles ──
-                _buildRoleThemesSection(context, roleThemeProvider),
-                const SizedBox(height: 24),
+                // ── Thèmes rôles ──
+                _buildRoleThemesSection(context, l10n, roleThemeProvider),
+                const SizedBox(height: 20),
 
-                // ── Bloc 7 : Langue ──
-                _buildLanguageSection(context, languageProvider),
-                const SizedBox(height: 24),
+                // ── OCR / Gemini ──
+                _buildGeminiSection(context, l10n),
+                const SizedBox(height: 20),
 
-                // ── Bloc 8 : OCR / Gemini IA ──
-                _buildGeminiSection(context),
-                const SizedBox(height: 24),
+                // ── Actualités ──
+                _buildNewsSection(l10n),
+                const SizedBox(height: 20),
 
-                // ── Bloc 3 : Actualités ──
-                _buildNewsSection(),
-                const SizedBox(height: 24),
-
-                // ── Bloc 8 : Version ──
-                _buildVersionFooter(context),
+                // ── Version ──
+                _buildVersionFooter(context, l10n),
                 const SizedBox(height: 24),
               ],
             ),
@@ -126,7 +133,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   // ═══════════════════════════════════════════════════════
   // HEADER
   // ═══════════════════════════════════════════════════════
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
@@ -143,7 +150,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
               ),
               const SizedBox(height: 2),
               Text(
-                'Paramètres & Informations',
+                l10n.settingsTitle,
                 style: GoogleFonts.exo2(
                   fontSize: 11,
                   color: AppTheme.textMuted,
@@ -153,13 +160,12 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
           ),
         ),
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
             color: Colors.purpleAccent.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-                color: Colors.purpleAccent.withValues(alpha: 0.3)),
+            border:
+                Border.all(color: Colors.purpleAccent.withValues(alpha: 0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -183,37 +189,114 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC 6 — Sauvegarde
+  // BLOC — Langue (en premier pour logique UX)
   // ═══════════════════════════════════════════════════════
-  Widget _buildBackupSection(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.cloud_rounded,
-                  color: Colors.blueAccent.withValues(alpha: 0.8),
-                  size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'SAUVEGARDE',
-                style: GoogleFonts.exo2(
-                  color: Colors.blueAccent,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
+  Widget _buildLanguageSection(
+    BuildContext context,
+    AppLocalizations l10n,
+    LanguageProvider languageProvider,
+  ) {
+    final langs = LanguageProvider.supportedLanguages;
+    final activeCode = languageProvider.currentCode;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
+
+    return _SectionCard(
+      icon: Icons.language_rounded,
+      iconColor: Colors.greenAccent,
+      title: l10n.settingsLanguage,
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: Colors.greenAccent.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.3)),
+        ),
+        child: Text(
+          '${langs.length} ${l10n.settingsLanguage.toLowerCase()}s',
+          style: GoogleFonts.exo2(
+            color: Colors.greenAccent,
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
           ),
-          const SizedBox(height: 14),
+        ),
+      ),
+      subtitle: l10n.languageSelectorSubtitle,
+      child: isTablet
+          ? _buildLanguageGrid(langs, activeCode, languageProvider, l10n)
+          : _buildLanguageList(langs, activeCode, languageProvider, l10n),
+    );
+  }
+
+  Widget _buildLanguageList(
+    List<Map<String, String>> langs,
+    String activeCode,
+    LanguageProvider languageProvider,
+    AppLocalizations l10n,
+  ) {
+    return Column(
+      children: langs.map((lang) {
+        final code = lang['code']!;
+        final label = lang['label']!;
+        final flag = lang['flag']!;
+        final isActive = code == activeCode;
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: _LanguageTile(
+            code: code,
+            label: label,
+            flag: flag,
+            isActive: isActive,
+            activeLabel: l10n.languageActive,
+            onTap: () => languageProvider.setLocale(code),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildLanguageGrid(
+    List<Map<String, String>> langs,
+    String activeCode,
+    LanguageProvider languageProvider,
+    AppLocalizations l10n,
+  ) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 4,
+      children: langs.map((lang) {
+        final code = lang['code']!;
+        final label = lang['label']!;
+        final flag = lang['flag']!;
+        final isActive = code == activeCode;
+
+        return _LanguageTile(
+          code: code,
+          label: label,
+          flag: flag,
+          isActive: isActive,
+          activeLabel: l10n.languageActive,
+          onTap: () => languageProvider.setLocale(code),
+        );
+      }).toList(),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // BLOC — Sauvegarde
+  // ═══════════════════════════════════════════════════════
+  Widget _buildBackupSection(BuildContext context, AppLocalizations l10n) {
+    return _SectionCard(
+      icon: Icons.cloud_rounded,
+      iconColor: Colors.blueAccent,
+      title: l10n.settingsBackup,
+      child: Column(
+        children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -232,7 +315,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Google Auto-Backup actif',
+                        l10n.backupAutoActive,
                         style: GoogleFonts.exo2(
                           color: Colors.blueAccent,
                           fontSize: 12,
@@ -241,10 +324,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        'Tes données sont sauvegardées automatiquement '
-                        'dans Google Drive toutes les 24h. Elles seront '
-                        'restaurées automatiquement à la réinstallation '
-                        'sur le même compte Google.',
+                        l10n.backupAutoDesc,
                         style: GoogleFonts.exo2(
                           color: AppTheme.textSecondary,
                           fontSize: 10,
@@ -261,8 +341,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
           GestureDetector(
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (_) => const BackupScreen()),
+              MaterialPageRoute(builder: (_) => const BackupScreen()),
             ),
             child: Container(
               width: double.infinity,
@@ -285,7 +364,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                       color: Colors.blueAccent, size: 16),
                   const SizedBox(width: 8),
                   Text(
-                    'Gérer les sauvegardes manuelles',
+                    l10n.backupManage,
                     style: GoogleFonts.exo2(
                       color: Colors.blueAccent,
                       fontSize: 12,
@@ -306,10 +385,11 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC 2 — Bestiaire
+  // BLOC — Bestiaire
   // ═══════════════════════════════════════════════════════
   Widget _buildBestiaryStats(
     BuildContext context, {
+    required AppLocalizations l10n,
     required int totalDinos,
     required int totalSpecies,
     required int totalTrackers,
@@ -318,55 +398,32 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }) {
     final percent = (speciesProgress * 100).toStringAsFixed(0);
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
+    return _SectionCard(
+      icon: Icons.bar_chart_rounded,
+      iconColor: Colors.orangeAccent,
+      title: l10n.settingsBestiary,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.bar_chart_rounded,
-                  color: Colors.orangeAccent.withValues(alpha: 0.8),
-                  size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'BESTIAIRE',
-                style: GoogleFonts.exo2(
-                  color: Colors.orangeAccent,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildStatLine(Icons.loyalty_rounded, 'DinoCards',
+              _buildStatLine(Icons.loyalty_rounded, l10n.bestiaryDinoCards,
                   '$totalDinos', AppTheme.accentPrimary),
               _buildStatDivider(),
-              _buildStatLine(Icons.pets_rounded, 'Trackers',
+              _buildStatLine(Icons.pets_rounded, l10n.bestiaryTrackers,
                   '$totalTrackers', Colors.cyanAccent),
               _buildStatDivider(),
-              _buildStatLine(Icons.military_tech_rounded, 'Espèces',
-                  '$totalSpecies', Colors.orangeAccent),
+              _buildStatLine(Icons.military_tech_rounded,
+                  l10n.bestiarySpecies, '$totalSpecies', Colors.orangeAccent),
             ],
           ),
           const SizedBox(height: 20),
           Row(
             children: [
               Icon(Icons.explore_rounded,
-                  color: Colors.orangeAccent.withValues(alpha: 0.6),
-                  size: 13),
+                  color: Colors.orangeAccent.withValues(alpha: 0.6), size: 13),
               const SizedBox(width: 6),
               Text(
-                'Bestiaire ARK',
+                l10n.bestiaryArkBestiary,
                 style: GoogleFonts.exo2(
                   color: AppTheme.textMuted,
                   fontSize: 11,
@@ -375,9 +432,9 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
               ),
               const Spacer(),
               Text(
-                '$totalSpecies / $totalAvailableSpecies espèces',
-                style: GoogleFonts.exo2(
-                    color: AppTheme.textMuted, fontSize: 10),
+                l10n.bestiarySpeciesCount(totalSpecies, totalAvailableSpecies),
+                style:
+                    GoogleFonts.exo2(color: AppTheme.textMuted, fontSize: 10),
               ),
             ],
           ),
@@ -388,15 +445,14 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
               value: speciesProgress,
               minHeight: 10,
               backgroundColor: Colors.white.withValues(alpha: 0.06),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                  Colors.orangeAccent),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
             ),
           ),
           const SizedBox(height: 6),
           Text(
-            '$percent% du bestiaire ARK découvert',
-            style: GoogleFonts.exo2(
-                color: AppTheme.textMuted, fontSize: 10),
+            l10n.bestiaryDiscovered(percent),
+            style: GoogleFonts.exo2(color: AppTheme.textMuted, fontSize: 10),
           ),
         ],
       ),
@@ -420,7 +476,8 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
               style: GoogleFonts.exo2(
                   fontSize: 10,
                   color: color.withValues(alpha: 0.8),
-                  fontWeight: FontWeight.w600)),
+                  fontWeight: FontWeight.w600),
+              textAlign: TextAlign.center),
         ],
       ),
     );
@@ -436,75 +493,49 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC 4 — Tags
+  // BLOC — Tags
   // ═══════════════════════════════════════════════════════
   Widget _buildTagsSection(
     BuildContext context,
+    AppLocalizations l10n,
     List<String> sortedTags,
     TagThemeProvider tagThemeProvider,
     DinoProvider dinoProvider,
   ) {
     final customCount = tagThemeProvider.tagColors.length;
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
+    return _SectionCard(
+      icon: Icons.label_rounded,
+      iconColor: Colors.purpleAccent,
+      title: l10n.settingsTags,
+      trailing: customCount > 0
+          ? GestureDetector(
+              onTap: () =>
+                  _confirmResetAllTags(context, l10n, tagThemeProvider),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppTheme.danger.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                      color: AppTheme.danger.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  l10n.tagsResetAll,
+                  style: GoogleFonts.exo2(
+                    color: AppTheme.danger,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            )
+          : null,
+      subtitle: l10n.tagsTapToChange,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.label_rounded,
-                  color: Colors.purpleAccent.withValues(alpha: 0.8),
-                  size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'TAGS & COULEURS',
-                style: GoogleFonts.exo2(
-                  color: Colors.purpleAccent,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
-              const Spacer(),
-              if (customCount > 0)
-                GestureDetector(
-                  onTap: () =>
-                      _confirmResetAllTags(context, tagThemeProvider),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppTheme.danger.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                          color:
-                              AppTheme.danger.withValues(alpha: 0.3)),
-                    ),
-                    child: Text(
-                      'Reset tout',
-                      style: GoogleFonts.exo2(
-                        color: AppTheme.danger,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Appuie sur un tag pour changer sa couleur',
-            style: GoogleFonts.exo2(
-                color: AppTheme.textMuted, fontSize: 10),
-          ),
-          const SizedBox(height: 14),
           Wrap(
             spacing: 8,
             runSpacing: 10,
@@ -521,19 +552,18 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
               return GestureDetector(
                 onTap: () => _openTagColorPicker(
                     context, tag, customHex, tagThemeProvider),
-                onLongPress: isCustom
-                    ? () => tagThemeProvider.removeTagColor(tag)
-                    : null,
+                onLongPress:
+                    isCustom ? () => tagThemeProvider.removeTagColor(tag) : null,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 7),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: color.withValues(
-                          alpha: isCustom ? 0.6 : 0.3),
+                      color:
+                          color.withValues(alpha: isCustom ? 0.6 : 0.3),
                       width: isCustom ? 1.5 : 1,
                     ),
                   ),
@@ -549,8 +579,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                           boxShadow: isCustom
                               ? [
                                   BoxShadow(
-                                    color:
-                                        color.withValues(alpha: 0.5),
+                                    color: color.withValues(alpha: 0.5),
                                     blurRadius: 4,
                                     spreadRadius: 1,
                                   )
@@ -589,8 +618,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                       if (isCustom) ...[
                         const SizedBox(width: 4),
                         Icon(Icons.colorize_rounded,
-                            color: color.withValues(alpha: 0.7),
-                            size: 10),
+                            color: color.withValues(alpha: 0.7), size: 10),
                       ],
                     ],
                   ),
@@ -601,7 +629,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
           if (customCount > 0) ...[
             const SizedBox(height: 10),
             Text(
-              'Appui long sur un tag personnalisé pour le réinitialiser',
+              l10n.tagsLongPressReset,
               style: GoogleFonts.exo2(
                 color: AppTheme.textMuted.withValues(alpha: 0.6),
                 fontSize: 9,
@@ -614,198 +642,158 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC 5 — Thèmes par rôle
+  // BLOC — Thèmes par rôle
   // ═══════════════════════════════════════════════════════
   Widget _buildRoleThemesSection(
     BuildContext context,
+    AppLocalizations l10n,
     RoleThemeProvider roleThemeProvider,
   ) {
     final roles = RoleThemeDefaults.defaults.keys.toList();
-    final hasAnyCustom =
-        roles.any((r) => roleThemeProvider.hasCustomTheme(r));
+    final hasAnyCustom = roles.any((r) => roleThemeProvider.hasCustomTheme(r));
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.style_rounded,
-                  color: Colors.amberAccent.withValues(alpha: 0.8),
-                  size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'THÈMES PAR RÔLE',
-                style: GoogleFonts.exo2(
-                  color: Colors.amberAccent,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
+    return _SectionCard(
+      icon: Icons.style_rounded,
+      iconColor: Colors.amberAccent,
+      title: l10n.settingsRoleThemes,
+      trailing: hasAnyCustom
+          ? GestureDetector(
+              onTap: () =>
+                  _confirmResetAllRoles(context, l10n, roleThemeProvider),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppTheme.danger.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                      color: AppTheme.danger.withValues(alpha: 0.3)),
                 ),
-              ),
-              const Spacer(),
-              if (hasAnyCustom)
-                GestureDetector(
-                  onTap: () => _confirmResetAllRoles(
-                      context, roleThemeProvider),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppTheme.danger.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                          color:
-                              AppTheme.danger.withValues(alpha: 0.3)),
-                    ),
-                    child: Text(
-                      'Reset tout',
-                      style: GoogleFonts.exo2(
-                        color: AppTheme.danger,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                child: Text(
+                  l10n.tagsResetAll,
+                  style: GoogleFonts.exo2(
+                    color: AppTheme.danger,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Appuie sur un rôle pour personnaliser ses 3 couleurs',
-            style: GoogleFonts.exo2(
-                color: AppTheme.textMuted, fontSize: 10),
-          ),
-          const SizedBox(height: 14),
-          ...roles.where((r) => !roleThemeProvider.isDefaultDeleted(r)).map((role) {
+              ),
+            )
+          : null,
+      subtitle: l10n.roleThemesTapHint,
+      child: Column(
+        children: [
+          ...roles
+              .where((r) => !roleThemeProvider.isDefaultDeleted(r))
+              .map((role) {
             final theme = roleThemeProvider.themeForRole(role);
             final isCustom = roleThemeProvider.hasCustomTheme(role);
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: GestureDetector(
-                onTap: () => _openRoleThemeEditor(
-                    context, role, theme, roleThemeProvider),
-                onLongPress: isCustom
-                    ? () => roleThemeProvider.resetToDefault(role)
-                    : () => roleThemeProvider.deleteTheme(role),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: theme.background.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: theme.border
-                          .withValues(alpha: isCustom ? 0.6 : 0.3),
-                      width: isCustom ? 1.5 : 1,
-                    ),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.background.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: theme.border
+                        .withValues(alpha: isCustom ? 0.6 : 0.3),
+                    width: isCustom ? 1.5 : 1,
                   ),
-                  child: Row(
-                    children: [
-                      // Preview 3 couleurs
-                      _buildColorDot(theme.background,
-                          tooltip: 'Fond'),
-                      const SizedBox(width: 4),
-                      _buildColorDot(theme.border,
-                          tooltip: 'Bordure'),
-                      const SizedBox(width: 4),
-                      _buildColorDot(theme.text, tooltip: 'Texte'),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Text(
-                              role,
-                              style: GoogleFonts.exo2(
-                                color: theme.text,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            if (isCustom) ...[
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: theme.border
-                                      .withValues(alpha: 0.15),
-                                  borderRadius:
-                                      BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  'Perso',
-                                  style: GoogleFonts.exo2(
-                                    color: theme.border,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
+                ),
+                child: Row(
+                  children: [
+                    _buildColorDot(theme.background,
+                        tooltip: l10n.roleThemesBackground),
+                    const SizedBox(width: 4),
+                    _buildColorDot(theme.border,
+                        tooltip: l10n.roleThemesBorder),
+                    const SizedBox(width: 4),
+                    _buildColorDot(theme.text,
+                        tooltip: l10n.roleThemesText),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Row(
                         children: [
-                          if (isCustom)
-                            GestureDetector(
-                              onTap: () => roleThemeProvider
-                                  .resetToDefault(role),
-                              child: Container(
-                                padding: const EdgeInsets.all(5),
-                                margin:
-                                    const EdgeInsets.only(right: 6),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.danger
-                                      .withValues(alpha: 0.1),
-                                  borderRadius:
-                                      BorderRadius.circular(6),
-                                  border: Border.all(
-                                      color: AppTheme.danger
-                                          .withValues(alpha: 0.3)),
-                                ),
-                                child: const Icon(
-                                    Icons.refresh_rounded,
-                                    color: AppTheme.danger,
-                                    size: 12),
-                              ),
-                            ),
-                          GestureDetector(
-                            onTap: () => _openRoleThemeEditor(context,
-                                role, theme, roleThemeProvider),
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                color: Colors.amberAccent
-                                    .withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                    color: Colors.amberAccent
-                                        .withValues(alpha: 0.3)),
-                              ),
-                              child: const Icon(Icons.edit_rounded,
-                                  color: Colors.amberAccent, size: 12),
+                          Text(
+                            role,
+                            style: GoogleFonts.exo2(
+                              color: theme.text,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
+                          if (isCustom) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: theme.border.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                l10n.roleThemesPreview,
+                                style: GoogleFonts.exo2(
+                                  color: theme.border,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isCustom)
+                          GestureDetector(
+                            onTap: () =>
+                                roleThemeProvider.resetToDefault(role),
+                            child: Container(
+                              padding: const EdgeInsets.all(5),
+                              margin: const EdgeInsets.only(right: 6),
+                              decoration: BoxDecoration(
+                                color:
+                                    AppTheme.danger.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                    color: AppTheme.danger
+                                        .withValues(alpha: 0.3)),
+                              ),
+                              child: const Icon(Icons.refresh_rounded,
+                                  color: AppTheme.danger, size: 12),
+                            ),
+                          ),
+                        GestureDetector(
+                          onTap: () => _openRoleThemeEditor(
+                              context, l10n, role, theme, roleThemeProvider),
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.amberAccent.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                  color: Colors.amberAccent
+                                      .withValues(alpha: 0.3)),
+                            ),
+                            child: const Icon(Icons.edit_rounded,
+                                color: Colors.amberAccent, size: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             );
           }),
           Text(
-            'Appui long : reset perso  •  Appui long sur défaut : supprimer',
+            '${l10n.confirmReset} custom  •  ${l10n.confirmDelete} default',
             style: GoogleFonts.exo2(
               color: AppTheme.textMuted.withValues(alpha: 0.5),
               fontSize: 9,
@@ -817,48 +805,19 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC 8 — OCR / Intelligence Artificielle (Gemini)
+  // BLOC — OCR / Gemini IA
   // ═══════════════════════════════════════════════════════
-  Widget _buildGeminiSection(BuildContext context) {
+  Widget _buildGeminiSection(BuildContext context, AppLocalizations l10n) {
     return Consumer<GeminiProvider>(
       builder: (context, gemini, _) {
-        return Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: AppTheme.bgCard,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.borderColor),
-          ),
+        return _SectionCard(
+          icon: Icons.auto_awesome_rounded,
+          iconColor: const Color(0xFF4285F4),
+          title: l10n.settingsGemini,
+          subtitle: _getGeminiSubtitle(l10n),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── En-tête ──
-              Row(
-                children: [
-                  Icon(Icons.auto_awesome_rounded,
-                      color: const Color(0xFF4285F4).withValues(alpha: 0.9),
-                      size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    'OCR / INTELLIGENCE ARTIFICIELLE',
-                    style: GoogleFonts.exo2(
-                      color: const Color(0xFF4285F4),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Utilise Gemini AI pour lire les stats ARK avec une précision supérieure',
-                style: GoogleFonts.exo2(
-                    color: AppTheme.textMuted, fontSize: 10),
-              ),
-              const SizedBox(height: 16),
-
-              // ── Info quota ──
+              // Info quota
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -877,7 +836,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Gemini 2.0 Flash — Gratuit',
+                            'Gemini 2.0 Flash — Free',
                             style: GoogleFonts.exo2(
                               color: const Color(0xFF4285F4),
                               fontSize: 12,
@@ -886,8 +845,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            '1 500 requêtes/jour • 15 req/min\n'
-                            'Lit cryopod, jumelles TEK et inventaire',
+                            '1 500 req/day • 15 req/min',
                             style: GoogleFonts.exo2(
                               color: AppTheme.textSecondary,
                               fontSize: 10,
@@ -902,19 +860,20 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
               ),
               const SizedBox(height: 16),
 
-              // ── Tuto rapide ──
-              _buildGeminiTutorial(),
+              // Tutorial
+              _buildGeminiTutorial(l10n),
               const SizedBox(height: 16),
 
-              // ── Champ clé API ──
-              _GeminiApiKeyField(gemini: gemini),
+              // Champ clé API
+              _GeminiApiKeyField(gemini: gemini, l10n: l10n),
               const SizedBox(height: 12),
 
-              // ── Toggle Gemini activé ──
+              // Toggle Gemini activé
               if (gemini.hasKey) ...[
                 GestureDetector(
                   onTap: () => gemini.setEnabled(!gemini.isEnabled),
-                  child: Container(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: gemini.isEnabled
@@ -946,8 +905,8 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                             children: [
                               Text(
                                 gemini.isEnabled
-                                    ? 'Gemini OCR activé'
-                                    : 'Gemini OCR désactivé',
+                                    ? '${l10n.geminiTitle} ON'
+                                    : '${l10n.geminiTitle} OFF',
                                 style: GoogleFonts.exo2(
                                   color: gemini.isEnabled
                                       ? Colors.white
@@ -958,8 +917,8 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                               ),
                               Text(
                                 gemini.isEnabled
-                                    ? 'Mode IA — Clé : ${gemini.maskedKey}'
-                                    : 'Mode OCR local (ML Kit)',
+                                    ? 'AI Mode — Key: ${gemini.maskedKey}'
+                                    : 'Local OCR Mode (ML Kit)',
                                 style: GoogleFonts.exo2(
                                   color: AppTheme.textMuted,
                                   fontSize: 10,
@@ -981,7 +940,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                 ),
               ],
 
-              // ── Statut si pas de clé ──
+              // Statut sans clé
               if (!gemini.hasKey)
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -999,7 +958,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Sans clé API, l\'OCR local ML Kit est utilisé',
+                          'Without API key, local ML Kit OCR is used',
                           style: GoogleFonts.exo2(
                             color: Colors.orange.withValues(alpha: 0.8),
                             fontSize: 10,
@@ -1016,7 +975,34 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
     );
   }
 
-  Widget _buildGeminiTutorial() {
+  String _getGeminiSubtitle(AppLocalizations l10n) {
+    final code = l10n.locale.languageCode;
+    switch (code) {
+      case 'fr':
+        return 'Utilise Gemini AI pour lire les stats ARK avec une précision supérieure';
+      case 'it':
+        return 'Usa Gemini AI per leggere le statistiche ARK con precisione superiore';
+      case 'es':
+        return 'Usa Gemini AI para leer las estadísticas ARK con mayor precisión';
+      case 'pt':
+        return 'Use o Gemini AI para ler as estatísticas ARK com maior precisão';
+      default:
+        return 'Use Gemini AI to read ARK stats with superior accuracy';
+    }
+  }
+
+  Widget _buildGeminiTutorial(AppLocalizations l10n) {
+    final code = l10n.locale.languageCode;
+    final howToGet = code == 'fr'
+        ? 'Comment obtenir une clé API Gemini ?'
+        : code == 'it'
+            ? 'Come ottenere una chiave API Gemini?'
+            : code == 'es'
+                ? '¿Cómo obtener una clave API de Gemini?'
+                : code == 'pt'
+                    ? 'Como obter uma chave API do Gemini?'
+                    : 'How to get a Gemini API key?';
+
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       childrenPadding: EdgeInsets.zero,
@@ -1027,12 +1013,14 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
           const Icon(Icons.help_outline_rounded,
               color: Color(0xFF4285F4), size: 14),
           const SizedBox(width: 6),
-          Text(
-            'Comment obtenir une clé API Gemini ?',
-            style: GoogleFonts.exo2(
-              color: AppTheme.textSecondary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Text(
+              howToGet,
+              style: GoogleFonts.exo2(
+                color: AppTheme.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -1048,16 +1036,18 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _tutorialStep('1', 'Allez sur', 'aistudio.google.com',
-                  Colors.blue),
-              _tutorialStep('2', 'Connectez-vous avec votre compte Google',
-                  '', Colors.green),
-              _tutorialStep('3', 'Cliquez sur', '"Get API key" → "Create API key"',
+              _tutorialStep('1', 'Go to', 'aistudio.google.com', Colors.blue),
+              _tutorialStep(
+                  '2', 'Sign in with your Google account', '', Colors.green),
+              _tutorialStep('3', 'Click', '"Get API key" → "Create API key"',
                   Colors.orange),
-              _tutorialStep('4', 'Copiez la clé (commence par', '"AIza..."',
-                  Colors.purple),
-              _tutorialStep('5', 'Collez-la dans le champ ci-dessous',
-                  '→ Dino Manager l\'active automatiquement', Colors.cyan),
+              _tutorialStep(
+                  '4', 'Copy the key (starts with', '"AIza..."', Colors.purple),
+              _tutorialStep(
+                  '5',
+                  'Paste it in the field below',
+                  '→ Dino Manager activates it automatically',
+                  Colors.cyan),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(8),
@@ -1066,8 +1056,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  '💡 La clé est stockée localement sur votre téléphone, '
-                  'jamais envoyée à nos serveurs.',
+                  '💡 The key is stored locally on your phone, never sent to our servers.',
                   style: GoogleFonts.exo2(
                     color: AppTheme.textSecondary,
                     fontSize: 9,
@@ -1136,191 +1125,17 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC 7 — Langue (placeholder i18n)
+  // BLOC — Actualités
   // ═══════════════════════════════════════════════════════
-  Widget _buildLanguageSection(
-    BuildContext context,
-    LanguageProvider languageProvider,
-  ) {
-    final langs = LanguageProvider.supportedLanguages;
-    final activeCode = languageProvider.currentCode;
-
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── En-tête ──
-          Row(
-            children: [
-              Icon(Icons.language_rounded,
-                  color: Colors.greenAccent.withValues(alpha: 0.8),
-                  size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'LANGUE',
-                style: GoogleFonts.exo2(
-                  color: Colors.greenAccent,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: Colors.greenAccent.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                      color: Colors.greenAccent.withValues(alpha: 0.3)),
-                ),
-                child: Text(
-                  '${langs.length} langues',
-                  style: GoogleFonts.exo2(
-                    color: Colors.greenAccent,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Appuie sur une langue pour l\'activer immédiatement',
-            style: GoogleFonts.exo2(
-                color: AppTheme.textMuted, fontSize: 10),
-          ),
-          const SizedBox(height: 14),
-          // ── Grille des langues ──
-          ...langs.map((lang) {
-            final code = lang['code']!;
-            final label = lang['label']!;
-            final flag = lang['flag']!;
-            final isActive = code == activeCode;
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: GestureDetector(
-                onTap: () => languageProvider.setLocale(code),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? Colors.greenAccent.withValues(alpha: 0.08)
-                        : AppTheme.bgPrimary,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isActive
-                          ? Colors.greenAccent.withValues(alpha: 0.5)
-                          : AppTheme.borderColor,
-                      width: isActive ? 1.5 : 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(flag,
-                          style: const TextStyle(fontSize: 24)),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              label,
-                              style: GoogleFonts.exo2(
-                                color: isActive
-                                    ? Colors.white
-                                    : AppTheme.textSecondary,
-                                fontSize: 13,
-                                fontWeight: isActive
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                              ),
-                            ),
-                            if (isActive)
-                              Text(
-                                'Langue active',
-                                style: GoogleFonts.exo2(
-                                  color: Colors.greenAccent
-                                      .withValues(alpha: 0.7),
-                                  fontSize: 10,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      // Indicateur actif
-                      AnimatedOpacity(
-                        opacity: isActive ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 200),
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color:
-                                Colors.greenAccent.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: Colors.greenAccent
-                                    .withValues(alpha: 0.4)),
-                          ),
-                          child: const Icon(Icons.check_rounded,
-                              color: Colors.greenAccent, size: 14),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // BLOC 3 — Actualités
-  // ═══════════════════════════════════════════════════════
-  Widget _buildNewsSection() {
+  Widget _buildNewsSection(AppLocalizations l10n) {
     final versions = ChangelogData.history;
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
+    return _SectionCard(
+      icon: Icons.newspaper_rounded,
+      iconColor: Colors.cyanAccent,
+      title: l10n.settingsNews,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.newspaper_rounded,
-                  color: Colors.cyanAccent.withValues(alpha: 0.8),
-                  size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'ACTUALITÉS',
-                style: GoogleFonts.exo2(
-                  color: Colors.cyanAccent,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
           ...versions.asMap().entries.map((entry) {
             final index = entry.key;
             final version = entry.value;
@@ -1328,9 +1143,26 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
             final totalItems = version.sections
                 .fold<int>(0, (sum, s) => sum + s.items.length);
             final isLatest = index == 0;
-            final color =
-                isLatest ? Colors.cyanAccent : AppTheme.textMuted;
+            final color = isLatest ? Colors.cyanAccent : AppTheme.textMuted;
             final versionEmoji = isLatest ? '🚀' : '📦';
+            final latestLabel = l10n.locale.languageCode == 'fr'
+                ? 'Dernière'
+                : l10n.locale.languageCode == 'it'
+                    ? 'Ultima'
+                    : l10n.locale.languageCode == 'es'
+                        ? 'Última'
+                        : l10n.locale.languageCode == 'pt'
+                            ? 'Última'
+                            : 'Latest';
+            final changesLabel = l10n.locale.languageCode == 'fr'
+                ? '$totalItems changement${totalItems > 1 ? 's' : ''} au total'
+                : l10n.locale.languageCode == 'it'
+                    ? '$totalItems modifica${totalItems > 1 ? 'he' : ''} in totale'
+                    : l10n.locale.languageCode == 'es'
+                        ? '$totalItems cambio${totalItems > 1 ? 's' : ''} en total'
+                        : l10n.locale.languageCode == 'pt'
+                            ? '$totalItems alteraç${totalItems > 1 ? 'ões' : 'ão'} no total'
+                            : '$totalItems change${totalItems > 1 ? 's' : ''} in total';
 
             return Column(
               children: [
@@ -1343,8 +1175,8 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                            color: color.withValues(alpha: 0.3)),
+                        border:
+                            Border.all(color: color.withValues(alpha: 0.3)),
                       ),
                       child: Center(
                         child: Text(versionEmoji,
@@ -1374,16 +1206,14 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                                   decoration: BoxDecoration(
                                     color: Colors.cyanAccent
                                         .withValues(alpha: 0.1),
-                                    borderRadius:
-                                        BorderRadius.circular(4),
+                                    borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
-                                    'Dernière',
+                                    latestLabel,
                                     style: GoogleFonts.exo2(
                                       color: Colors.cyanAccent,
                                       fontSize: 9,
                                       fontWeight: FontWeight.w700,
-                                      letterSpacing: 0.3,
                                     ),
                                   ),
                                 ),
@@ -1392,7 +1222,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Version ${version.version}',
+                            '${l10n.versionLabel(version.version)}',
                             style: GoogleFonts.exo2(
                               color: Colors.white,
                               fontSize: 13,
@@ -1406,12 +1236,11 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                               child: Row(
                                 children: [
                                   Text(section.type.emoji,
-                                      style: const TextStyle(
-                                          fontSize: 11)),
+                                      style: const TextStyle(fontSize: 11)),
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      '${section.type.label} — ${section.items.length} élément${section.items.length > 1 ? 's' : ''}',
+                                      '${section.type.label} — ${section.items.length}',
                                       style: GoogleFonts.exo2(
                                         color: section.type.color
                                             .withValues(alpha: 0.8),
@@ -1426,7 +1255,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '$totalItems changement${totalItems > 1 ? 's' : ''} au total',
+                            changesLabel,
                             style: GoogleFonts.exo2(
                               color: AppTheme.textMuted,
                               fontSize: 10,
@@ -1451,9 +1280,9 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC 8 — Version
+  // BLOC — Version footer
   // ═══════════════════════════════════════════════════════
-  Widget _buildVersionFooter(BuildContext context) {
+  Widget _buildVersionFooter(BuildContext context, AppLocalizations l10n) {
     final current = ChangelogData.current;
 
     return Container(
@@ -1479,7 +1308,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
               ),
               const SizedBox(height: 2),
               Text(
-                'Version ${current.version} — ${current.date}',
+                '${l10n.versionLabel(current.version)} — ${current.date}',
                 style: GoogleFonts.exo2(
                   color: AppTheme.textMuted,
                   fontSize: 11,
@@ -1494,8 +1323,8 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
               builder: (_) => const ChangelogDialog(),
             ),
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.purpleAccent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
@@ -1503,7 +1332,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                     color: Colors.purpleAccent.withValues(alpha: 0.3)),
               ),
               child: Text(
-                'Nouveautés',
+                l10n.changelogView,
                 style: GoogleFonts.exo2(
                   color: Colors.purpleAccent,
                   fontSize: 11,
@@ -1518,7 +1347,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // HELPERS TAGS
+  // HELPERS
   // ═══════════════════════════════════════════════════════
   void _openTagColorPicker(
     BuildContext context,
@@ -1526,9 +1355,8 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
     String? currentHex,
     TagThemeProvider tagThemeProvider,
   ) {
-    final currentId = currentHex != null
-        ? ArkColorPalette.hexToClosestId(currentHex)
-        : 0;
+    final currentId =
+        currentHex != null ? ArkColorPalette.hexToClosestId(currentHex) : 0;
 
     showModalBottomSheet(
       context: context,
@@ -1553,24 +1381,26 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   void _confirmResetAllTags(
-      BuildContext context, TagThemeProvider tagThemeProvider) {
+    BuildContext context,
+    AppLocalizations l10n,
+    TagThemeProvider tagThemeProvider,
+  ) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppTheme.bgCard,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16)),
-        title: Text('Réinitialiser tous les tags ?',
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(l10n.resetConfirmTitle,
             style: GoogleFonts.exo2(
                 color: Colors.white, fontWeight: FontWeight.w700)),
         content: Text(
-          'Toutes les couleurs personnalisées seront supprimées.',
+          l10n.resetConfirmMessage,
           style: GoogleFonts.exo2(color: AppTheme.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Annuler',
+            child: Text(l10n.confirmCancel,
                 style: GoogleFonts.exo2(color: AppTheme.textMuted)),
           ),
           TextButton(
@@ -1578,19 +1408,15 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
               Navigator.pop(context);
               tagThemeProvider.resetAll();
             },
-            child: Text('Réinitialiser',
+            child: Text(l10n.confirmReset,
                 style: GoogleFonts.exo2(
-                    color: AppTheme.danger,
-                    fontWeight: FontWeight.w700)),
+                    color: AppTheme.danger, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════
-  // HELPERS RÔLES
-  // ═══════════════════════════════════════════════════════
   Widget _buildColorDot(Color color, {String tooltip = ''}) {
     return Tooltip(
       message: tooltip,
@@ -1603,8 +1429,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
           border: Border.all(
               color: Colors.white.withValues(alpha: 0.3), width: 1),
           boxShadow: [
-            BoxShadow(
-                color: color.withValues(alpha: 0.4), blurRadius: 4),
+            BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 4),
           ],
         ),
       ),
@@ -1613,6 +1438,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
 
   void _openRoleThemeEditor(
     BuildContext context,
+    AppLocalizations l10n,
     String role,
     RoleTheme currentTheme,
     RoleThemeProvider roleThemeProvider,
@@ -1624,30 +1450,33 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
       builder: (_) => _RoleThemeEditorSheet(
         role: role,
         currentTheme: currentTheme,
+        l10n: l10n,
         onSave: (theme) => roleThemeProvider.setTheme(role, theme),
       ),
     );
   }
 
   void _confirmResetAllRoles(
-      BuildContext context, RoleThemeProvider roleThemeProvider) {
+    BuildContext context,
+    AppLocalizations l10n,
+    RoleThemeProvider roleThemeProvider,
+  ) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppTheme.bgCard,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16)),
-        title: Text('Réinitialiser tous les thèmes ?',
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(l10n.roleThemesConfirmReset,
             style: GoogleFonts.exo2(
                 color: Colors.white, fontWeight: FontWeight.w700)),
         content: Text(
-          'Tous les thèmes personnalisés seront supprimés.',
+          l10n.roleThemesConfirmResetDesc,
           style: GoogleFonts.exo2(color: AppTheme.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Annuler',
+            child: Text(l10n.confirmCancel,
                 style: GoogleFonts.exo2(color: AppTheme.textMuted)),
           ),
           TextButton(
@@ -1655,29 +1484,32 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
               Navigator.pop(context);
               roleThemeProvider.resetAll();
             },
-            child: Text('Réinitialiser',
+            child: Text(l10n.confirmReset,
                 style: GoogleFonts.exo2(
-                    color: AppTheme.danger,
-                    fontWeight: FontWeight.w700)),
+                    color: AppTheme.danger, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════
-  // HELPERS COULEURS
-  // ═══════════════════════════════════════════════════════
   Color _defaultTagColor(String tag) {
     switch (tag) {
-      case 'Boss':       return const Color(0xFFFF4444);
+      case 'Boss':
+        return const Color(0xFFFF4444);
       case 'Breed':
-      case 'Breeding':   return const Color(0xFF4CAF50);
-      case 'Solid':      return const Color(0xFFFF6B00);
-      case 'Farm':       return const Color(0xFFFFD700);
-      case 'Collection': return const Color(0xFF00BCD4);
-      case 'Combat':     return const Color(0xFF9C27B0);
-      default:           return AppTheme.textMuted;
+      case 'Breeding':
+        return const Color(0xFF4CAF50);
+      case 'Solid':
+        return const Color(0xFFFF6B00);
+      case 'Farm':
+        return const Color(0xFFFFD700);
+      case 'Collection':
+        return const Color(0xFF00BCD4);
+      case 'Combat':
+        return const Color(0xFF9C27B0);
+      default:
+        return AppTheme.textMuted;
     }
   }
 
@@ -1691,11 +1523,167 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// CHAMP CLÉ API GEMINI — Widget StatefulWidget
+// SECTION CARD — Widget réutilisable
+// ════════════════════════════════════════════════════════════════════════════
+class _SectionCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final Widget? trailing;
+  final String? subtitle;
+  final Widget child;
+
+  const _SectionCard({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.child,
+    this.trailing,
+    this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppTheme.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: iconColor.withValues(alpha: 0.8), size: 16),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: GoogleFonts.exo2(
+                  color: iconColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1,
+                ),
+              ),
+              const Spacer(),
+              if (trailing != null) trailing!,
+            ],
+          ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle!,
+              style:
+                  GoogleFonts.exo2(color: AppTheme.textMuted, fontSize: 10),
+            ),
+          ],
+          const SizedBox(height: 14),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// LANGUAGE TILE
+// ════════════════════════════════════════════════════════════════════════════
+class _LanguageTile extends StatelessWidget {
+  final String code;
+  final String label;
+  final String flag;
+  final bool isActive;
+  final String activeLabel;
+  final VoidCallback onTap;
+
+  const _LanguageTile({
+    required this.code,
+    required this.label,
+    required this.flag,
+    required this.isActive,
+    required this.activeLabel,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isActive
+              ? Colors.greenAccent.withValues(alpha: 0.08)
+              : AppTheme.bgPrimary,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isActive
+                ? Colors.greenAccent.withValues(alpha: 0.5)
+                : AppTheme.borderColor,
+            width: isActive ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(flag, style: const TextStyle(fontSize: 24)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: GoogleFonts.exo2(
+                      color: isActive ? Colors.white : AppTheme.textSecondary,
+                      fontSize: 13,
+                      fontWeight:
+                          isActive ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                  if (isActive)
+                    Text(
+                      activeLabel,
+                      style: GoogleFonts.exo2(
+                        color: Colors.greenAccent.withValues(alpha: 0.7),
+                        fontSize: 10,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            AnimatedOpacity(
+              opacity: isActive ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.greenAccent.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: Colors.greenAccent.withValues(alpha: 0.4)),
+                ),
+                child: const Icon(Icons.check_rounded,
+                    color: Colors.greenAccent, size: 14),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GEMINI API KEY FIELD
 // ════════════════════════════════════════════════════════════════════════════
 class _GeminiApiKeyField extends StatefulWidget {
   final GeminiProvider gemini;
-  const _GeminiApiKeyField({required this.gemini});
+  final AppLocalizations l10n;
+
+  const _GeminiApiKeyField({required this.gemini, required this.l10n});
 
   @override
   State<_GeminiApiKeyField> createState() => _GeminiApiKeyFieldState();
@@ -1719,15 +1707,14 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
 
   Future<void> _save() async {
     final key = _ctrl.text.trim();
-    if (key == widget.gemini.apiKey) return; // Pas de changement
+    if (key == widget.gemini.apiKey) return;
 
     if (key.isEmpty) {
-      // Supprimer la clé
       await widget.gemini.clearApiKey();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Clé API supprimée — OCR local activé'),
+          SnackBar(
+            content: Text(widget.l10n.errorGeneric),
             backgroundColor: Colors.orange,
           ),
         );
@@ -1735,7 +1722,6 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
       return;
     }
 
-    // Valider et sauvegarder
     final ok = await widget.gemini.setApiKey(key);
     if (!mounted) return;
 
@@ -1746,7 +1732,7 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
             children: [
               const Icon(Icons.check_circle, color: Colors.white, size: 18),
               const SizedBox(width: 8),
-              Text('Clé Gemini valide — OCR IA activé !',
+              Text(widget.l10n.geminiSuccess,
                   style: GoogleFonts.exo2(fontWeight: FontWeight.w700)),
             ],
           ),
@@ -1756,7 +1742,8 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.gemini.validationError ?? 'Clé invalide'),
+          content: Text(
+              widget.gemini.validationError ?? widget.l10n.geminiError),
           backgroundColor: Colors.red.shade700,
         ),
       );
@@ -1766,12 +1753,13 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
   @override
   Widget build(BuildContext context) {
     final gemini = widget.gemini;
+    final l10n = widget.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'CLÉ API GEMINI',
+          l10n.geminiApiKey.toUpperCase(),
           style: GoogleFonts.exo2(
             color: AppTheme.textMuted,
             fontSize: 10,
@@ -1804,8 +1792,8 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
                   ),
                   decoration: InputDecoration(
                     hintText: 'AIzaSy...',
-                    hintStyle: GoogleFonts.exo2(
-                        color: AppTheme.textMuted, fontSize: 12),
+                    hintStyle:
+                        GoogleFonts.exo2(color: AppTheme.textMuted, fontSize: 12),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 12),
@@ -1823,7 +1811,6 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
               ),
             ),
             const SizedBox(width: 8),
-            // Bouton Sauvegarder
             GestureDetector(
               onTap: gemini.isValidating ? null : _save,
               child: Container(
@@ -1845,7 +1832,7 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
                         ),
                       )
                     : Text(
-                        'OK',
+                        l10n.confirmOk,
                         style: GoogleFonts.exo2(
                           color: const Color(0xFF4285F4),
                           fontSize: 12,
@@ -1854,7 +1841,6 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
                       ),
               ),
             ),
-            // Bouton Supprimer (si clé présente)
             if (gemini.hasKey) ...[
               const SizedBox(width: 6),
               GestureDetector(
@@ -1882,8 +1868,7 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
           const SizedBox(height: 6),
           Text(
             gemini.validationError!,
-            style: GoogleFonts.exo2(
-                color: AppTheme.danger, fontSize: 10),
+            style: GoogleFonts.exo2(color: AppTheme.danger, fontSize: 10),
           ),
         ],
       ],
@@ -1892,26 +1877,26 @@ class _GeminiApiKeyFieldState extends State<_GeminiApiKeyField> {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// ÉDITEUR THÈME RÔLE — Bottom Sheet
+// ROLE THEME EDITOR SHEET
 // ════════════════════════════════════════════════════════════════════════════
 class _RoleThemeEditorSheet extends StatefulWidget {
   final String role;
   final RoleTheme currentTheme;
+  final AppLocalizations l10n;
   final ValueChanged<RoleTheme> onSave;
 
   const _RoleThemeEditorSheet({
     required this.role,
     required this.currentTheme,
+    required this.l10n,
     required this.onSave,
   });
 
   @override
-  State<_RoleThemeEditorSheet> createState() =>
-      _RoleThemeEditorSheetState();
+  State<_RoleThemeEditorSheet> createState() => _RoleThemeEditorSheetState();
 }
 
-class _RoleThemeEditorSheetState
-    extends State<_RoleThemeEditorSheet> {
+class _RoleThemeEditorSheetState extends State<_RoleThemeEditorSheet> {
   late Color _background;
   late Color _border;
   late Color _text;
@@ -1927,38 +1912,49 @@ class _RoleThemeEditorSheetState
 
   Color get _activeColor {
     switch (_activeSlot) {
-      case 0: return _background;
-      case 1: return _border;
-      default: return _text;
+      case 0:
+        return _background;
+      case 1:
+        return _border;
+      default:
+        return _text;
     }
   }
 
   void _setActiveColor(Color color) {
     setState(() {
       switch (_activeSlot) {
-        case 0: _background = color; break;
-        case 1: _border = color; break;
-        default: _text = color; break;
+        case 0:
+          _background = color;
+          break;
+        case 1:
+          _border = color;
+          break;
+        default:
+          _text = color;
+          break;
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = widget.l10n;
     final bottomInset = MediaQuery.of(context).padding.bottom;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.78,
-      decoration: BoxDecoration(
+      height: screenHeight * 0.78,
+      decoration: const BoxDecoration(
         color: AppTheme.bgSecondary,
-        borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         children: [
           // Handle
           Container(
-            width: 40, height: 4,
+            width: 40,
+            height: 4,
             margin: const EdgeInsets.only(top: 12, bottom: 16),
             decoration: BoxDecoration(
               color: AppTheme.borderColor,
@@ -1972,7 +1968,7 @@ class _RoleThemeEditorSheetState
             child: Row(
               children: [
                 Text(
-                  'Thème — ${widget.role}',
+                  '${l10n.roleThemesPreview} — ${widget.role}',
                   style: GoogleFonts.exo2(
                     color: Colors.white,
                     fontSize: 16,
@@ -1980,17 +1976,15 @@ class _RoleThemeEditorSheetState
                   ),
                 ),
                 const Spacer(),
-                // Preview badge animé
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: _background,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                        color: _border.withValues(alpha: 0.7),
-                        width: 1.5),
+                        color: _border.withValues(alpha: 0.7), width: 1.5),
                     boxShadow: [
                       BoxShadow(
                         color: _border.withValues(alpha: 0.3),
@@ -2017,11 +2011,11 @@ class _RoleThemeEditorSheetState
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                _buildSlotButton(0, _background, 'Fond'),
+                _buildSlotButton(0, _background, l10n.roleThemesBackground),
                 const SizedBox(width: 10),
-                _buildSlotButton(1, _border, 'Bordure'),
+                _buildSlotButton(1, _border, l10n.roleThemesBorder),
                 const SizedBox(width: 10),
-                _buildSlotButton(2, _text, 'Texte'),
+                _buildSlotButton(2, _text, l10n.roleThemesText),
               ],
             ),
           ),
@@ -2037,23 +2031,19 @@ class _RoleThemeEditorSheetState
 
           // Boutons
           Padding(
-            padding:
-                EdgeInsets.fromLTRB(20, 8, 20, bottomInset + 16),
+            padding: EdgeInsets.fromLTRB(20, 8, 20, bottomInset + 16),
             child: Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                          color: AppTheme.borderColor),
+                      side: const BorderSide(color: AppTheme.borderColor),
                       foregroundColor: AppTheme.textSecondary,
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: Text('Annuler',
-                        style: GoogleFonts.exo2(
-                            fontWeight: FontWeight.w600)),
+                    child: Text(l10n.roleThemesCancel,
+                        style: GoogleFonts.exo2(fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -2072,13 +2062,11 @@ class _RoleThemeEditorSheetState
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.amberAccent,
                       foregroundColor: Colors.black,
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     icon: const Icon(Icons.check, size: 18),
-                    label: Text('Appliquer',
-                        style: GoogleFonts.exo2(
-                            fontWeight: FontWeight.w800)),
+                    label: Text(l10n.roleThemesApply,
+                        style: GoogleFonts.exo2(fontWeight: FontWeight.w800)),
                   ),
                 ),
               ],
@@ -2098,14 +2086,10 @@ class _RoleThemeEditorSheetState
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isActive
-                ? color.withValues(alpha: 0.2)
-                : AppTheme.bgCard,
+            color: isActive ? color.withValues(alpha: 0.2) : AppTheme.bgCard,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isActive
-                  ? color.withValues(alpha: 0.7)
-                  : AppTheme.borderColor,
+              color: isActive ? color.withValues(alpha: 0.7) : AppTheme.borderColor,
               width: isActive ? 2 : 1,
             ),
           ),
@@ -2119,8 +2103,7 @@ class _RoleThemeEditorSheetState
                   color: color,
                   shape: BoxShape.circle,
                   border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.3),
-                      width: 1),
+                      color: Colors.white.withValues(alpha: 0.3), width: 1),
                   boxShadow: isActive
                       ? [
                           BoxShadow(
@@ -2135,11 +2118,11 @@ class _RoleThemeEditorSheetState
               Text(
                 label,
                 style: GoogleFonts.exo2(
-                  color:
-                      isActive ? color : AppTheme.textMuted,
+                  color: isActive ? color : AppTheme.textMuted,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -2150,7 +2133,7 @@ class _RoleThemeEditorSheetState
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// GRILLE COULEURS ARK
+// ARK COLOR GRID
 // ════════════════════════════════════════════════════════════════════════════
 class _ArkColorGrid extends StatelessWidget {
   final Color selectedColor;
@@ -2164,12 +2147,13 @@ class _ArkColorGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = ArkColorPalette.allColors;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth >= 600 ? 12 : 8;
 
     return GridView.builder(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 8,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
         crossAxisSpacing: 4,
         mainAxisSpacing: 4,
         childAspectRatio: 0.85,
@@ -2207,8 +2191,7 @@ class _ArkColorGrid extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (isSelected)
-                  const Icon(Icons.check,
-                      color: Colors.white, size: 10),
+                  const Icon(Icons.check, color: Colors.white, size: 10),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 1),

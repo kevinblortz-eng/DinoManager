@@ -90,7 +90,9 @@ class DinoManagerApp extends StatelessWidget {
       supportedLocales: const [
         Locale('fr'),
         Locale('en'),
-        Locale('de'),
+        Locale('it'),
+        Locale('es'),
+        Locale('pt'),
       ],
       localizationsDelegates: const [
         AppLocalizations.delegate,

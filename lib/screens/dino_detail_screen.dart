@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';
 import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/dino_provider.dart';
 import '../providers/tag_theme_provider.dart';
 import '../widgets/dino_image_widget.dart';

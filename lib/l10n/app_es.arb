@@ -1,0 +1,318 @@
+{
+  "@@locale": "es",
+
+  "appTitle": "ARK Dino Manager",
+  "@appTitle": {"description": "Título de la aplicación"},
+
+  "settingsTitle": "Ajustes & Información",
+  "settingsBackup": "COPIA DE SEGURIDAD",
+  "settingsBestiary": "BESTIARIO",
+  "settingsTags": "ETIQUETAS & COLORES",
+  "settingsRoleThemes": "TEMAS POR ROL",
+  "settingsLanguage": "IDIOMA",
+  "settingsNews": "NOVEDADES",
+  "settingsGemini": "OCR / GEMINI IA",
+
+  "languageActive": "Idioma activo",
+  "languageSelectorTitle": "Elegir idioma",
+  "languageSelectorSubtitle": "El idioma se aplicará inmediatamente",
+
+  "backupAutoActive": "Google Auto-Backup activo",
+  "backupAutoDesc": "Tus datos se guardan automáticamente en Google Drive cada 24 horas. Se restaurarán automáticamente al reinstalar con la misma cuenta de Google.",
+  "backupManage": "Gestionar copias de seguridad manuales",
+
+  "bestiaryDinoCards": "DinoCards",
+  "bestiaryTrackers": "Rastreadores",
+  "bestiarySpecies": "Especies",
+  "bestiaryArkBestiary": "Bestiario ARK",
+  "bestiarySpeciesCount": "{current} / {total} especies",
+  "@bestiarySpeciesCount": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "bestiaryDiscovered": "{percent}% del bestiario ARK descubierto",
+  "@bestiaryDiscovered": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+
+  "tagsTitle": "ETIQUETAS & COLORES",
+  "tagsTapToChange": "Toca una etiqueta para cambiar su color",
+  "tagsLongPressReset": "Mantén pulsada una etiqueta personalizada para restablecerla",
+  "tagsResetAll": "Restablecer todo",
+
+  "roleThemesTitle": "TEMAS POR ROL",
+  "roleThemesTapHint": "Toca un rol para personalizar sus 3 colores",
+  "roleThemesResetAll": "Restablecer todo",
+  "roleThemesBackground": "Fondo",
+  "roleThemesBorder": "Borde",
+  "roleThemesText": "Texto",
+  "roleThemesApply": "Aplicar",
+  "roleThemesCancel": "Cancelar",
+  "roleThemesPreview": "Vista previa",
+  "roleThemesConfirmReset": "¿Restablecer todos los temas?",
+  "roleThemesConfirmResetDesc": "Se eliminarán todas las personalizaciones de roles.",
+
+  "colorRegionsTitle": "REGIONES DE COLOR",
+  "colorRegionVisible": "Visible",
+  "colorRegionInvisible": "Invisible",
+  "colorRegionLabel": "R{index}",
+  "@colorRegionLabel": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+  "colorBankTitle": "BANCO DE COLORES",
+  "colorBankNoColor": "Ningún color registrado",
+  "colorBankRegion": "Región {index}",
+  "@colorBankRegion": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+
+  "speciesJournalTitle": "Diario de Especies",
+  "speciesJournalSubtitle": "Diario de especies",
+  "speciesJournalBestStats": "MEJORES ESTADÍSTICAS",
+  "speciesJournalLibraryDinos": "DINOS DE LA BIBLIOTECA",
+  "speciesJournalNoTracker": "Ningún rastreador activo",
+  "speciesJournalTotalColors": "{count} colores",
+  "@speciesJournalTotalColors": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "homeTitle": "ARK MANAGER",
+  "homeSubtitle": "Tu biblioteca de dinos",
+  "homeNoDinos": "No hay dinos en la biblioteca",
+  "homeAddFirst": "¡Añade tu primer dino!",
+  "homeSearch": "Buscar...",
+  "homeFilter": "Filtrar",
+  "homeSortBy": "Ordenar por",
+  "homeStats": "Estadísticas",
+  "homeSortName": "Nombre",
+  "homeSortLevel": "Nivel",
+  "homeSortSpecies": "Especie",
+  "homeSortDate": "Fecha",
+  "homeSortMutations": "Mutaciones",
+
+  "libraryTitle": "BIBLIOTECA",
+  "libraryEmpty": "Biblioteca vacía",
+  "libraryAddDino": "Añadir un dino",
+  "libraryImport": "Importar",
+  "libraryExport": "Exportar",
+  "libraryExportExcel": "Exportar Excel",
+  "libraryShare": "Compartir",
+
+  "dinoDetailTitle": "Detalle del Dino",
+  "dinoDetailEdit": "Editar",
+  "dinoDetailDelete": "Eliminar",
+  "dinoDetailShare": "Compartir",
+  "dinoDetailStats": "ESTADÍSTICAS",
+  "dinoDetailColors": "COLORES",
+  "dinoDetailMutations": "MUTACIONES",
+  "dinoDetailNotes": "NOTAS",
+  "dinoDetailBreeding": "CRÍA",
+  "dinoDetailConfirmDelete": "¿Eliminar este dino?",
+  "dinoDetailConfirmDeleteDesc": "Esta acción es irreversible.",
+
+  "addEditDinoTitle": "Añadir un Dino",
+  "editDinoTitle": "Editar Dino",
+  "addEditDinoSave": "Guardar",
+  "addEditDinoCancel": "Cancelar",
+  "addEditDinoSpecies": "Especie",
+  "addEditDinoName": "Nombre",
+  "addEditDinoLevel": "Nivel",
+  "addEditDinoSex": "Sexo",
+  "addEditDinoSexMale": "Macho",
+  "addEditDinoSexFemale": "Hembra",
+  "addEditDinoTamed": "Domesticado",
+  "addEditDinoBred": "Criado",
+  "addEditDinoNotes": "Notas",
+  "addEditDinoTags": "Etiquetas",
+  "addEditDinoStats": "Estadísticas",
+  "addEditDinoColors": "Colores",
+  "addEditDinoMutations": "Mutaciones",
+  "addEditDinoMutPaternal": "Paternales",
+  "addEditDinoMutMaternal": "Maternales",
+
+  "scanTitle": "Escanear un Dino",
+  "scanCapture": "Capturar",
+  "scanAnalyze": "Analizar",
+  "scanRetry": "Reintentar",
+  "scanSuccess": "¡Escaneo exitoso!",
+  "scanFailed": "Escaneo fallido",
+  "scanNoText": "No se detectó texto",
+  "scanHint": "Apunta la cámara a las estadísticas ARK",
+
+  "trackerTitle": "Rastreadores",
+  "trackerEmpty": "Ningún rastreador activo",
+  "trackerAdd": "Nuevo rastreador",
+  "trackerSpecies": "Especie rastreada",
+  "trackerGoal": "Objetivo",
+  "trackerProgress": "Progreso",
+  "trackerStatus": "Estado",
+  "trackerStatusActive": "Activo",
+  "trackerStatusCompleted": "Completado",
+  "trackerStatusPaused": "En pausa",
+  "trackerNotes": "Notas",
+
+  "ordersTitle": "Pedidos",
+  "ordersEmpty": "Sin pedidos",
+  "ordersAdd": "Nuevo pedido",
+  "ordersStatus": "Estado",
+  "ordersPending": "Pendiente",
+  "ordersCompleted": "Completado",
+  "ordersCancelled": "Cancelado",
+  "ordersTotal": "Total",
+  "ordersCurrency": "Moneda",
+
+  "confirmYes": "Sí",
+  "confirmNo": "No",
+  "confirmDelete": "Eliminar",
+  "confirmCancel": "Cancelar",
+  "confirmOk": "OK",
+  "confirmSave": "Guardar",
+  "confirmClose": "Cerrar",
+  "confirmApply": "Aplicar",
+  "confirmReset": "Restablecer",
+  "confirmResetAll": "Restablecer todo",
+
+  "errorGeneric": "Se ha producido un error",
+  "errorLoading": "Error de carga",
+  "errorSaving": "Error al guardar",
+  "errorPermission": "Permiso denegado",
+  "errorCameraPermission": "Se requiere permiso de cámara",
+
+  "navHome": "Inicio",
+  "navLibrary": "Biblioteca",
+  "navScan": "Escanear",
+  "navTracker": "Rastreador",
+  "navSettings": "Ajustes",
+
+  "statHp": "PS",
+  "statStamina": "Resistencia",
+  "statTorpor": "Torpor",
+  "statOxygen": "Oxígeno",
+  "statFood": "Comida",
+  "statWater": "Agua",
+  "statTemperature": "Temperatura",
+  "statWeight": "Peso",
+  "statMelee": "Cuerpo a cuerpo",
+  "statSpeed": "Velocidad",
+  "statFortitude": "Fortaleza",
+  "statCrafting": "Artesanía",
+
+  "versionLabel": "Versión {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "changelogTitle": "Registro de cambios",
+  "changelogView": "Ver registro de cambios",
+
+  "searchNoResults": "Sin resultados para \"{query}\"",
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {"type": "String"}
+    }
+  },
+
+  "resetConfirmTitle": "Confirmar restablecimiento",
+  "resetConfirmMessage": "Se eliminarán todas las personalizaciones.",
+  "deleteConfirmTitle": "Confirmar eliminación",
+  "deleteConfirmMessage": "Esta acción es irreversible.",
+
+  "mutationsPaternal": "Paternales",
+  "mutationsMaternal": "Maternales",
+  "mutationsTotal": "Total de mutaciones",
+
+  "sexMale": "Macho",
+  "sexFemale": "Hembra",
+  "sexUnknown": "Desconocido",
+
+  "levelLabel": "Nv. {level}",
+  "@levelLabel": {
+    "placeholders": {
+      "level": {"type": "int"}
+    }
+  },
+
+  "colorIdLabel": "ID {id}",
+  "@colorIdLabel": {
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+
+  "simulatorTitle": "SIMULADOR",
+  "simulatorSpecies": "Especie",
+  "simulatorRandom": "Aleatorio",
+  "simulatorReset": "Reiniciar",
+  "simulatorRegisteredOnly": "Solo colores registrados",
+  "simulatorSolidMode": "Modo Sólido",
+  "simulatorNoColors": "No hay colores disponibles",
+  "simulatorSource": "Fuente",
+  "simulatorLibrary": "Biblioteca",
+  "simulatorObserver": "Observador",
+
+  "backupTitle": "COPIA DE SEGURIDAD",
+  "backupCreate": "Crear copia de seguridad",
+  "backupRestore": "Restaurar",
+  "backupDelete": "Eliminar",
+  "backupNoBackup": "No hay copias de seguridad disponibles",
+  "backupSuccess": "Copia de seguridad creada con éxito",
+  "backupRestoreSuccess": "Restauración completada",
+  "backupDeleteConfirm": "¿Eliminar esta copia de seguridad?",
+
+  "geminiTitle": "OCR / GEMINI IA",
+  "geminiApiKey": "Clave API de Gemini",
+  "geminiSave": "Guardar clave",
+  "geminiTest": "Probar OCR",
+  "geminiSuccess": "Clave válida",
+  "geminiError": "Clave no válida",
+
+  "shareTitle": "COMPARTIR",
+  "shareCard": "Tarjeta Dino",
+  "sharePortrait": "Retrato",
+  "shareCanva": "Canva",
+  "shareExport": "Exportar imagen",
+
+  "variantsTitle": "VARIANTES",
+  "variantsSelect": "Seleccionar variantes",
+  "variantsExport": "Exportar variantes",
+  "variantsCount": "{count} variante(s)",
+  "@variantsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "orderCreateTitle": "Nuevo Pedido",
+  "orderEditTitle": "Editar Pedido",
+  "orderBuyer": "Comprador",
+  "orderSeller": "Vendedor",
+  "orderItem": "Artículo",
+  "orderQuantity": "Cantidad",
+  "orderPrice": "Precio",
+  "orderNote": "Nota",
+  "orderDeadline": "Plazo",
+
+  "journalTabStats": "ESTADÍSTICAS",
+  "journalTabColors": "COLORES",
+  "journalTabDinos": "DINOS",
+  "journalTabSimulator": "SIMULADOR",
+  "journalBestMale": "Mejor Macho",
+  "journalBestFemale": "Mejor Hembra",
+  "journalObservations": "Observaciones",
+  "journalAddObservation": "Añadir observación",
+  "journalNoObservation": "Sin observaciones",
+  "journalColorBank": "Banco de Colores",
+  "journalSolidColor": "Color sólido",
+  "journalAllRegions": "Todas las regiones"
+}

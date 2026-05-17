@@ -1,0 +1,318 @@
+{
+  "@@locale": "it",
+
+  "appTitle": "ARK Dino Manager",
+  "@appTitle": {"description": "Titolo dell'app"},
+
+  "settingsTitle": "Impostazioni & Informazioni",
+  "settingsBackup": "BACKUP",
+  "settingsBestiary": "BESTIARIO",
+  "settingsTags": "TAG & COLORI",
+  "settingsRoleThemes": "TEMI PER RUOLO",
+  "settingsLanguage": "LINGUA",
+  "settingsNews": "NOVITÀ",
+  "settingsGemini": "OCR / GEMINI IA",
+
+  "languageActive": "Lingua attiva",
+  "languageSelectorTitle": "Scegli la lingua",
+  "languageSelectorSubtitle": "La lingua verrà applicata immediatamente",
+
+  "backupAutoActive": "Google Auto-Backup attivo",
+  "backupAutoDesc": "I tuoi dati vengono salvati automaticamente su Google Drive ogni 24 ore. Verranno ripristinati automaticamente alla reinstallazione con lo stesso account Google.",
+  "backupManage": "Gestisci i backup manuali",
+
+  "bestiaryDinoCards": "DinoCards",
+  "bestiaryTrackers": "Tracker",
+  "bestiarySpecies": "Specie",
+  "bestiaryArkBestiary": "Bestiario ARK",
+  "bestiarySpeciesCount": "{current} / {total} specie",
+  "@bestiarySpeciesCount": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "bestiaryDiscovered": "{percent}% del bestiario ARK scoperto",
+  "@bestiaryDiscovered": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+
+  "tagsTitle": "TAG & COLORI",
+  "tagsTapToChange": "Tocca un tag per cambiarne il colore",
+  "tagsLongPressReset": "Tieni premuto un tag personalizzato per reimpostarlo",
+  "tagsResetAll": "Reimposta tutto",
+
+  "roleThemesTitle": "TEMI PER RUOLO",
+  "roleThemesTapHint": "Tocca un ruolo per personalizzare i suoi 3 colori",
+  "roleThemesResetAll": "Reimposta tutto",
+  "roleThemesBackground": "Sfondo",
+  "roleThemesBorder": "Bordo",
+  "roleThemesText": "Testo",
+  "roleThemesApply": "Applica",
+  "roleThemesCancel": "Annulla",
+  "roleThemesPreview": "Anteprima",
+  "roleThemesConfirmReset": "Reimpostare tutti i temi?",
+  "roleThemesConfirmResetDesc": "Tutte le personalizzazioni dei ruoli verranno eliminate.",
+
+  "colorRegionsTitle": "REGIONI DI COLORE",
+  "colorRegionVisible": "Visibile",
+  "colorRegionInvisible": "Invisibile",
+  "colorRegionLabel": "R{index}",
+  "@colorRegionLabel": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+  "colorBankTitle": "BANCA COLORI",
+  "colorBankNoColor": "Nessun colore registrato",
+  "colorBankRegion": "Regione {index}",
+  "@colorBankRegion": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+
+  "speciesJournalTitle": "Diario delle Specie",
+  "speciesJournalSubtitle": "Diario delle specie",
+  "speciesJournalBestStats": "STATISTICHE MIGLIORI",
+  "speciesJournalLibraryDinos": "DINO DELLA LIBRERIA",
+  "speciesJournalNoTracker": "Nessun tracker attivo",
+  "speciesJournalTotalColors": "{count} colori",
+  "@speciesJournalTotalColors": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "homeTitle": "ARK MANAGER",
+  "homeSubtitle": "La tua libreria di dino",
+  "homeNoDinos": "Nessun dino nella libreria",
+  "homeAddFirst": "Aggiungi il tuo primo dino!",
+  "homeSearch": "Cerca...",
+  "homeFilter": "Filtra",
+  "homeSortBy": "Ordina per",
+  "homeStats": "Statistiche",
+  "homeSortName": "Nome",
+  "homeSortLevel": "Livello",
+  "homeSortSpecies": "Specie",
+  "homeSortDate": "Data",
+  "homeSortMutations": "Mutazioni",
+
+  "libraryTitle": "LIBRERIA",
+  "libraryEmpty": "Libreria vuota",
+  "libraryAddDino": "Aggiungi un dino",
+  "libraryImport": "Importa",
+  "libraryExport": "Esporta",
+  "libraryExportExcel": "Esporta Excel",
+  "libraryShare": "Condividi",
+
+  "dinoDetailTitle": "Dettaglio Dino",
+  "dinoDetailEdit": "Modifica",
+  "dinoDetailDelete": "Elimina",
+  "dinoDetailShare": "Condividi",
+  "dinoDetailStats": "STATISTICHE",
+  "dinoDetailColors": "COLORI",
+  "dinoDetailMutations": "MUTAZIONI",
+  "dinoDetailNotes": "NOTE",
+  "dinoDetailBreeding": "ALLEVAMENTO",
+  "dinoDetailConfirmDelete": "Eliminare questo dino?",
+  "dinoDetailConfirmDeleteDesc": "Questa azione è irreversibile.",
+
+  "addEditDinoTitle": "Aggiungi un Dino",
+  "editDinoTitle": "Modifica Dino",
+  "addEditDinoSave": "Salva",
+  "addEditDinoCancel": "Annulla",
+  "addEditDinoSpecies": "Specie",
+  "addEditDinoName": "Nome",
+  "addEditDinoLevel": "Livello",
+  "addEditDinoSex": "Sesso",
+  "addEditDinoSexMale": "Maschio",
+  "addEditDinoSexFemale": "Femmina",
+  "addEditDinoTamed": "Addomesticato",
+  "addEditDinoBred": "Allevato",
+  "addEditDinoNotes": "Note",
+  "addEditDinoTags": "Tag",
+  "addEditDinoStats": "Statistiche",
+  "addEditDinoColors": "Colori",
+  "addEditDinoMutations": "Mutazioni",
+  "addEditDinoMutPaternal": "Paterne",
+  "addEditDinoMutMaternal": "Materne",
+
+  "scanTitle": "Scansiona un Dino",
+  "scanCapture": "Cattura",
+  "scanAnalyze": "Analizza",
+  "scanRetry": "Riprova",
+  "scanSuccess": "Scansione riuscita!",
+  "scanFailed": "Scansione fallita",
+  "scanNoText": "Nessun testo rilevato",
+  "scanHint": "Punta la fotocamera sulle statistiche ARK",
+
+  "trackerTitle": "Tracker",
+  "trackerEmpty": "Nessun tracker attivo",
+  "trackerAdd": "Nuovo tracker",
+  "trackerSpecies": "Specie tracciata",
+  "trackerGoal": "Obiettivo",
+  "trackerProgress": "Progressione",
+  "trackerStatus": "Stato",
+  "trackerStatusActive": "Attivo",
+  "trackerStatusCompleted": "Completato",
+  "trackerStatusPaused": "In pausa",
+  "trackerNotes": "Note",
+
+  "ordersTitle": "Ordini",
+  "ordersEmpty": "Nessun ordine",
+  "ordersAdd": "Nuovo ordine",
+  "ordersStatus": "Stato",
+  "ordersPending": "In attesa",
+  "ordersCompleted": "Completato",
+  "ordersCancelled": "Annullato",
+  "ordersTotal": "Totale",
+  "ordersCurrency": "Valuta",
+
+  "confirmYes": "Sì",
+  "confirmNo": "No",
+  "confirmDelete": "Elimina",
+  "confirmCancel": "Annulla",
+  "confirmOk": "OK",
+  "confirmSave": "Salva",
+  "confirmClose": "Chiudi",
+  "confirmApply": "Applica",
+  "confirmReset": "Reimposta",
+  "confirmResetAll": "Reimposta tutto",
+
+  "errorGeneric": "Si è verificato un errore",
+  "errorLoading": "Errore di caricamento",
+  "errorSaving": "Errore di salvataggio",
+  "errorPermission": "Autorizzazione negata",
+  "errorCameraPermission": "Autorizzazione fotocamera richiesta",
+
+  "navHome": "Home",
+  "navLibrary": "Libreria",
+  "navScan": "Scansiona",
+  "navTracker": "Tracker",
+  "navSettings": "Impostazioni",
+
+  "statHp": "PS",
+  "statStamina": "Stamina",
+  "statTorpor": "Torpore",
+  "statOxygen": "Ossigeno",
+  "statFood": "Cibo",
+  "statWater": "Acqua",
+  "statTemperature": "Temperatura",
+  "statWeight": "Peso",
+  "statMelee": "Mischia",
+  "statSpeed": "Velocità",
+  "statFortitude": "Robustezza",
+  "statCrafting": "Artigianato",
+
+  "versionLabel": "Versione {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "changelogTitle": "Changelog",
+  "changelogView": "Visualizza changelog",
+
+  "searchNoResults": "Nessun risultato per \"{query}\"",
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {"type": "String"}
+    }
+  },
+
+  "resetConfirmTitle": "Conferma reimpostazione",
+  "resetConfirmMessage": "Tutte le personalizzazioni verranno eliminate.",
+  "deleteConfirmTitle": "Conferma eliminazione",
+  "deleteConfirmMessage": "Questa azione è irreversibile.",
+
+  "mutationsPaternal": "Paterne",
+  "mutationsMaternal": "Materne",
+  "mutationsTotal": "Totale mutazioni",
+
+  "sexMale": "Maschio",
+  "sexFemale": "Femmina",
+  "sexUnknown": "Sconosciuto",
+
+  "levelLabel": "Lv. {level}",
+  "@levelLabel": {
+    "placeholders": {
+      "level": {"type": "int"}
+    }
+  },
+
+  "colorIdLabel": "ID {id}",
+  "@colorIdLabel": {
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+
+  "simulatorTitle": "SIMULATORE",
+  "simulatorSpecies": "Specie",
+  "simulatorRandom": "Casuale",
+  "simulatorReset": "Azzera",
+  "simulatorRegisteredOnly": "Solo colori registrati",
+  "simulatorSolidMode": "Modalità Solido",
+  "simulatorNoColors": "Nessun colore disponibile",
+  "simulatorSource": "Sorgente",
+  "simulatorLibrary": "Libreria",
+  "simulatorObserver": "Osservatore",
+
+  "backupTitle": "BACKUP",
+  "backupCreate": "Crea backup",
+  "backupRestore": "Ripristina",
+  "backupDelete": "Elimina",
+  "backupNoBackup": "Nessun backup disponibile",
+  "backupSuccess": "Backup creato con successo",
+  "backupRestoreSuccess": "Ripristino completato",
+  "backupDeleteConfirm": "Eliminare questo backup?",
+
+  "geminiTitle": "OCR / GEMINI IA",
+  "geminiApiKey": "Chiave API Gemini",
+  "geminiSave": "Salva chiave",
+  "geminiTest": "Testa OCR",
+  "geminiSuccess": "Chiave valida",
+  "geminiError": "Chiave non valida",
+
+  "shareTitle": "CONDIVIDI",
+  "shareCard": "Scheda Dino",
+  "sharePortrait": "Ritratto",
+  "shareCanva": "Canva",
+  "shareExport": "Esporta immagine",
+
+  "variantsTitle": "VARIANTI",
+  "variantsSelect": "Seleziona varianti",
+  "variantsExport": "Esporta varianti",
+  "variantsCount": "{count} variante/i",
+  "@variantsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "orderCreateTitle": "Nuovo Ordine",
+  "orderEditTitle": "Modifica Ordine",
+  "orderBuyer": "Acquirente",
+  "orderSeller": "Venditore",
+  "orderItem": "Articolo",
+  "orderQuantity": "Quantità",
+  "orderPrice": "Prezzo",
+  "orderNote": "Nota",
+  "orderDeadline": "Scadenza",
+
+  "journalTabStats": "STATISTICHE",
+  "journalTabColors": "COLORI",
+  "journalTabDinos": "DINOS",
+  "journalTabSimulator": "SIMULATORE",
+  "journalBestMale": "Miglior Maschio",
+  "journalBestFemale": "Miglior Femmina",
+  "journalObservations": "Osservazioni",
+  "journalAddObservation": "Aggiungi osservazione",
+  "journalNoObservation": "Nessuna osservazione",
+  "journalColorBank": "Banca Colori",
+  "journalSolidColor": "Colore solido",
+  "journalAllRegions": "Tutte le regioni"
+}

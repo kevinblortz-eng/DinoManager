@@ -6,9 +6,10 @@ import '../providers/role_theme_provider.dart';
 import '../models/dino.dart';
 import '../widgets/dino_card_widget.dart';
 import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 import 'dino_detail_screen.dart';
 import 'add_edit_dino_screen.dart';
-import 'dino_canva_screen.dart'; // ← AJOUT
+import 'dino_canva_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -163,7 +164,7 @@ void _openCanva() {
                   fontSize: 14,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Rechercher un dino...',
+                  hintText: AppLocalizations.of(context)?.homeSearch ?? 'Search...',
                   hintStyle: GoogleFonts.exo2(
                     color: const Color(0xFF4A5568),
                     fontSize: 14,
@@ -436,7 +437,7 @@ void _openCanva() {
                     ],
                   ),
                   child: Text(
-                    'Ajouter un dino',
+                    AppLocalizations.of(context)?.libraryAddDino ?? 'Add a dino',
                     style: GoogleFonts.exo2(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -473,15 +474,15 @@ void _openCanva() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        title: Text('Supprimer ${dino.nom} ?',
+        title: Text('${AppLocalizations.of(ctx)?.dinoDetailConfirmDelete ?? 'Delete'} ${dino.nom}?',
             style: const TextStyle(color: AppTheme.textPrimary)),
-        content: const Text('Cette action est irréversible.',
-            style: TextStyle(color: AppTheme.textSecondary)),
+        content: Text(AppLocalizations.of(ctx)?.deleteConfirmMessage ?? 'This action is irreversible.',
+            style: const TextStyle(color: AppTheme.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler',
-                style: TextStyle(color: AppTheme.textSecondary)),
+            child: Text(AppLocalizations.of(ctx)?.confirmCancel ?? 'Cancel',
+                style: const TextStyle(color: AppTheme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -492,7 +493,7 @@ void _openCanva() {
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.danger),
-            child: const Text('Supprimer'),
+            child: Text(AppLocalizations.of(ctx)?.confirmDelete ?? 'Delete'),
           ),
         ],
       ),
