@@ -8,15 +8,16 @@ class LanguageProvider extends ChangeNotifier {
 
   // Langues supportées : code → label + drapeau
   static const List<Map<String, String>> supportedLanguages = [
-    {'code': 'fr', 'label': 'Français',  'flag': '🇫🇷'},
-    {'code': 'en', 'label': 'English',   'flag': '🇬🇧'},
-    {'code': 'de', 'label': 'Deutsch',   'flag': '🇩🇪'},
+    {'code': 'fr', 'label': 'Français',    'flag': '🇫🇷'},
+    {'code': 'en', 'label': 'English',     'flag': '🇬🇧'},
+    {'code': 'it', 'label': 'Italiano',    'flag': '🇮🇹'},
+    {'code': 'es', 'label': 'Español',     'flag': '🇪🇸'},
+    {'code': 'pt', 'label': 'Português',   'flag': '🇵🇹'},
   ];
 
-  static const List<String> supportedCodes =
-      ['fr', 'en', 'de'];
+  static const List<String> supportedCodes = ['fr', 'en', 'it', 'es', 'pt'];
 
-  Locale _locale = const Locale('en');
+  Locale _locale = const Locale('fr');
 
   Locale get locale => _locale;
 
@@ -25,7 +26,7 @@ class LanguageProvider extends ChangeNotifier {
   Map<String, String> get currentLanguageInfo {
     return supportedLanguages.firstWhere(
       (l) => l['code'] == currentCode,
-      orElse: () => supportedLanguages[1], // English par défaut
+      orElse: () => supportedLanguages[0], // Français par défaut
     );
   }
 
@@ -48,11 +49,11 @@ class LanguageProvider extends ChangeNotifier {
   }
 
   /// Détecte la langue du device et retourne son code si elle est supportée,
-  /// sinon retourne 'en' (anglais par défaut).
+  /// sinon retourne 'fr' (français par défaut).
   String _detectDeviceLocale() {
     try {
-      // Platform.localeName retourne p.ex. "fr_FR", "en_US", "de_DE"
-      final raw = Platform.localeName; // ex: "fr_FR"
+      // Platform.localeName retourne p.ex. "fr_FR", "en_US", "it_IT"
+      final raw = Platform.localeName;
       if (raw.length >= 2) {
         final code = raw.substring(0, 2).toLowerCase();
         if (supportedCodes.contains(code)) {
@@ -60,9 +61,9 @@ class LanguageProvider extends ChangeNotifier {
         }
       }
     } catch (_) {
-      // Web ou erreur → anglais par défaut
+      // Web ou erreur → français par défaut
     }
-    return 'en';
+    return 'fr';
   }
 
   /// Change la langue et sauvegarde la préférence.

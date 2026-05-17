@@ -9,6 +9,7 @@ import '../models/dino.dart';
 import '../theme/app_theme.dart';
 import '../utils/dino_helpers.dart';
 import '../widgets/dino_image_widget.dart';
+import '../l10n/app_localizations.dart';
 import 'setting_screen.dart';
 import 'add_edit_dino_screen.dart';
 import 'dino_detail_screen.dart';
@@ -33,25 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
   // Déclarer dans pubspec.yaml : assets/images/ui/background_home.png
   static const String _bgAsset = 'assets/images/ui/background_home.png';
 
-  static const _tips = [
-    'Enregistre les couleurs de chaque dino sauvage dans le tracker pour enrichir ta banque.',
-    'Utilise le simulateur pour visualiser les combos avant de breed.',
-    'Les stats anonymes du tracker permettent de suivre les max sans fiche complete.',
-    'Exporte regulierement en Excel pour sauvegarder tes donnees.',
-    'Le mode Solid du simulateur trouve les couleurs communes a toutes les regions.',
-    'Tu peux dupliquer une DinoCard pour creer une variante rapidement.',
-    'Ajoute des tags pour organiser tes dinos par projet de breeding.',
-    'Le journal d\'espece fusionne les stats bibliotheque + tracker automatiquement.',
-    'En mode Observer du tracker, toute la palette est disponible pour enregistrer de nouvelles couleurs.',
-    'Le bouton Aleatoire du simulateur ne pioche que dans tes couleurs enregistrees.',
-  ];
-
   late String _todayTip;
 
   @override
   void initState() {
     super.initState();
-    _todayTip = _tips[DateTime.now().millisecondsSinceEpoch % _tips.length];
+    _todayTip = '';
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DinoProvider>().loadDinos();
       _pickSpotlightDino();
@@ -84,6 +72,12 @@ class _HomeScreenState extends State<HomeScreen> {
   
  @override
 Widget build(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
+  // Initialise le tip avec les traductions dès le premier build
+  if (_todayTip.isEmpty) {
+    final tips = l10n.homeTips;
+    _todayTip = tips[DateTime.now().millisecondsSinceEpoch % tips.length];
+  }
   return Consumer2<DinoProvider, TrackerProvider>(
     builder: (context, dinoProvider, trackerProvider, _) {
       final dinos = dinoProvider.dinos;

@@ -10,6 +10,7 @@ import '../theme/app_theme.dart';
 import '../widgets/dino_image_widget.dart';
 import '../utils/dino_helpers.dart';
 import '../utils/save_image_helper.dart';
+import '../l10n/app_localizations.dart';
 
 class DinoVariantsScreen extends StatefulWidget {
   final Dino baseDino;
@@ -28,87 +29,46 @@ class DinoVariantsScreen extends StatefulWidget {
 class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
   bool _isCapturing = false;
 
+  // Clé attachée au RepaintBoundary visible dans l'arbre de widgets
+  final GlobalKey _exportKey = GlobalKey();
+
   // ═══════════════════════════════════════════════
-  // CAPTURE & SAUVEGARDE
+  // CAPTURE & SAUVEGARDE — via RepaintBoundary visible
   // ═══════════════════════════════════════════════
 
   Future<void> _captureAndSave() async {
     if (_isCapturing) return;
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isCapturing = true);
 
-    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
-
     try {
-      const double targetWidth = 1080;
-      const double targetHeight = 1350;
+      // Laisser le frame se rendre complètement
+      await Future.delayed(const Duration(milliseconds: 150));
 
-      final exportWidget = Directionality(
-        textDirection: TextDirection.ltr,
-        child: Theme(
-          data: ThemeData.dark(),
-          child: MediaQuery(
-            data: const MediaQueryData(
-              size: Size(targetWidth, targetHeight),
-              devicePixelRatio: 1.0,
-              padding: EdgeInsets.zero,
+      final boundary = _exportKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+
+      if (boundary == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.errorImageGeneration),
+              backgroundColor: AppTheme.danger,
             ),
-            child: Container(
-              width: targetWidth,
-              height: targetHeight,
-              color: const Color(0xFF0A0E1A),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: _buildExportCard(),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
+          );
+        }
+        return;
+      }
 
-      final repaintBoundary = RenderRepaintBoundary();
-      final renderView = RenderView(
-        view: View.of(context),
-        child: RenderPositionedBox(
-          alignment: Alignment.center,
-          child: repaintBoundary,
-        ),
-        configuration: ViewConfiguration(
-          logicalConstraints: const BoxConstraints(
-            maxWidth: targetWidth,
-            maxHeight: targetHeight,
-          ),
-          devicePixelRatio: 1.0,
-        ),
-      );
-
-      final pipelineOwner = PipelineOwner();
-      pipelineOwner.rootNode = renderView;
-      renderView.prepareInitialFrame();
-
-      final buildOwner = BuildOwner(focusManager: FocusManager());
-      final rootElement = RenderObjectToWidgetAdapter<RenderBox>(
-        container: repaintBoundary,
-        debugShortDescription: 'DinoVariantsExport',
-        child: exportWidget,
-      ).attachToRenderTree(buildOwner);
-
-      buildOwner.buildScope(rootElement);
-      pipelineOwner.flushLayout();
-      pipelineOwner.flushCompositingBits();
-      pipelineOwner.flushPaint();
-
-      final image = await repaintBoundary.toImage(pixelRatio: devicePixelRatio);
-      final byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
-      buildOwner.finalizeTree();
+      // pixelRatio élevé pour une image haute résolution
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
 
       if (byteData == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Erreur lors de la génération de l\'image'),
+            SnackBar(
+              content: Text(l10n.errorImageGeneration),
               backgroundColor: AppTheme.danger,
             ),
           );
@@ -121,20 +81,20 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
       final count = widget.selectedVariants.length;
       final fileName = SaveImageHelper.generateFileName(
         widget.baseDino.espece,
-        'Variantes-x$count',
+        'Variants-x$count',
       );
 
       await SaveImageHelper.saveAndNotify(
         context: context,
         pngBytes: byteData.buffer.asUint8List(),
         fileName: fileName,
-        displayName: '${widget.baseDino.espece} — $count variantes',
+        displayName: '${widget.baseDino.espece} — $count ${l10n.variantsTitle.toLowerCase()}',
       );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: $e'),
+            content: Text('${l10n.errorGeneric}: $e'),
             backgroundColor: AppTheme.danger,
           ),
         );
@@ -697,7 +657,7 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
               ),
             ),
             child: Text(
-              'Stats Communes',
+              AppLocalizations.of(context)?.dinoDetailStats ?? 'Stats',
               style: GoogleFonts.exo2(
                 color: Colors.white,
                 fontSize: 13,
@@ -749,7 +709,7 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              tooltip: 'Retour',
+              tooltip: AppLocalizations.of(context)?.confirmClose ?? 'Back',
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
@@ -798,7 +758,7 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
                       )
                     : const Icon(Icons.save_alt_rounded,
                         color: Color(0xFF00E5FF)),
-                tooltip: 'Sauvegarder la DinoCard variantes',
+                tooltip: AppLocalizations.of(context)?.variantsExport ?? 'Export variants',
                 onPressed: _isCapturing ? null : _captureAndSave,
               ),
             ),
@@ -813,20 +773,23 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
               top: 8,
               bottom: bottomPadding > 0 ? 8 : 24,
             ),
-            child: Column(
-              children: [
-                Expanded(
-                  flex: dinoCount <= 2 ? 5 : 4,
-                  child: _buildVariantsGrid(dinoCount),
-                ),
-                const SizedBox(height: 12),
-                _buildSpeciesTitle(),
-                const SizedBox(height: 8),
-                Flexible(
-                  flex: 3,
-                  child: _buildCommonStats(),
-                ),
-              ],
+            child: RepaintBoundary(
+              key: _exportKey,
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: dinoCount <= 2 ? 5 : 4,
+                    child: _buildVariantsGrid(dinoCount),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSpeciesTitle(),
+                  const SizedBox(height: 8),
+                  Flexible(
+                    flex: 3,
+                    child: _buildCommonStats(),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

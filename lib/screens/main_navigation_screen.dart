@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/dino_provider.dart';
 import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 import 'home_screen.dart';
 import 'library_screen.dart';
 import 'add_edit_dino_screen.dart';
@@ -136,7 +137,7 @@ class _ArkBottomNavBar extends StatelessWidget {
               // ── Simulateur ──
               _NavBarItem(
                 icon: Icons.science_rounded,
-                label: 'Simulateur',
+                label: AppLocalizations.of(context)?.simulatorTitle ?? 'Simulator',
                 isActive: currentIndex == 0,
                 onTap: () => onTabChanged(0),
               ),
@@ -144,14 +145,12 @@ class _ArkBottomNavBar extends StatelessWidget {
               // ── Bibliothèque ──
               _NavBarItem(
                 icon: Icons.auto_stories_rounded,
-                label: 'Bibliothèque',
+                label: AppLocalizations.of(context)?.navLibrary ?? 'Library',
                 isActive: currentIndex == 1,
                 onTap: () => onTabChanged(1),
               ),
 
               // ── Bouton Dynamique au centre ──
-              // Quand on est sur HOME : bouton "Ajouter"
-              // Sinon : bouton "Home"
               if (isHome)
                 _NavBarCenterAddItem(
                   onTap: onAddPressed,
@@ -165,7 +164,7 @@ class _ArkBottomNavBar extends StatelessWidget {
               // ── Journal ──
               _NavBarItem(
                 icon: Icons.menu_book_rounded,
-                label: 'Journal',
+                label: AppLocalizations.of(context)?.speciesJournalTitle ?? 'Journal',
                 isActive: currentIndex == 3,
                 onTap: () => onTabChanged(3),
               ),
@@ -173,7 +172,7 @@ class _ArkBottomNavBar extends StatelessWidget {
               // ── Commandes ──
               _NavBarItem(
                 icon: Icons.shopping_cart_rounded,
-                label: 'Commandes',
+                label: AppLocalizations.of(context)?.ordersTitle ?? 'Orders',
                 isActive: currentIndex == 4,
                 onTap: () => onTabChanged(4),
                 accentColor: Colors.cyanAccent,
@@ -318,7 +317,7 @@ class _NavBarCenterAddItem extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Ajouter',
+              AppLocalizations.of(context)?.libraryAddDino.split(' ').first ?? 'Add',
               style: GoogleFonts.exo2(
                 color: AppTheme.accentGreen,
                 fontSize: 10,
