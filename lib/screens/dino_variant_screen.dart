@@ -5,10 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';
+import '../models/ark_species_color_regions.dart';
 import '../theme/app_theme.dart';
 import '../widgets/dino_image_widget.dart';
-import '../widgets/common/dino_stat_grid.dart';
-import '../widgets/common/dino_color_strip.dart';
 import '../utils/dino_helpers.dart';
 import '../utils/save_image_helper.dart';
 
@@ -37,16 +36,12 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
     if (_isCapturing) return;
     setState(() => _isCapturing = true);
 
-    // Récupérer le pixel ratio réel du device AVANT tout await
     final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
 
     try {
       const double targetWidth = 1080;
       const double targetHeight = 1350;
 
-      // ── Widget export sans MaterialApp imbriqué ──
-      // On utilise Directionality + Theme directement pour éviter
-      // qu'un MaterialApp parasite intercepte le bouton retour
       final exportWidget = Directionality(
         textDirection: TextDirection.ltr,
         child: Theme(
@@ -54,7 +49,7 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
           child: MediaQuery(
             data: const MediaQueryData(
               size: Size(targetWidth, targetHeight),
-              devicePixelRatio: 1.0, // 1.0 ici : la carte est en coords logiques
+              devicePixelRatio: 1.0,
               padding: EdgeInsets.zero,
             ),
             child: Container(
@@ -104,7 +99,6 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
       pipelineOwner.flushCompositingBits();
       pipelineOwner.flushPaint();
 
-      // Capturer avec le pixel ratio réel → image nette sur Android
       final image = await repaintBoundary.toImage(pixelRatio: devicePixelRatio);
       final byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
@@ -191,7 +185,7 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
               flex: 30,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-                child: DinoStatGrid(dino: widget.baseDino),
+                child: _VariantStatGrid(dino: widget.baseDino),
               ),
             ),
             Container(
@@ -221,11 +215,10 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
   }
 
   // ═══════════════════════════════════════════════
-  // GRILLES (export et affichage — identiques)
+  // GRILLES
   // ═══════════════════════════════════════════════
 
-  Widget _buildVariantsGridExport(int count) =>
-      _buildVariantsGrid(count);
+  Widget _buildVariantsGridExport(int count) => _buildVariantsGrid(count);
 
   Widget _buildVariantsGrid(int count) {
     final variants = widget.selectedVariants;
@@ -325,168 +318,165 @@ class _DinoVariantsScreenState extends State<DinoVariantsScreen> {
   }
 
   // ═══════════════════════════════════════════════
-  // CARTE INDIVIDUELLE — fond simulé sans BackdropFilter
+  // CARTE INDIVIDUELLE
   // ═══════════════════════════════════════════════
 
-Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
-  final hasCustomImage =
-      variantDino.image != null && variantDino.image!.isNotEmpty;
-  final assetPath =
-      'assets/images/dinos/${variantDino.espece.replaceAll(' ', '_')}_ASA.png';
+  Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
+    final hasCustomImage =
+        variantDino.image != null && variantDino.image!.isNotEmpty;
+    final assetPath =
+        'assets/images/dinos/${variantDino.espece.replaceAll(' ', '_')}_ASA.png';
 
-  return Container(
-    decoration: BoxDecoration(
-      color: const Color(0xFF1A1A1A),
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: variantDino.roleColor, width: 2),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.5),
-          blurRadius: 6,
-          offset: const Offset(0, 3),
-        ),
-      ],
-    ),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Column(
-        children: [
-          Expanded(
-            flex: 7,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-
-                // ✅ FOND FLOUTÉ CORRIGÉ — variantDino au lieu de _dino
-                Positioned.fill(
-  child: ClipRect(
-    child: Stack(
-      fit: StackFit.expand,
-      children: [
-        hasCustomImage
-            ? Image.file(
-                File(variantDino.image!), // ✅ variantDino
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    _buildVariantFallbackBg(variantDino),
-              )
-            : Image.asset(
-                assetPath,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    _buildVariantFallbackBg(variantDino),
-              ),
-        BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: const SizedBox.expand(),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withValues(alpha: 0.50),
-                variantDino.roleColor.withValues(alpha: 0.20), // ✅ variantDino
-                Colors.black.withValues(alpha: 0.65),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-
-                // IMAGE DINO PRINCIPALE (au-dessus du fond)
-                Positioned.fill(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return hasCustomImage
-                            ? Image.file(
-                                File(variantDino.image!),
-                                width: constraints.maxWidth,
-                                height: constraints.maxHeight,
-                                fit: BoxFit.contain,
-                                errorBuilder: (_, __, ___) =>
-                                    _buildDinoImageWidget(
-                                  variantDino,
-                                  constraints.maxWidth,
-                                  constraints.maxHeight,
-                                ),
-                              )
-                            : _buildDinoImageWidget(
-                                variantDino,
-                                constraints.maxWidth,
-                                constraints.maxHeight,
-                              );
-                      },
-                    ),
-                  ),
-                ),
-
-                // Badge niveau
-                Positioned(
-                  top: 4,
-                  left: 4,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 72),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.82),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                          color: DinoHelpers.getCardRarityColor(
-                              variantDino.niveau),
-                          width: 1,
-                        ),
-                      ),
-                      child: Text(
-                        'LVL ${variantDino.niveau}',
-                        style: GoogleFonts.exo2(
-                          color: DinoHelpers.getCardRarityColor(
-                              variantDino.niveau),
-                          fontSize: isLarge ? 10 : 8,
-                          fontWeight: FontWeight.w900,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Badge sexe
-                if (variantDino.sexe != 'Inconnu')
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 48),
-                      child: _buildCompactSexBadge(variantDino, isLarge),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
-          // Bande de couleurs — widget partagé DinoColorStrip
-          Expanded(
-            flex: 3,
-            child: DinoColorStrip(
-              dino:   variantDino,
-              height: isLarge ? 36 : 28,
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: variantDino.roleColor, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-    ),
-  );
-}
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Column(
+          children: [
+            Expanded(
+              flex: 7,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // FOND FLOUTÉ
+                  Positioned.fill(
+                    child: ClipRect(
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          hasCustomImage
+                              ? Image.file(
+                                  File(variantDino.image!),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      _buildVariantFallbackBg(variantDino),
+                                )
+                              : Image.asset(
+                                  assetPath,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      _buildVariantFallbackBg(variantDino),
+                                ),
+                          BackdropFilter(
+                            filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                            child: const SizedBox.expand(),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.black.withValues(alpha: 0.50),
+                                  variantDino.roleColor
+                                      .withValues(alpha: 0.20),
+                                  Colors.black.withValues(alpha: 0.65),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // IMAGE DINO PRINCIPALE
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return hasCustomImage
+                              ? Image.file(
+                                  File(variantDino.image!),
+                                  width: constraints.maxWidth,
+                                  height: constraints.maxHeight,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) =>
+                                      _buildDinoImageWidget(
+                                    variantDino,
+                                    constraints.maxWidth,
+                                    constraints.maxHeight,
+                                  ),
+                                )
+                              : _buildDinoImageWidget(
+                                  variantDino,
+                                  constraints.maxWidth,
+                                  constraints.maxHeight,
+                                );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // Badge niveau
+                  Positioned(
+                    top: 4,
+                    left: 4,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 72),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.82),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: DinoHelpers.getCardRarityColor(
+                                variantDino.niveau),
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          'LVL ${variantDino.niveau}',
+                          style: GoogleFonts.exo2(
+                            color: DinoHelpers.getCardRarityColor(
+                                variantDino.niveau),
+                            fontSize: isLarge ? 10 : 8,
+                            fontWeight: FontWeight.w900,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Badge sexe
+                  if (variantDino.sexe != 'Inconnu')
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 48),
+                        child: _buildCompactSexBadge(variantDino, isLarge),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            // ── BANDE DE COULEURS LOCALE (numéros adaptatifs + centrés) ──
+            Expanded(
+              flex: 3,
+              child: _VariantColorStrip(dino: variantDino),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildVariantFallbackBg(Dino dino) {
     return Container(
@@ -565,7 +555,7 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
   }
 
   // ═══════════════════════════════════════════════
-  // TITRE ESPÈCE + STATS — affichage mobile
+  // TITRES
   // ═══════════════════════════════════════════════
 
   Widget _buildExportSpeciesTitle() {
@@ -648,9 +638,7 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
               letterSpacing: 2,
               shadows: const [
                 Shadow(
-                    color: Colors.black,
-                    blurRadius: 4,
-                    offset: Offset(1, 1)),
+                    color: Colors.black, blurRadius: 4, offset: Offset(1, 1)),
               ],
             ),
             textAlign: TextAlign.center,
@@ -719,9 +707,12 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
               textAlign: TextAlign.center,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: DinoStatGrid(dino: widget.baseDino),
+          // Grille de stats locale avec détail des points
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: _VariantStatGrid(dino: widget.baseDino),
+            ),
           ),
         ],
       ),
@@ -738,15 +729,14 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return PopScope(
-      // ── Garantit que le bouton retour physique pop correctement ──
       canPop: true,
       child: Scaffold(
         backgroundColor: const Color(0xFF0A0E1A),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          // automaticallyImplyLeading: false pour contrôler nous-mêmes
           automaticallyImplyLeading: false,
+          // ── BOUTON RETOUR (fonctionnel) ───────────────────────────────
           leading: Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -759,10 +749,33 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
+              tooltip: 'Retour',
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
+          // ── ACTIONS : bouton share DÉSACTIVÉ + bouton save actif ──────
           actions: [
+            // Bouton share (désactivé pour l'instant)
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  width: 1,
+                ),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.share_rounded,
+                  color: Colors.white.withValues(alpha: 0.35),
+                ),
+                tooltip: 'Partage temporairement désactivé',
+                onPressed: null, // TODO: réactiver quand l'écran share sera prêt
+              ),
+            ),
+            // Bouton save (actif)
             Container(
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -814,6 +827,438 @@ Widget _buildVariantCard(Dino variantDino, {bool isLarge = false}) {
                   child: _buildCommonStats(),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WIDGETS LOCAUX — Stats grid + Color strip (logique reprise d'ArkDinoCard)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Grille 3×2 des stats du dino, avec détail des points (+N pts) sur 3e ligne.
+class _VariantStatGrid extends StatelessWidget {
+  final Dino dino;
+  const _VariantStatGrid({required this.dino});
+
+  String _intVal(int v) => v > 0 ? DinoHelpers.formatNumber(v) : '???';
+  String _dmgVal(double v) => v > 0 ? '${v.toStringAsFixed(0)}%' : '???';
+  int? _userPts(int pts) => pts > 0 ? pts : null;
+
+  @override
+  Widget build(BuildContext context) {
+    final cells = <_VariantStatData>[
+      _VariantStatData(
+        emoji: '❤️', label: 'VIE',
+        value: _intVal(dino.hp),
+        color: const Color(0xFF4CAF50),
+        isDefault: dino.hp == 0,
+        points: dino.hp > 0 ? _userPts(dino.hpPoints) : null,
+      ),
+      _VariantStatData(
+        emoji: '⚡', label: 'STAM',
+        value: _intVal(dino.stamina),
+        color: const Color(0xFFFFD700),
+        isDefault: dino.stamina == 0,
+        points: dino.stamina > 0 ? _userPts(dino.staminaPoints) : null,
+      ),
+      _VariantStatData(
+        emoji: '⚔️', label: 'ATTACK',
+        value: _dmgVal(dino.degats),
+        color: const Color(0xFFEF4444),
+        isDefault: dino.degats == 0,
+        points: dino.degats > 0 ? _userPts(dino.degatsPoints) : null,
+      ),
+      _VariantStatData(
+        emoji: '⚖️', label: 'POIDS',
+        value: _intVal(dino.poids),
+        color: const Color(0xFF3B82F6),
+        isDefault: dino.poids == 0,
+        points: dino.poids > 0 ? _userPts(dino.poidsPoints) : null,
+      ),
+      _VariantStatData(
+        emoji: '🍖', label: 'FOOD',
+        value: _intVal(dino.nourriture),
+        color: const Color(0xFF8B5CF6),
+        isDefault: dino.nourriture == 0,
+        points: dino.nourriture > 0 ? _userPts(dino.nourriturePoints) : null,
+      ),
+      _VariantStatData(
+        emoji: '🫧', label: 'OXY',
+        value: _intVal(dino.oxygene),
+        color: const Color(0xFF10B981),
+        isDefault: dino.oxygene == 0,
+        points: dino.oxygene > 0 ? _userPts(dino.oxygenePoints) : null,
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 3 colonnes × 2 lignes
+        const int cols = 3;
+        const int rows = 2;
+        const double hGap = 6;
+        const double vGap = 6;
+        final cellW = (constraints.maxWidth - hGap * (cols - 1)) / cols;
+        final cellH = (constraints.maxHeight - vGap * (rows - 1)) / rows;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(rows, (r) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: r == rows - 1 ? 0 : vGap),
+              child: Row(
+                children: List.generate(cols, (c) {
+                  final i = r * cols + c;
+                  return Padding(
+                    padding: EdgeInsets.only(right: c == cols - 1 ? 0 : hGap),
+                    child: SizedBox(
+                      width: cellW,
+                      height: cellH,
+                      child: _StatCell(data: cells[i]),
+                    ),
+                  );
+                }),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+}
+
+class _VariantStatData {
+  final String emoji;
+  final String label;
+  final String value;
+  final Color color;
+  final bool isDefault;
+  final int? points;
+
+  const _VariantStatData({
+    required this.emoji,
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.isDefault,
+    required this.points,
+  });
+}
+
+class _StatCell extends StatelessWidget {
+  final _VariantStatData data;
+  const _StatCell({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final effColor = data.isDefault
+        ? data.color.withValues(alpha: 0.50)
+        : data.color;
+
+    String pointsText = '';
+    Color pointsColor = Colors.transparent;
+    if (data.points != null && data.points! > 0) {
+      pointsText = '+${data.points} pts';
+      pointsColor = effColor.withValues(alpha: 0.9);
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final h = constraints.maxHeight;
+        // Répartition verticale : label 28%, valeur 42%, points 22%, padding 8%
+        final hLabel = h * 0.28;
+        final hValue = h * 0.42;
+        final hPoints = h * 0.22;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: effColor.withValues(alpha: 0.35),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Ligne 1 : emoji + label
+              SizedBox(
+                height: hLabel,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(data.emoji,
+                          style: const TextStyle(fontSize: 14, height: 1.0)),
+                      const SizedBox(width: 3),
+                      Text(
+                        data.label,
+                        style: GoogleFonts.exo2(
+                          color: Colors.white
+                              .withValues(alpha: data.isDefault ? 0.45 : 0.85),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          height: 1.0,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Ligne 2 : valeur (centrée verticalement, sans descendre)
+              SizedBox(
+                height: hValue,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    data.value,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.exo2(
+                      color: effColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      height: 1.0,
+                      shadows: [
+                        Shadow(
+                            color: Colors.black.withValues(alpha: 0.6),
+                            blurRadius: 2),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Ligne 3 : points (zone réservée même si vide)
+              SizedBox(
+                height: hPoints,
+                child: pointsText.isEmpty
+                    ? const SizedBox.shrink()
+                    : FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          pointsText,
+                          style: GoogleFonts.exo2(
+                            color: pointsColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Bande horizontale de 6 carrés de couleurs.
+/// Nouvelle règle simple :
+///   - Couleur posée  → carré coloré + ID centré (FittedBox + height:1.0)
+///   - Pas de couleur → carré gris uni
+/// Plus de distinction visuelle active/inactive : une couleur déclarée
+/// s'affiche toujours, même si la région est invisible sur le modèle 3D.
+class _VariantColorStrip extends StatelessWidget {
+  final Dino dino;
+  const _VariantColorStrip({required this.dino});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = _resolveDisplayColors();
+    final ids = _resolveDisplayIds();
+
+    return Container(
+      color: Colors.black.withValues(alpha: 0.35),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // On dimensionne le carré pour qu'il rentre dans la hauteur dispo,
+          // sans dépasser une largeur raisonnable.
+          const int n = 6;
+          const double gap = 4;
+          final maxByWidth = (constraints.maxWidth - gap * (n - 1)) / n;
+          final maxByHeight = constraints.maxHeight;
+          final cellSize = maxByWidth < maxByHeight ? maxByWidth : maxByHeight;
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: List.generate(n, (i) {
+              final hex = i < colors.length ? colors[i] : null;
+              final id = i < ids.length ? ids[i] : 0;
+              final parsed = DinoHelpers.parseHex(hex);
+              final isFilled = parsed != null &&
+                  hex != '#808080' &&
+                  hex != '#7F7F7F' &&
+                  id > 0;
+
+              return Padding(
+                padding: EdgeInsets.only(right: i == n - 1 ? 0 : gap),
+                child: SizedBox(
+                  width: cellSize,
+                  height: cellSize,
+                  child: _ColorSquare(
+                    color: parsed,
+                    colorId: id,
+                    isFilled: isFilled,
+                  ),
+                ),
+              );
+            }),
+          );
+        },
+      ),
+    );
+  }
+
+  // ─── Logique Solid / VisualSolid (identique à ArkDinoCard) ───────────────
+  // On garde la consultation de la visibilité ici car elle sert à la logique
+  // métier (propagation de la couleur Solid sur les régions visibles), pas
+  // au rendu visuel des carrés.
+  List<String?> _resolveDisplayColors() {
+    final base = dino.colorRegions;
+    final hasSolid = dino.tags.any((t) => t.toLowerCase() == 'solid');
+    final hasVisualSolid =
+        dino.tags.any((t) => t.toLowerCase() == 'visualsolid');
+
+    if (!hasSolid && !hasVisualSolid) return base;
+
+    String? firstColor;
+    for (final c in base) {
+      if (c != null &&
+          c.toUpperCase().replaceAll('#', '') != '808080' &&
+          c.toUpperCase().replaceAll('#', '') != '7F7F7F') {
+        firstColor = c;
+        break;
+      }
+    }
+    if (firstColor == null) return base;
+
+    final visibility = ArkSpeciesColorRegions.visibilityFor(dino.espece);
+    return List.generate(6, (i) {
+      if (hasSolid) return firstColor;
+      final active = i < visibility.length ? visibility[i] : true;
+      return active ? firstColor : base[i];
+    });
+  }
+
+  List<int> _resolveDisplayIds() {
+    final baseIds = [
+      dino.colorId0,
+      dino.colorId1,
+      dino.colorId2,
+      dino.colorId3,
+      dino.colorId4,
+      dino.colorId5,
+    ];
+    final hasSolid = dino.tags.any((t) => t.toLowerCase() == 'solid');
+    final hasVisualSolid =
+        dino.tags.any((t) => t.toLowerCase() == 'visualsolid');
+
+    if (!hasSolid && !hasVisualSolid) return baseIds;
+
+    int firstId = 0;
+    for (final id in baseIds) {
+      if (id > 0) {
+        firstId = id;
+        break;
+      }
+    }
+    if (firstId == 0) return baseIds;
+
+    final visibility = ArkSpeciesColorRegions.visibilityFor(dino.espece);
+    return List.generate(6, (i) {
+      if (hasSolid) return firstId;
+      final active = i < visibility.length ? visibility[i] : true;
+      return active ? firstId : baseIds[i];
+    });
+  }
+}
+
+class _ColorSquare extends StatelessWidget {
+  final Color? color;
+  final int colorId;
+  final bool isFilled;
+
+  const _ColorSquare({
+    required this.color,
+    required this.colorId,
+    required this.isFilled,
+  });
+
+  bool _isLight(Color c) => c.computeLuminance() > 0.5;
+
+  @override
+  Widget build(BuildContext context) {
+    const double radius = 6.0;
+
+    // ─── Case vide : carré gris uni ──────────────────────────────────────
+    if (!isFilled) {
+      return Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF6B6B6B),
+          borderRadius: BorderRadius.circular(radius),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.15),
+            width: 0.8,
+          ),
+        ),
+      );
+    }
+
+    // ─── Couleur posée : carré coloré + ID adaptatif centré ──────────────
+    final fill = color!;
+    final textColor = _isLight(fill) ? Colors.black87 : Colors.white;
+    final shadowColor = _isLight(fill)
+        ? Colors.white.withValues(alpha: 0.8)
+        : Colors.black.withValues(alpha: 0.8);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: fill,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: fill.withValues(alpha: 0.55),
+            blurRadius: 3,
+          ),
+        ],
+      ),
+      // Center + FittedBox + height:1.0 → chiffre PARFAITEMENT centré
+      // et qui s'adapte à la taille du carré (1, 2 ou 3 chiffres).
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(2),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              '$colorId',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.exo2(
+                color: textColor,
+                fontSize: 22, // base élevée → FittedBox réduit selon la case
+                fontWeight: FontWeight.w900,
+                height: 1.0, // ← clé : supprime la descente du baseline
+                letterSpacing: 0,
+                decoration: TextDecoration.none,
+                shadows: [
+                  Shadow(color: shadowColor, blurRadius: 1.5),
+                ],
+              ),
             ),
           ),
         ),

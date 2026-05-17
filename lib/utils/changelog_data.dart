@@ -66,9 +66,66 @@ extension ChangelogSectionTypeExt on ChangelogSectionType {
 }
 
 class ChangelogData {
-  static const String currentVersion = '1.2.0';
+  static const String currentVersion = '1.2.1';
 
   static const List<AppVersion> history = [
+
+AppVersion(
+  version: '1.2.2',
+      date: '12 Mai 2026',
+      sections: [
+        ChangelogSection(
+          type: ChangelogSectionType.nouveaute,
+          items: [
+            'Couleurs des especes améliorées'
+            
+          ],
+        ),
+        ChangelogSection(
+          type: ChangelogSectionType.amelioration,
+          items: [
+            'Optimisation visuelle des tuiles boutons sur les commandes',
+            'Amélioration de l\'affichage des DinoCard Variants',
+            ''
+          ],
+        ),
+        ChangelogSection(
+          type: ChangelogSectionType.correction,
+          items: [
+            ' Correction d\'une anomalie avec les zones morte des dinos',
+          ],
+        ),
+      ],
+    ),
+    AppVersion(
+      version: '1.2.1',
+      date: '14 Mai 2026',
+      sections: [
+        ChangelogSection(
+          type: ChangelogSectionType.nouveaute,
+          items: [
+            'Journal d\'espece plus complet'
+            
+          ],
+        ),
+        ChangelogSection(
+          type: ChangelogSectionType.amelioration,
+          items: [
+            'Optimisation visuelle des tuiles boutons de la bibliothèque',
+            'Amélioration de l\'affichage des DinoCard avec un visuel adapté au dino'
+            ''
+          ],
+        ),
+        ChangelogSection(
+          type: ChangelogSectionType.correction,
+          items: [
+            ' Correction de l\'export png avec amélioration générale',
+            
+          ],
+        ),
+      ],
+    ),
+    //
     AppVersion(
       version: '1.2.0',
       date: '10 Mai 2026',

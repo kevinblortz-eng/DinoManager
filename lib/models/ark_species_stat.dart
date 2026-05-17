@@ -123,7 +123,7 @@ class ArkSpeciesStatsDb {
     ),
 
     'Allosaurus': ArkSpeciesStats(
-      hp: 800, stamina: 300, food: 2000, weight: 300, melee: 66,
+      hp: 800, stamina: 250, food: 3450, weight: 380, melee: 66,
       diet: _carn, taming: _ko,
     ),
 

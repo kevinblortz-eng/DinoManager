@@ -16,6 +16,9 @@ import '../widgets/share_card/dino_share_card_exporter.dart';
 import '../utils/dino_helpers.dart';
 import 'add_edit_dino_screen.dart';
 import 'dino_variant_screen.dart';
+import '../widgets/ark_dino_card.dart';
+import '../widgets/share_card/ark_dino_card_exporter.dart';
+
 
 class DinoDetailScreen extends StatefulWidget {
   final Dino dino;
@@ -56,23 +59,21 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
   // CAPTURE — délégue entièrement à DinoShareCardExporter
   // ════════════════════════════════════════════════════════════════════════
 
-  Future<void> _captureAndSave() async {
-    if (_isCapturing) return;
-    setState(() => _isCapturing = true);
+ Future<void> _captureAndSave() async {
+  if (_isCapturing) return;
+  setState(() => _isCapturing = true);
 
-    try {
-      final tagProvider = context.read<TagThemeProvider>();
-      final themeColor  = _resolveThemeColor(tagProvider);
-
-      await DinoShareCardExporter(
-        dino:       _dino,
-        themeColor: themeColor,
-      ).captureAndSave(context);
-    } finally {
-      if (mounted) setState(() => _isCapturing = false);
-    }
+  try {
+    await ArkDinoCardExporter(
+      dino: _dino,
+      // roleTheme: null par défaut → ArkDinoCard utilisera dino.roleColor
+      // Si tu veux forcer un thème custom via les tags, tu peux passer
+      // un RoleTheme construit depuis themeColor ici.
+    ).captureAndSave(context);
+  } finally {
+    if (mounted) setState(() => _isCapturing = false);
   }
-
+}
   // ════════════════════════════════════════════════════════════════════════
   // BUILD PRINCIPAL
   // ════════════════════════════════════════════════════════════════════════
@@ -165,44 +166,33 @@ class _DinoDetailScreenState extends State<DinoDetailScreen> {
     );
   }
 
-  // ════════════════════════════════════════════════════════════════════════
-  // ARK CARD MOBILE
-  // ════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════
+// ARK CARD MOBILE — dimensionné comme dans add_edit_dino_screen
+// ════════════════════════════════════════════════════════════════════════
+Widget _buildArkCard(Color themeColor) {
+  // Mêmes proportions de référence que dans AddEditDinoScreen
+  const double refW = 242;
+  const double refH = 428;
 
-  Widget _buildArkCard(Color themeColor) {
-    return Container(
-      decoration: BoxDecoration(
-        color:        const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: themeColor.withValues(alpha: 0.7), width: 3),
-        boxShadow: [
-          BoxShadow(
-            color:      Colors.black.withValues(alpha: 0.8),
-            blurRadius: 20,
-            offset:     const Offset(0, 10),
+  return Center(
+    child: ConstrainedBox(
+      // Largeur max raisonnable sur mobile, le reste s'adapte
+      constraints: const BoxConstraints(maxWidth: 360),
+      child: AspectRatio(
+        aspectRatio: refW / refH,
+        child: Hero(
+          tag: 'dino_${_dino.id}',
+          child: Material(
+            color: Colors.transparent,
+            child: ArkDinoCard(
+              dino: _dino,
+            ),
           ),
-          BoxShadow(
-            color:        themeColor.withValues(alpha: 0.35),
-            blurRadius:   20,
-            spreadRadius: -2,
-          ),
-        ],
+        ),
       ),
-      child: Column(
-        children: [
-          _buildVisualSection(themeColor),
-          _buildTitleSection(themeColor),
-          DinoStatGrid(dino: _dino),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child:   DinoColorStrip(dino: _dino),
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
+    ),
+  );
+}
 
   // ════════════════════════════════════════════════════════════════════════
   // SECTION VISUELLE — image + badges LVL/GENRE (mobile)

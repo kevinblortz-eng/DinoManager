@@ -395,4 +395,107 @@ class TrackerProvider extends ChangeNotifier {
       return aProject.compareTo(bProject);
     });
   }
+
+  // À ajouter dans lib/providers/tracker_provider.dart
+
+/// Supprime une stat spécifique du tracker :
+/// - retire la clé de `bestStats`
+/// - retire cette clé de chaque AnonymousStatEntry.stats
+/// - si une entry n'a plus aucune stat, elle est supprimée
+/// Supprime une stat spécifique : la retire de bestStats ET la retire
+/// de chaque AnonymousStatEntry.stats. Si une entry devient vide, on la supprime.
+/// Puis on reconstruit bestStats depuis les entries restantes.
+  /// Supprime une stat spécifique : la retire de bestStats ET la retire
+  /// de chaque AnonymousStatEntry.stats. Si une entry devient vide, on la supprime.
+  /// Puis on reconstruit bestStats depuis les entries restantes.
+  Future<void> removeBestStat({
+    required String trackerId,
+    required String statKey,
+  }) async {
+    final index = _trackers.indexWhere((t) => t.id == trackerId);
+    if (index == -1) return;
+
+    final tracker = _trackers[index];
+
+    // 1) Nettoyer les AnonymousStatEntry
+    final newEntries = <AnonymousStatEntry>[];
+    for (final entry in tracker.anonymousStatEntries) {
+      if (!entry.stats.containsKey(statKey)) {
+        newEntries.add(entry);
+        continue;
+      }
+      final newStats = Map<String, double>.from(entry.stats)..remove(statKey);
+      if (newStats.isEmpty) continue; // entry vide → supprimée
+      newEntries.add(AnonymousStatEntry(
+        id: entry.id,
+        stats: newStats,
+        recordedAt: entry.recordedAt,
+      ));
+    }
+
+    _trackers[index] = tracker.copyWith(
+      anonymousStatEntries: newEntries,
+      updatedAt: DateTime.now(),
+    );
+
+    // 2) Reconstruire bestStats depuis les entries restantes
+    _rebuildBestStats(index);
+
+    await saveTrackers();
+    notifyListeners();
+  }
+
+  /// Supprime un colorId d'une région : retire des observations ET du colorBank.
+  /// Si une observation n'a plus aucune couleur, elle est supprimée.
+  /// Puis on reconstruit colorBank depuis les observations restantes.
+  Future<void> removeAnonymousColor({
+    required String trackerId,
+    required int region,
+    required int colorId,
+  }) async {
+    final index = _trackers.indexWhere((t) => t.id == trackerId);
+    if (index == -1) return;
+
+    final tracker = _trackers[index];
+
+    // 1) Retirer la couleur du colorBank de la région concernée
+    final newBank = <int, List<int>>{};
+    tracker.colorBank.forEach((r, list) {
+      if (r == region) {
+        newBank[r] = list.where((id) => id != colorId).toList();
+      } else {
+        newBank[r] = List<int>.from(list);
+      }
+    });
+
+    // 2) Nettoyer les ColorObservation
+    final newObs = <ColorObservation>[];
+    for (final obs in tracker.colorObservations) {
+      if (obs.regionColors[region] != colorId) {
+        newObs.add(obs);
+        continue;
+      }
+      final newRegionColors = Map<int, int>.from(obs.regionColors)
+        ..remove(region);
+      if (newRegionColors.isEmpty) continue; // observation vide → supprimée
+      newObs.add(ColorObservation(
+        id: obs.id,
+        regionColors: newRegionColors,
+        recordedAt: obs.recordedAt,
+      ));
+    }
+
+    _trackers[index] = tracker.copyWith(
+      colorBank: newBank,
+      colorObservations: newObs,
+      updatedAt: DateTime.now(),
+    );
+
+    // 3) Reconstruire colorBank depuis les observations restantes
+    //    (garantit la cohérence si la couleur apparaît encore ailleurs)
+    _rebuildColorBank(index);
+
+    await saveTrackers();
+    notifyListeners();
+  }
 }

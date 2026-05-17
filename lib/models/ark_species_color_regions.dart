@@ -1,260 +1,309 @@
 // lib/models/ark_species_color_regions.dart
 // Données de visibilité des 6 régions de couleur ARK par espèce.
-// Source : ARKpedia / ARK wiki + ARKStatsExtractor species data.
+// Source : référence C# ARK Stats Extractor (ARKpedia / ARK wiki).
 // true  = région visible sur le modèle 3D
 // false = région invisible (pas de coloration affichée)
 // Ordre : [R0, R1, R2, R3, R4, R5]
+//
+// NOTE : Les espèces marquées "// Verif" sont absentes de la référence C#
+// fournie — leurs valeurs sont des estimations ou des héritages depuis la
+// version de base (cas des variantes Aberrant / Tek / Alpha / Zombie /
+// déclinaisons saisonnières). À valider individuellement.
 
 class ArkSpeciesColorRegions {
   /// Régions visibles par espèce (clé = nom exact de l'espèce dans l'app).
   /// Si une espèce est absente, on retourne [true,true,true,true,true,true] par défaut.
   static const Map<String, List<bool>> _data = {
     // ── A ─────────────────────────────────────────────────────────────
-    'Achatina':              [true,  true,  false, false, false, false],
-    'Achatina Aberrant':     [true,  true,  false, false, false, false],
-    'Acrocanthosaurus':      [true,  true,  true,  true,  true,  true ],
-    'Allosaurus':            [true,  true,  true,  true,  false, false],
-    'Anglerfish':            [true,  true,  true,  false, false, false],
-    'Anglerfish Aberrant':   [true,  true,  true,  false, false, false],
-    'Ankylosaurus':          [true,  true,  true,  true,  false, false],
-    'Ankylosaurus Aberrant': [true,  true,  true,  true,  false, false],
-    'Araneo':                [true,  true,  true,  false, false, false],
-    'Araneo Aberrant':       [true,  true,  true,  false, false, false],
-    'Archaeopteryx':         [true,  true,  true,  true,  false, false],
-    'Archelon':              [true,  true,  true,  true,  false, false],
-    'Argentavis':            [true,  true,  true,  true,  true,  true ],
-    'Armadoggo':             [true,  true,  true,  true,  true,  false],
-    'Arthropluera':          [true,  true,  false, false, false, false],
-    'Arthropluera Aberrant': [true,  true,  false, false, false, false],
-    'Aureliax':              [true,  true,  true,  true,  true,  true ],
+    'Achatina':                [true,  true,  true,  true,  true,  true ],
+    'Achatina Aberrant':       [true,  true,  true,  true,  true,  true ], // Verif (hérité d'Achatina, absent de la ref)
+    'Acrocanthosaurus':        [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Allosaurus':              [true,  false, false,  false, true,  true ],
+    'Ammonite':                [true,  false, false, false, false, false],
+    'Anglerfish':              [true,  true,  false, false, true,  true ],
+    'Anglerfish Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité d'Anglerfish, absent de la ref)
+    'Ankylosaurus':            [true,  false, true,  false, true,  false],
+    'Ankylosaurus Aberrant':   [true,  false, true,  false, true,  false], // Verif (hérité d'Ankylosaurus, absent de la ref)
+    'Araneo':                  [true,  true,  false, false, true,  true ],
+    'Araneo Aberrant':         [true,  true,  false, false, true,  true ], // Verif (hérité d'Araneo, absent de la ref)
+    'Archaeopteryx':           [true,  false, true,  false, true,  true ],
+    'Archelon':                [true,  true,  false,  true,  true, true], 
+    'Argentavis':              [true,  false, true,  true,  true,  true ],
+    'Armadoggo':               [true,  true,  true,  false, true,  true ], // Verif (Bob's Tall Tales — à valider)
+    'Arthropluera':            [true,  true,  false, false, true,  true ],
+    'Arthropluera Aberrant':   [true,  true,  false, false, true,  true ], // Verif (hérité d'Arthropluera, absent de la ref)
+    'Astrocetus':              [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Aureliax':                [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+
     // ── B ─────────────────────────────────────────────────────────────
-    'Baryonyx':              [true,  true,  true,  true,  true,  false],
-    'Baryonyx Aberrant':     [true,  true,  true,  true,  true,  false],
-    'Basilisk':              [true,  true,  true,  true,  true,  true ],
-    'Basilosaurus':          [true,  true,  true,  false, false, false],
-    'Beelzebufo':            [true,  true,  true,  true,  false, false],
-    'Beelzebufo Aberrant':   [true,  true,  true,  true,  false, false],
-    'Bison':                 [true,  true,  true,  true,  false, false],
-    'Brontosaurus':          [true,  true,  true,  true,  false, false],
-    'Bulbdog':               [true,  true,  true,  true,  true,  false],
+    'Baryonyx':                [true,  true,  true,  false, true,  true ],
+    'Baryonyx Aberrant':       [true,  true,  true,  false, true,  true ], // Verif (hérité de Baryonyx, absent de la ref)
+    'Basilisk':                [true,  true,  true,  false, true,  true ],
+    'Basilosaurus':            [true,  false, true,  false, true,  false],
+    'Beelzebufo':              [true,  true,  false, false, true,  true ],
+    'Beelzebufo Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Beelzebufo, absent de la ref)
+    'Bison':                   [true,  true,  true,  true,  false, false], // Verif (absent de la ref)
+    'Bloodstalker':            [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Brontosaurus':            [true,  true,  false, false, true,  true ],
+    'Bulbdog':                 [true,  false, true,  false, true,  true ],
+
     // ── C ─────────────────────────────────────────────────────────────
-    'Carbonemys':            [true,  true,  true,  false, false, false],
-    'Carbonemys Aberrant':   [true,  true,  true,  false, false, false],
-    'Carcharodontosaurus':   [true,  true,  true,  true,  true,  true ],
-    'Carnotaurus':           [true,  true,  true,  true,  true,  false],
-    'Carnotaurus Aberrant':  [true,  true,  true,  true,  true,  false],
-    'Castoroides':           [true,  true,  true,  true,  false, false],
-    'Cat':                   [true,  true,  true,  true,  false, false],
-    'Ceratosaurus':          [true,  true,  true,  true,  true,  true ],
-    'Chalicotherium':        [true,  true,  true,  false, false, false],
-    'Chalk Elemental':       [true,  true,  false, false, false, false],
-    'Cnidaria':              [true,  true,  false, false, false, false],
-    'Coelacanth':            [true,  true,  true,  false, false, false],
-    'Coelacanth Aberrant':   [true,  true,  true,  false, false, false],
-    'Compy':                 [true,  true,  true,  true,  false, false],
-    'Cosmo':                 [true,  true,  true,  true,  true,  true ],
-    'Cryolophosaurus':       [true,  true,  true,  true,  true,  true ],
+    'Carbonemys':              [true,  true,  true,  false, true,  true ],
+    'Carbonemys Aberrant':     [true,  true,  true,  false, true,  true ], // Verif (hérité de Carbonemys, absent de la ref)
+    'Carcharodontosaurus':     [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Carnotaurus':             [true,  false, true,  false, true,  true ],
+    'Carnotaurus Aberrant':    [true,  false, true,  false, true,  true ], // Verif (hérité de Carnotaurus, absent de la ref)
+    'Castoroides':             [true,  false, true,  false, true,  false],
+    'Cat':                     [true,  true,  true,  true,  false, false], // Verif (absent de la ref)
+    'Ceratosaurus':            [true,  true,  true,  false, true,  true ], // Verif (ASA Addition — à valider)
+    'Chalicotherium':          [true,  false, true,  false, true,  true ],
+    'Chalk Elemental':         [true,  true,  false, false, false, false], // Verif (absent de la ref)
+    'Cnidaria':                [true,  false, false, false, false, false],
+    'Coelacanth':              [true,  false, true,  false, true,  true ],
+    'Coelacanth Aberrant':     [true,  false, true,  false, true,  true ], // Verif (hérité de Coelacanth, absent de la ref)
+    'Compy':                   [true,  false, true,  false, true,  true ], // (mappé sur Compsognathus de la ref)
+    'Cosmo':                   [true,  true,  true,  false, true,  true ], // Verif (Bob's Tall Tales — à valider)
+    'Cryolophosaurus':         [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+
     // ── D ─────────────────────────────────────────────────────────────
-    'Daeodon':               [true,  true,  true,  true,  false, false],
-    'Deinonychus':           [true,  true,  true,  true,  true,  true ],
-    'Deinosuchus':           [true,  true,  true,  true,  true,  false],
-    'Deinotherium':          [true,  true,  true,  true,  false, false],
-    'Desmodus':              [true,  true,  true,  true,  true,  false],
-    'Dimetrodon':            [true,  true,  true,  false, false, false],
-    'Dimetrodon Aberrant':   [true,  true,  true,  false, false, false],
-    'Dimorphodon':           [true,  true,  true,  true,  false, false],
-    'Dimorphodon Aberrant':  [true,  true,  true,  true,  false, false],
-    'Diplocaulus':           [true,  true,  false, false, false, false],
-    'Diplocaulus Aberrant':  [true,  true,  false, false, false, false],
-    'Diplodocus':            [true,  true,  true,  true,  false, false],
-    'Diplodocus Aberrant':   [true,  true,  true,  true,  false, false],
-    'Dire Bear':             [true,  true,  true,  true,  false, false],
-    'Dire Bear Aberrant':    [true,  true,  true,  true,  false, false],
-    'Dire Polar Bear':       [true,  true,  true,  true,  false, false],
-    'Direwolf':              [true,  true,  true,  true,  false, false],
-    'Dodo':                  [true,  true,  true,  true,  false, false],
-    'Dodo Aberrant':         [true,  true,  true,  true,  false, false],
-    'Doedicurus':            [true,  true,  true,  false, false, false],
-    'Doedicurus Aberrant':   [true,  true,  true,  false, false, false],
-    'Drakeling (Autumn)':    [true,  true,  true,  true,  true,  true ],
-    'Drakeling (Spring)':    [true,  true,  true,  true,  true,  true ],
-    'Drakeling (Summer)':    [true,  true,  true,  true,  true,  true ],
-    'Drakeling (Winter)':    [true,  true,  true,  true,  true,  true ],
-    'Dreadmare':             [true,  true,  true,  true,  true,  true ],
-    'Dreadnoughtus':         [true,  true,  true,  true,  false, false],
-    'Dung Beetle':           [true,  true,  true,  false, false, false],
-    'Dung Beetle Aberrant':  [true,  true,  true,  false, false, false],
-    'Dunkleosteus':          [true,  true,  false, false, false, false],
+    'Daeodon':                 [true,  false, true,  false, true,  true ],
+    'Deinonychus':             [true,  true,  false,  true, true,  true ],
+    'Deinosuchus':             [true,  true,  true,  false, true,  true ], // Verif (ASA Addition — à valider)
+    'Deinotherium':            [true,  true,  true,  true,  false, false], // Verif (absent de la ref)
+    'Desmodus':                [true,  true,  true,  true,  true,  false], // Verif (absent de la ref)
+    'Dimetrodon':              [true,  true,  false, false, true,  true ],
+    'Dimetrodon Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Dimetrodon, absent de la ref)
+    'Dimorphodon':             [true,  false, true,  false, true,  true ],
+    'Dimorphodon Aberrant':    [true,  false, true,  false, true,  true ], // Verif (hérité de Dimorphodon, absent de la ref)
+    'Diplocaulus':             [true,  false, true,  false, true,  true ],
+    'Diplocaulus Aberrant':    [true,  false, true,  false, true,  true ], // Verif (hérité de Diplocaulus, absent de la ref)
+    'Diplodocus':              [true,  false, true,  false, true,  true ],
+    'Diplodocus Aberrant':     [true,  false, true,  false, true,  true ], // Verif (hérité de Diplodocus, absent de la ref)
+    'Dire Bear':               [true,  false, true,  false, true,  true ], // (mappé sur Direbear de la ref)
+    'Dire Bear Aberrant':      [true,  false, true,  false, true,  true ], // Verif (hérité de Direbear, absent de la ref)
+    'Dire Polar Bear':         [true,  false, true,  false, true,  true ], // Verif (variante de Direbear, absent de la ref)
+    'Direwolf':                [true,  false, true,  false, true,  true ],
+    'Dodo':                    [true,  false, true,  false, true,  true ],
+    'Dodo Aberrant':           [true,  false, true,  false, true,  true ], // Verif (hérité de Dodo, absent de la ref)
+    'Doedicurus':              [true,  false, true,  false, true,  false],
+    'Doedicurus Aberrant':     [true,  false, true,  false, true,  false], // Verif (hérité de Doedicurus, absent de la ref)
+    'Drakeling (Autumn)':      [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Drakeling (Spring)':      [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Drakeling (Summer)':      [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Drakeling (Winter)':      [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Dreadmare':               [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Dreadnoughtus':           [true,  true,  true,  true,  false, false], // Verif (absent de la ref)
+    'Dung Beetle':             [true,  true,  false, false, true,  false], // (mappé sur DungBeetle de la ref)
+    'Dung Beetle Aberrant':    [true,  true,  false, false, true,  false], // Verif (hérité de DungBeetle, absent de la ref)
+    'Dunkleosteus':            [true,  false, false,  false, true,  true ],
+
     // ── E ─────────────────────────────────────────────────────────────
-    'Elderclaw':             [true,  true,  true,  true,  true,  true ],
-    'Electrophorus':         [true,  true,  false, false, false, false],
-    'Electrophorus Aberrant':[true,  true,  false, false, false, false],
-    'Enforcer':              [true,  true,  true,  true,  false, false],
-    'Equus':                 [true,  true,  true,  true,  true,  false],
-    'Equus Aberrant':        [true,  true,  true,  true,  true,  false],
+    'Elderclaw':               [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Electrophorus':           [true,  false, true,  false, true,  true ],
+    'Electrophorus Aberrant':  [true,  false, true,  false, true,  true ], // Verif (hérité d'Electrophorus, absent de la ref)
+    'Enforcer':                [true,  true,  true,  false, true,  true ],
+    'Equus':                   [true,  false, true,  false, true,  true ],
+    'Equus Aberrant':          [true,  false, true,  false, true,  true ], // Verif (hérité d'Equus, absent de la ref)
+    'Eurypterid':              [true,  true,  false, false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+
     // ── F ─────────────────────────────────────────────────────────────
-    'Fasolasuchus':          [true,  true,  true,  true,  true,  false],
-    'Fasolasuchus Aberrant': [true,  true,  true,  true,  true,  false],
-    'Featherlight':          [true,  true,  true,  true,  true,  false],
-    'Fire Wyvern':           [true,  true,  true,  false, false, false],
+    'Fasolasuchus':            [true,  true,  true,  false, true,  true ], // Verif (ASA Addition — à valider)
+    'Fasolasuchus Aberrant':   [true,  true,  true,  false, true,  true ], // Verif (hérité de Fasolasuchus, absent de la ref)
+    'Featherlight':            [true,  true,  true,  true,  true,  true ],
+    'Ferox':                   [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Fire Wyvern':             [true,  true,  true,  false, true,  true ], // (mappé sur FireWyvern de la ref)
+
     // ── G ─────────────────────────────────────────────────────────────
-    'Gacha':                 [true,  true,  true,  true,  false, false],
-    'Gallimimus':            [true,  true,  true,  true,  false, false],
-    'Gasbags':               [true,  true,  true,  false, false, false],
-    'Gigadesmodus':          [true,  true,  true,  true,  true,  false],
-    'Giganotosaurus':        [true,  true,  true,  true,  true,  false],
-    'Giganotosaurus Tek':    [true,  true,  true,  true,  true,  false],
-    'Gigantopithecus':       [true,  true,  true,  true,  false, false],
-    'Gigantopithecus Aberrant':[true,true,  true,  true,  false, false],
-    'Gigantoraptor':         [true,  true,  true,  true,  true,  true ],
-    'Gigantoraptor Aberrant':[true,  true,  true,  true,  true,  true ],
-    'Gloon':                 [true,  true,  true,  true,  true,  false],
-    'Glowtail':              [true,  true,  true,  true,  true,  false],
-    'Grand Tortugar':        [true,  true,  true,  true,  false, false],
-    'Grendel (Alpha)':       [true,  true,  true,  true,  true,  true ],
-    'Griffin':               [true,  true,  true,  true,  false, false],
+    'Gacha':                   [true,  false, true,  false, true,  true ],
+    'Gallimimus':              [true,  false, true,  false, true,  true ],
+    'Gasbags':                 [true,  true,  true,  false, true,  true ],
+    'GiantBee':                [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Gigadesmodus':            [true,  true,  true,  true,  true,  false], // Verif (absent de la ref)
+    'Giganotosaurus':          [true,  false, true,  false, true,  true ],
+    'Giganotosaurus Tek':      [true,  true, true,  true, true,  true ], // Verif (hérité de Giganotosaurus, absent de la ref)
+    'Gigantopithecus':         [true,  false, true,  false, true,  true ],
+    'Gigantopithecus Aberrant':[true,  false, true,  false, true,  true ], // Verif (hérité de Gigantopithecus, absent de la ref)
+    'Gigantoraptor':           [true,  true,  true,  true,  true,  true ], // Verif (ASA Addition — à valider)
+    'Gigantoraptor Aberrant':  [true,  true,  true,  true,  true,  true ], // Verif (hérité de Gigantoraptor, absent de la ref)
+    'Gloon':                   [true,  true,  true,  true,  true,  false], // Verif (absent de la ref)
+    'Glowtail':                [true,  true,  true,  false, true,  true ],
+    'Grand Tortugar':          [true,  true,  true,  true,  false, false], // Verif (absent de la ref)
+    'Grendel (Alpha)':         [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Griffin':                 [true,  false, true,  false, true,  true ],
+
     // ── H ─────────────────────────────────────────────────────────────
-    'Helicoprion':           [true,  true,  true,  false, false, false],
-    'Hesperornis':           [true,  true,  true,  true,  false, false],
-    'Hyaenodon':             [true,  true,  true,  true,  false, false],
-    'Hydraskos the Unbroken':[true,  true,  true,  true,  true,  true ],
+    'Helicoprion':             [true,  true,  true,  false, false, false], // Verif (absent de la ref)
+    'Hesperornis':             [true,  false, true,  true,  true,  true ],
+    'Hyaenodon':               [true,  false, true,  false, true,  true ],
+    'Hydraskos the Unbroken':  [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+
     // ── I ─────────────────────────────────────────────────────────────
-    'Ice Elemental':         [true,  true,  false, false, false, false],
-    'Ice Wyvern':            [true,  true,  true,  false, false, false],
-    'Ichthyornis':           [true,  true,  true,  false, false, false],
-    'Ichthyosaurus':         [true,  true,  false, false, false, false],
-    'Iguanodon':             [true,  true,  true,  true,  false, false],
-    'Iguanodon Aberrant':    [true,  true,  true,  true,  false, false],
+    'Ice Elemental':           [true,  true,  false, false, false, false], // Verif (absent de la ref)
+    'Ice Wyvern':              [true,  true,  true,  false, true,  true ], // Verif (héritée des Wyverns, absent de la ref)
+    'Ichthyornis':             [true,  false, true,  true,  true,  true ],
+    'Ichthyosaurus':           [true,  false, true,  false, true,  true ],
+    'Iguanodon':               [true,  true,  true,  false, true,  true ],
+    'Iguanodon Aberrant':      [true,  true,  true,  false, true,  true ], // Verif (hérité d'Iguanodon, absent de la ref)
+
     // ── J ─────────────────────────────────────────────────────────────
-    'Jerboa':                [true,  true,  true,  false, false, false],
+    'Jerboa':                  [true,  false, true,  false, true,  true ],
+
     // ── K ─────────────────────────────────────────────────────────────
-    'Kairuku':               [true,  true,  false, false, false, false],
-    'Kaprosuchus':           [true,  true,  true,  true,  false, false],
-    'Karkinos':              [true,  true,  true,  false, false, false],
-    'Kentrosaurus':          [true,  true,  true,  true,  false, false],
+    'Kairuku':                 [true,  false, true,  false, true,  true ],
+    'Kaprosuchus':             [true,  false, true,  false, true,  true ],
+    'Karkinos':                [true,  false, true,  false, true,  true ],
+    'Kentrosaurus':            [true,  false, true,  false, true,  true ],
+
     // ── L ─────────────────────────────────────────────────────────────
-    'Lava Elemental':        [true,  true,  false, false, false, false],
-    'Lightning Wyvern':      [true,  true,  true,  false, false, false],
-    'Liopleurodon':          [true,  true,  false, false, false, false],
-    'Lymantria':             [true,  true,  true,  true,  false, false],
-    'Lystrosaurus':          [true,  true,  true,  false, false, false],
-    'Lystrosaurus Aberrant': [true,  true,  true,  false, false, false],
+    'Lamprey':                 [true,  false, false, false, false, false], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Lava Elemental':          [true,  true,  false, false, false, false], // Verif (absent de la ref)
+    'Leech':                   [true,  false, false, false, false, false], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Leedsichthys':            [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Lightning Wyvern':        [true,  true,  true,  false, true,  true ], // (mappé sur LightningWyvern de la ref)
+    'Liopleurodon':            [true,  false, true,  false, true,  true ],
+    'Lymantria':               [true,  true,  true,  false, true,  true ],
+    'Lystrosaurus':            [true,  false, true,  false, true,  true ],
+    'Lystrosaurus Aberrant':   [true,  false, true,  false, true,  true ], // Verif (hérité de Lystrosaurus, absent de la ref)
+
     // ── M ─────────────────────────────────────────────────────────────
-    'Maeguana':              [true,  true,  true,  true,  true,  false],
-    'Malwyn':                [true,  true,  true,  true,  true,  true ],
-    'Mammoth':               [true,  true,  true,  true,  false, false],
-    'Managarmr':             [true,  true,  true,  true,  true,  false],
-    'Manta':                 [true,  true,  true,  false, false, false],
-    'Manta Aberrant':        [true,  true,  true,  false, false, false],
-    'Mantis':                [true,  true,  true,  false, false, false],
-    'Megalania':             [true,  true,  true,  true,  false, false],
-    'Megalania Aberrant':    [true,  true,  true,  true,  false, false],
-    'Megaloceros':           [true,  true,  true,  true,  false, false],
-    'Megalodon':             [true,  true,  true,  false, false, false],
-    'Megalosaurus':          [true,  true,  true,  true,  true,  false],
-    'Megalosaurus Aberrant': [true,  true,  true,  true,  true,  false],
-    'Meganeura':             [true,  true,  true,  false, false, false],
-    'Meganeura Aberrant':    [true,  true,  true,  false, false, false],
-    'Megaraptor':            [true,  true,  true,  true,  true,  true ],
-    'Megatherium':           [true,  true,  true,  true,  false, false],
-    'Minotarchos':           [true,  true,  true,  true,  true,  true ],
-    'Morellatops':           [true,  true,  true,  false, false, false],
-    'Mosasaurus':            [true,  true,  true,  false, false, false],
-    'Moschops':              [true,  true,  true,  false, false, false],
-    'Moschops Aberrant':     [true,  true,  true,  false, false, false],
+    'Maeguana':                [true,  true,  true,  true,  true,  false], // Verif (absent de la ref)
+    'Maewing':                 [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Magmasaur':               [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Malwyn':                  [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Mammoth':                 [true,  false, true,  false, true,  true ],
+    'Managarmr':               [true,  true,  true,  false, true,  true ],
+    'Manta':                   [true,  true,  false, false, true,  true ],
+    'Manta Aberrant':          [true,  true,  false, false, true,  true ], // Verif (hérité de Manta, absent de la ref)
+    'Mantis':                  [true,  false,  false,  false, true,  true ],
+    'Megachelon':              [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Megalania':               [true,  false, true,  false, true,  true ],
+    'Megalania Aberrant':      [true,  false, true,  false, true,  true ], // Verif (hérité de Megalania, absent de la ref)
+    'Megaloceros':             [true,  false, true,  false, true,  true ],
+    'Megalodon':               [true,  false, true,  false, true,  true ],
+    'Megalosaurus':            [true,  true,  false, false, true,  true ],
+    'Megalosaurus Aberrant':   [true,  true,  false, false, true,  true ], // Verif (hérité de Megalosaurus, absent de la ref)
+    'Meganeura':               [true,  false, false, false, true,  true ],
+    'Meganeura Aberrant':      [true,  false, false, false, true,  true ], // Verif (hérité de Meganeura, absent de la ref)
+    'Megaraptor':              [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Megatherium':             [true,  false, true,  false, true,  true ],
+    'Mesopithecus':            [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Microraptor':             [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Minotarchos':             [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Morellatops':             [true,  false, true,  false, true,  true ],
+    'Mosasaurus':              [true,  false, true,  false, true,  true ],
+    'Moschops':                [true,  false, true,  false, true,  true ],
+    'Moschops Aberrant':       [true,  false, true,  false, true,  true ], // Verif (hérité de Moschops, absent de la ref)
+
     // ── N ─────────────────────────────────────────────────────────────
-    'Neophyte':              [true,  true,  true,  true,  true,  false],
+    'Neophyte':                [true,  true,  true,  true,  true,  false], // Verif (absent de la ref)
+
     // ── O ─────────────────────────────────────────────────────────────
-    'Oasisaur':              [true,  true,  true,  true,  true,  true ],
-    'Onyc':                  [true,  true,  true,  false, false, false],
-    'Ossidon':               [true,  true,  true,  true,  true,  true ],
-    'Otter':                 [true,  true,  true,  false, false, false],
-    'Otter Aberrant':        [true,  true,  true,  false, false, false],
-    'Oviraptor':             [true,  true,  true,  true,  false, false],
-    'Oviraptor Aberrant':    [true,  true,  true,  true,  false, false],
-    'Ovis':                  [true,  true,  true,  false, false, false],
-    'Ovis Aberrant':         [true,  true,  true,  false, false, false],
+    'Oasisaur':                [true,  true,  true,  false, true,  true ], // Verif (Bob's Tall Tales — à valider)
+    'Onyc':                    [true,  false, false, false, true,  true ],
+    'Ossidon':                 [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Otter':                   [true,  false, true,  false, true,  true ],
+    'Otter Aberrant':          [true,  false, true,  false, true,  true ], // Verif (hérité d'Otter, absent de la ref)
+    'Oviraptor':               [true,  false, true,  false, true,  true ],
+    'Oviraptor Aberrant':      [true,  false, true,  false, true,  true ], // Verif (hérité d'Oviraptor, absent de la ref)
+    'Ovis':                    [true,  false, true,  false, true,  true ],
+    'Ovis Aberrant':           [true,  false, true,  false, true,  true ], // Verif (hérité d'Ovis, absent de la ref)
+
     // ── P ─────────────────────────────────────────────────────────────
-    'Pachyrhinosaurus':      [true,  true,  true,  true,  false, false],
-    'Paraceratherium':       [true,  true,  true,  false, false, false],
-    'Paraceratherium Aberrant':[true,true,  true,  false, false, false],
-    'Parasaur':              [true,  true,  true,  true,  false, false],
-    'Parasaur Aberrant':     [true,  true,  true,  true,  false, false],
-    'Parasaur Tek':          [true,  true,  true,  true,  false, false],
-    'Pegomastax':            [true,  true,  true,  false, false, false],
-    'Pelagornis':            [true,  true,  true,  false, false, false],
-    'Phoenix':               [true,  true,  true,  false, false, false],
-    'Piranha':               [true,  true,  false, false, false, false],
-    'Piranha Aberrant':      [true,  true,  false, false, false, false],
-    'Plesiosaur':            [true,  true,  true,  false, false, false],
-    'Poison Wyvern':         [true,  true,  true,  false, false, false],
-    'Procoptodon':           [true,  true,  true,  true,  false, false],
-    'Pteranodon':            [true,  true,  true,  true,  false, false],
-    'Pulmonoscorpius':       [true,  true,  false, false, false, false],
-    'Pulmonoscorpius Aberrant':[true,true,  false, false, false, false],
-    'Purlovia':              [true,  true,  true,  false, false, false],
-    'Purlovia Aberrant':     [true,  true,  true,  false, false, false],
-    'Pyromane':              [true,  true,  true,  true,  true,  true ],
+    'Pachy':                   [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Pachyrhinosaurus':        [true,  true,  true,  false, true,  true ],
+    'Paraceratherium':         [true,  false, true,  false, true,  true ],
+    'Paraceratherium Aberrant':[true,  false, true,  false, true,  true ], // Verif (hérité de Paraceratherium, absent de la ref)
+    'Parasaur':                [true,  true,  true,  false, true,  true ],
+    'Parasaur Aberrant':       [true,  true,  true,  false, true,  true ], // Verif (hérité de Parasaur, absent de la ref)
+    'Parasaur Tek':            [true,  true,  true,  false, true,  true ], // Verif (hérité de Parasaur, absent de la ref)
+    'Pegomastax':              [true,  false, true,  false, true,  true ],
+    'Pelagornis':              [true,  false, true,  true,  true,  true ],
+    'Phiomia':                 [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Phoenix':                 [true,  true,  true,  false, true,  true ],
+    'Piranha':                 [true,  false, true,  false, true,  true ],
+    'Piranha Aberrant':        [true,  false, true,  false, true,  true ], // Verif (hérité de Piranha, absent de la ref)
+    'Plesiosaur':              [true,  false, true,  false, true,  true ],
+    'Poison Wyvern':           [true,  true,  true,  false, true,  true ], // (mappé sur PoisonWyvern de la ref)
+    'Procoptodon':             [true,  false, true,  false, true,  true ],
+    'Pteranodon':              [true,  true,  true,  false, true,  true ],
+    'Pulmonoscorpius':         [true,  true,  false, false, true,  true ],
+    'Pulmonoscorpius Aberrant':[true,  true,  false, false, true,  true ], // Verif (hérité de Pulmonoscorpius, absent de la ref)
+    'Purlovia':                [true,  false, true,  false, true,  true ],
+    'Purlovia Aberrant':       [true,  false, true,  false, true,  true ], // Verif (hérité de Purlovia, absent de la ref)
+    'Pyromane':                [true,  true,  true,  false, true,  true ], // (ASA Addition — issu de la ref, à valider)
+
     // ── Q ─────────────────────────────────────────────────────────────
-    'Quetzal':               [true,  true,  true,  true,  true,  true ],
-    'Quetzal Tek':           [true,  true,  true,  true,  true,  true ],
+    'Quetzal':                 [true,  true,  true,  true,  true,  true ],
+    'Quetzal Tek':             [true,  true,  true,  true,  true,  true ], // Verif (hérité de Quetzal, absent de la ref)
+
     // ── R ─────────────────────────────────────────────────────────────
-    'Raptor':                [true,  true,  true,  true,  true,  false],
-    'Raptor Aberrant':       [true,  true,  true,  true,  true,  false],
-    'Raptor Tek':            [true,  true,  true,  true,  true,  false],
-    'Ravager':               [true,  true,  true,  true,  true,  false],
-    'Reaper King':           [true,  true,  true,  true,  false, false],
-    'Rex':                   [true,  true,  true,  true,  false, false],
-    'Rex Tek':               [true,  true,  true,  true,  false, false],
-    'Rhyniognatha':          [true,  true,  true,  true,  true,  false],
-    'Rhyniognatha Drone':    [true,  true,  true,  true,  true,  false],
-    'Rock Drake':            [true,  true,  true,  true,  true,  true ],
-    'Rock Elemental':        [true,  true,  false, false, false, false],
-    'Roll Rat':              [true,  true,  true,  true,  false, false],
-    'Rubble Golem':          [true,  true,  false, false, false, false],
+    'Raptor':                  [true,  true,  true,  false, true,  true ],
+    'Raptor Aberrant':         [true,  true,  true,  false, true,  true ], // Verif (hérité de Raptor, absent de la ref)
+    'Raptor Tek':              [true,  true,  true,  false, true,  true ], // Verif (hérité de Raptor, absent de la ref)
+    'Ravager':                 [true,  true,  true,  false, true,  true ],
+    'Reaper King':             [true,  false, true,  false, true,  true ], // (mappé sur Reaper de la ref)
+    'Rex':                     [true,  true,  false, false, true,  true ],
+    'Rex Tek':                 [true,  true,  false, false, true,  true ], // Verif (hérité de Rex, absent de la ref)
+    'Rhyniognatha':            [true,  true,  true,  false, true,  true ], // (ASA Addition — issu de la ref, à valider)
+    'Rhyniognatha Drone':      [true,  true,  true,  false, true,  true ], // Verif (variante de Rhyniognatha, absent de la ref)
+    'Rock Drake':              [true,  true,  true,  false, true,  true ], // (mappé sur RockDrake de la ref)
+    'Rock Elemental':          [true,  false, false, false, true,  false], // (mappé sur RockElemental de la ref)
+    'Roll Rat':                [true,  false, true,  false, true,  true ], // (mappé sur RollRat de la ref)
+    'Rubble Golem':            [true,  true,  false, false, false, false], // Verif (absent de la ref)
+
     // ── S ─────────────────────────────────────────────────────────────
-    'Sabertooth':            [true,  true,  true,  true,  false, false],
-    'Sabertooth Salmon':     [true,  true,  false, false, false, false],
-    'Salmon Aberrant':       [true,  true,  false, false, false, false],
-    'Sarco':                 [true,  true,  true,  false, false, false],
-    'Sarco Aberrant':        [true,  true,  true,  false, false, false],
-    'Shastasaurus':          [true,  true,  false, false, false, false],
-    'Shinehorn':             [true,  true,  true,  true,  true,  false],
-    'Snow Owl':              [true,  true,  true,  true,  false, false],
-    'Solwyn':                [true,  true,  true,  true,  true,  true ],
-    'Spino':                 [true,  true,  true,  true,  false, false],
-    'Spino Aberrant':        [true,  true,  true,  true,  false, false],
-    'Stegosaurus':           [true,  true,  true,  true,  false, false],
-    'Stegosaurus Aberrant':  [true,  true,  true,  true,  false, false],
-    'Stegosaurus Tek':       [true,  true,  true,  true,  false, false],
+    'Sabertooth':              [true,  false, true,  false, true,  true ],
+    'Sabertooth Salmon':       [true,  false, true,  false, true,  true ], // (mappé sur SabertoothSalmon de la ref)
+    'Salmon Aberrant':         [true,  false, true,  false, true,  true ], // Verif (variante du SabertoothSalmon, absent de la ref)
+    'Sarco':                   [true,  true,  true,  false, true,  true ],
+    'Sarco Aberrant':          [true,  true,  true,  false, true,  true ], // Verif (hérité de Sarco, absent de la ref)
+    'Seeker':                  [true,  false, false, false, true,  false], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Shadowmane':              [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Shastasaurus':            [true,  true,  false, false, false, false], // Verif (absent de la ref)
+    'Shinehorn':               [true,  true,  true,  false, true,  true ],
+    'Snow Owl':                [true,  true,  true,  true,  true,  true ], // (mappé sur SnowOwl de la ref)
+    'Solwyn':                  [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Spino':                   [true,  false, true,  false, true,  true ], // (mappé sur Spinosaurus de la ref)
+    'Spino Aberrant':          [true,  false, true,  false, true,  true ], // Verif (hérité de Spinosaurus, absent de la ref)
+    'Stegosaurus':             [true,  false, true,  false, true,  true ],
+    'Stegosaurus Aberrant':    [true,  false, true,  false, true,  true ], // Verif (hérité de Stegosaurus, absent de la ref)
+    'Stegosaurus Tek':         [true,  false, true,  false, true,  true ], // Verif (hérité de Stegosaurus, absent de la ref)
+
     // ── T ─────────────────────────────────────────────────────────────
-    'Tapejara':              [true,  true,  true,  true,  false, false],
-    'Terror Bird':           [true,  true,  true,  true,  false, false],
-    'Therizinosaur':         [true,  true,  true,  true,  true,  true ],
-    'Thorny Dragon':         [true,  true,  true,  false, false, false],
-    'Thylacoleo':            [true,  true,  true,  true,  false, false],
-    'Titanoboa':             [true,  true,  true,  false, false, false],
-    'Titanoboa Aberrant':    [true,  true,  true,  false, false, false],
-    'Triceratops':           [true,  true,  true,  true,  false, false],
-    'Triceratops Aberrant':  [true,  true,  true,  true,  false, false],
-    'Triceratops Tek':       [true,  true,  true,  true,  false, false],
-    'Troodon':               [true,  true,  true,  true,  false, false],
-    'Tusoteuthis':           [true,  true,  false, false, false, false],
+    'Tapejara':                [true,  true,  true,  true,  true,  true ],
+    'Terror Bird':             [true,  false, true,  false, true,  true ], // (mappé sur TerrorBird de la ref)
+    'Therizinosaur':           [true,  false, true,  false, true,  true ],
+    'Thorny Dragon':           [true,  false, true,  false, true,  true ], // (mappé sur ThornyDragon de la ref)
+    'Thylacoleo':              [true,  false, true,  false, true,  true ],
+    'Titanoboa':               [true,  false, true,  false, true,  true ],
+    'Titanoboa Aberrant':      [true,  false, true,  false, true,  true ], // Verif (hérité de Titanoboa, absent de la ref)
+    'Titanomyrma':             [true,  false, false, false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Triceratops':             [true,  false, true,  false, true,  true ],
+    'Triceratops Aberrant':    [true,  false, true,  false, true,  true ], // Verif (hérité de Triceratops, absent de la ref)
+    'Triceratops Tek':         [true,  false, true,  false, true,  true ], // Verif (hérité de Triceratops, absent de la ref)
+    'Trilobite':               [true,  false, false, false, false, false], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Troodon':                 [true,  true,  true,  false, true,  true ],
+    'Tusoteuthis':             [true,  true,  true,  false, true,  false],
+
     // ── V ─────────────────────────────────────────────────────────────
-    'Veilwyn':               [true,  true,  true,  true,  true,  true ],
-    'Velonasaur':            [true,  true,  true,  true,  true,  false],
-    'Vulture':               [true,  true,  true,  false, false, false],
+    'Veilwyn':                 [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Velonasaur':              [true,  true,  true,  false, true,  true ],
+    'Vulture':                 [true,  false, true,  false, true,  true ],
+
     // ── W ─────────────────────────────────────────────────────────────
-    'Woolly Rhino':          [true,  true,  true,  true,  false, false],
+    'Woolly Rhino':            [true,  false, true,  false, true,  true ], // (mappé sur WoollyRhino de la ref)
+
     // ── X ─────────────────────────────────────────────────────────────
-    'Xiphactinus':           [true,  true,  false, false, false, false],
+    'Xiphactinus':             [true,  true,  true,  false, true,  true ], // (ASA Addition — issu de la ref, à valider)
+
     // ── Y ─────────────────────────────────────────────────────────────
-    'Yi Ling':               [true,  true,  true,  true,  true,  true ],
-    'Yutyrannus':            [true,  true,  true,  true,  false, false],
+    'Yi Ling':                 [true,  true,  true,  true,  true,  true ], // (mappé sur YiLing de la ref — ASA Addition, à valider)
+    'Yutyrannus':              [true,  false, true,  false, true,  true ],
+
     // ── Z ─────────────────────────────────────────────────────────────
-    'Zombie Fire Wyvern':    [true,  true,  true,  false, false, false],
-    'Zombie Lightning Wyvern':[true, true,  true,  false, false, false],
-    'Zombie Poison Wyvern':  [true,  true,  true,  false, false, false],
+    'Zombie Fire Wyvern':      [true,  true,  true,  false, true,  true ], // Verif (hérité de FireWyvern, absent de la ref)
+    'Zombie Lightning Wyvern': [true,  true,  true,  false, true,  true ], // Verif (hérité de LightningWyvern, absent de la ref)
+    'Zombie Poison Wyvern':    [true,  true,  true,  false, true,  true ], // Verif (hérité de PoisonWyvern, absent de la ref)
   };
 
   /// Noms des régions ARK (0-5)

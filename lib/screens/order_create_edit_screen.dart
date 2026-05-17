@@ -17,6 +17,9 @@ import '../theme/app_theme.dart';
 import '../widgets/ark_dino_card.dart';
 import '../widgets/dino_image_widget.dart';
 import '../utils/dino_helpers.dart';
+import '../widgets/dino_card_widget.dart';
+import '../providers/role_theme_provider.dart';
+
 
 // ─── Enum pour le tri ────────────────────────────────────────────────────────
 enum ItemSortMode { nom, espece, niveau }
@@ -182,15 +185,7 @@ class _OrderCreateEditScreenState extends State<OrderCreateEditScreen> {
         item.validation!.femaleValidatedCount = saved['female'] ?? 0;
       }
     });
-    _markDirtyAndAutoSave();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Annulation effectuée (${_validationHistory.length} restante${_validationHistory.length > 1 ? 's' : ''})'),
-        duration: const Duration(milliseconds: 1200),
-        backgroundColor: AppTheme.warning,
-      ),
-    );
-  }
+      }
 
   /// Validation manuelle complète de la commande
   Future<void> _manualValidateOrder() async {
@@ -2961,7 +2956,7 @@ class _DinoSelectionModal extends StatefulWidget {
 
 class _DinoSelectionModalState extends State<_DinoSelectionModal> {
   final TextEditingController _searchController = TextEditingController();
-  Set<int> _selectedDinoIds = {};
+  final Set<int> _selectedDinoIds = {};
   late List<Dino> _filteredDinos;
   String _activeRoleFilter = '';
 
@@ -2969,6 +2964,12 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
   void initState() {
     super.initState();
     _filteredDinos = widget.dinos;
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _filterDinos(String query) {
@@ -2985,11 +2986,38 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
     });
   }
 
+  void _toggleSelection(Dino dino) {
+    final id = dino.id;
+    if (id == null) return;
+    setState(() {
+      if (_selectedDinoIds.contains(id)) {
+        _selectedDinoIds.remove(id);
+      } else {
+        _selectedDinoIds.add(id);
+      }
+    });
+  }
+
+  void _selectAllVisible() {
+    setState(() {
+      for (final d in _filteredDinos) {
+        if (d.id != null) _selectedDinoIds.add(d.id!);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() => _selectedDinoIds.clear());
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final roleThemeProvider = context.watch<RoleThemeProvider>();
+
     return Column(
       children: [
+        // ── Grip ─────────────────────────────────────────────────────────
         Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Center(
@@ -2997,22 +3025,59 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                  color: const Color(0xFF2D3748),
-                  borderRadius: BorderRadius.circular(2)),
+                color: const Color(0xFF2D3748),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
         ),
         const SizedBox(height: 12),
+
+        // ── Titre + compteur + actions sélection ─────────────────────────
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              Text('Sélectionner des dinos',
-                  style: GoogleFonts.exo2(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white)),
+              Text(
+                'Sélectionner des dinos',
+                style: GoogleFonts.exo2(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
               const Spacer(),
+              if (_selectedDinoIds.isNotEmpty)
+                GestureDetector(
+                  onTap: _clearSelection,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Text(
+                      'Vider',
+                      style: GoogleFonts.exo2(
+                        fontSize: 11,
+                        color: AppTheme.textMuted,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: _selectAllVisible,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Text(
+                    'Tout',
+                    style: GoogleFonts.exo2(
+                      fontSize: 11,
+                      color: AppTheme.accentPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -3023,15 +3088,18 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
                 child: Text(
                   '${_selectedDinoIds.length} sélectionné${_selectedDinoIds.length > 1 ? 's' : ''}',
                   style: GoogleFonts.exo2(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.accentPrimary),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.accentPrimary,
+                  ),
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 12),
+
+        // ── Barre recherche ──────────────────────────────────────────────
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Container(
@@ -3039,13 +3107,12 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
             decoration: BoxDecoration(
               color: const Color(0xFF161B22),
               borderRadius: BorderRadius.circular(12),
-              border:
-                  Border.all(color: const Color(0xFF21304A), width: 1.2),
+              border: Border.all(color: const Color(0xFF21304A), width: 1.2),
             ),
             child: TextField(
               controller: _searchController,
-              style:
-                  GoogleFonts.exo2(color: AppTheme.textPrimary, fontSize: 14),
+              style: GoogleFonts.exo2(
+                  color: AppTheme.textPrimary, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Rechercher un dino...',
                 hintStyle: GoogleFonts.exo2(
@@ -3063,14 +3130,16 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
                       )
                     : null,
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10, horizontal: 4),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
               ),
               onChanged: _filterDinos,
             ),
           ),
         ),
         const SizedBox(height: 10),
+
+        // ── Filtres rôle (chips horizontaux) ─────────────────────────────
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: SizedBox(
@@ -3079,7 +3148,7 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
               scrollDirection: Axis.horizontal,
               itemCount: 7,
               itemBuilder: (context, i) {
-                final tags = [
+                const tags = [
                   '',
                   'Boss',
                   'Breeding',
@@ -3105,7 +3174,7 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
                       gradient: isActive
                           ? const LinearGradient(colors: [
                               Color(0xFFFF6B00),
-                              Color(0xFFFF9500)
+                              Color(0xFFFF9500),
                             ])
                           : null,
                       color: isActive ? null : const Color(0xFF161B22),
@@ -3123,9 +3192,8 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
                               ? Colors.white
                               : const Color(0xFF6B7A8D),
                           fontSize: 12,
-                          fontWeight: isActive
-                              ? FontWeight.w700
-                              : FontWeight.w500,
+                          fontWeight:
+                              isActive ? FontWeight.w700 : FontWeight.w500,
                           letterSpacing: 0.3,
                         )),
                   ),
@@ -3135,75 +3203,38 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
           ),
         ),
         const SizedBox(height: 12),
+
+        // ── Liste des tuiles bibliothèque ────────────────────────────────
         Expanded(
           child: _filteredDinos.isEmpty
               ? Center(
-                  child: Text('Aucun dino trouvé',
-                      style: GoogleFonts.exo2(
-                          color: AppTheme.textSecondary, fontSize: 13)))
+                  child: Text(
+                    'Aucun dino trouvé',
+                    style: GoogleFonts.exo2(
+                        color: AppTheme.textSecondary, fontSize: 13),
+                  ),
+                )
               : ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                   itemCount: _filteredDinos.length,
                   itemBuilder: (context, i) {
                     final dino = _filteredDinos[i];
                     final isSelected = _selectedDinoIds.contains(dino.id);
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppTheme.accentPrimary
-                              : AppTheme.borderColor,
-                          width: isSelected ? 3 : 1,
-                        ),
-                      ),
-                      child: Stack(
-                        children: [
-                          ArkDinoCard(
-                            dino: dino,
-                            onTap: () {
-                              setState(() {
-                                if (isSelected) {
-                                  _selectedDinoIds.remove(dino.id);
-                                } else {
-                                  _selectedDinoIds.add(dino.id ?? 0);
-                                }
-                              });
-                            },
-                            onEdit: () {},
-                            onDelete: () {},
-                          ),
-                          if (isSelected)
-                            Positioned(
-                              top: 12,
-                              right: 12,
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppTheme.accentPrimary,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppTheme.accentPrimary
-                                          .withValues(alpha: 0.5),
-                                      blurRadius: 8,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(Icons.check_rounded,
-                                    color: Colors.white, size: 24),
-                              ),
-                            ),
-                        ],
-                      ),
+                    final roleTheme =
+                        roleThemeProvider.themeForRole(dino.role);
+
+                    return _SelectableLibraryTile(
+                      dino: dino,
+                      roleTheme: roleTheme,
+                      isSelected: isSelected,
+                      onTap: () => _toggleSelection(dino),
                     );
                   },
                 ),
         ),
+
+        // ── Boutons valider / annuler ────────────────────────────────────
         Padding(
           padding: EdgeInsets.fromLTRB(16, 12, 16, bottomPadding + 16),
           child: Row(
@@ -3256,10 +3287,115 @@ class _DinoSelectionModalState extends State<_DinoSelectionModal> {
       ],
     );
   }
+  
+}// ═════════════════════════════════════════════════════════════════════════════
+// TUILE BIBLIOTHÈQUE EN MODE SÉLECTION — utilisée uniquement dans Commande
+// ═════════════════════════════════════════════════════════════════════════════
+class _SelectableLibraryTile extends StatelessWidget {
+  final Dino dino;
+  final dynamic roleTheme; // RoleTheme? — typé dynamic pour ne pas forcer l'import ici
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _SelectableLibraryTile({
+    required this.dino,
+    required this.roleTheme,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    // Couleur d'accentuation pour l'encadrement sélectionné.
+    const Color selectColor = AppTheme.accentPrimary;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: EdgeInsets.all(isSelected ? 3 : 0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: isSelected
+                ? selectColor
+                : Colors.transparent,
+            width: isSelected ? 2.5 : 0,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: selectColor.withValues(alpha: 0.45),
+                    blurRadius: 14,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
+        ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // La VRAIE tuile bibliothèque — strictement identique à celle
+            // affichée dans LibraryScreen.
+            AbsorbPointer(
+              // On absorbe les taps internes pour que la tuile entière
+              // se comporte comme un simple bouton de sélection,
+              // sans déclencher onTap / onEdit / onDelete.
+              absorbing: true,
+              child: DinoCardWidget(
+                dino: dino,
+                onTap: () {},
+                onEdit: () {},
+                onDelete: () {},
+                roleTheme: roleTheme,
+              ),
+            ),
+
+            // Voile coloré léger quand sélectionné, pour renforcer le feedback
+            if (isSelected)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 12), // aligne avec margin tuile
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: selectColor.withValues(alpha: 0.08),
+                    ),
+                  ),
+                ),
+              ),
+
+            // Badge ✓ en haut à droite
+            if (isSelected)
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: selectColor,
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: selectColor.withValues(alpha: 0.6),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.check_rounded,
+                      color: Colors.white, size: 18),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
+

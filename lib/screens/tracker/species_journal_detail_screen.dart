@@ -1,29 +1,32 @@
 // lib/screens/tracker/species_journal_detail_screen.dart
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../models/dino.dart';
 import '../../models/species_tracker.dart';
-import '../../models/ark_color_palette.dart';
-import '../../models/ark_species_color_regions.dart';
 import '../../providers/dino_provider.dart';
 import '../../providers/tracker_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/dino_image_widget.dart';
-import '../../widgets/ark_dino_card.dart';
-import '../dino_detail_screen.dart';
 import '../add_edit_dino_screen.dart';
-import 'species_tracker_detail_screen.dart';
+import '../dino_canva_screen.dart';
+import 'tabs/journal_tab_stats_max.dart';
+import 'tabs/journal_tab_colors.dart';
+import 'tabs/journal_tab_my_dinos.dart';
+import 'tabs/journal_tab_simulator.dart';
 
 class SpeciesJournalDetailScreen extends StatefulWidget {
   final String species;
+  final SpeciesTracker? tracker;
   final Dino? initialSelectedDino;
 
   const SpeciesJournalDetailScreen({
     super.key,
     required this.species,
-    this.initialSelectedDino, 
+    this.tracker,
+    this.initialSelectedDino,
   });
 
   @override
@@ -31,814 +34,231 @@ class SpeciesJournalDetailScreen extends StatefulWidget {
       _SpeciesJournalDetailScreenState();
 }
 
-class _SpeciesJournalDetailScreenState
-    extends State<SpeciesJournalDetailScreen> {
-  late Dino? _selectedDino;
-  bool _isColorsExpanded = false;
+class _SpeciesJournalDetailScreenState extends State<SpeciesJournalDetailScreen>
+    with TickerProviderStateMixin {
+  static const String _bgAsset = 'assets/images/ui/background_home.png';
+
+  late TabController _tabController;
+  int? _headerDinoId;
 
   @override
   void initState() {
     super.initState();
-    _selectedDino = widget.initialSelectedDino;
+    _tabController = TabController(length: 4, vsync: this);
+    _loadHeaderDinoPref();
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  String get _prefKey => 'header_dino_${widget.species}';
+
+  Future<void> _loadHeaderDinoPref() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final id = prefs.getInt(_prefKey);
+      if (id != null) {
+        if (mounted) setState(() => _headerDinoId = id);
+        return;
+      }
+      // Pas de pref → fallback sur initialSelectedDino si fourni
+      final fallback = widget.initialSelectedDino?.id;
+      if (fallback != null && mounted) {
+        setState(() => _headerDinoId = fallback);
+        await prefs.setInt(_prefKey, fallback);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _saveHeaderDinoPref(int id) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_prefKey, id);
+    } catch (_) {}
+  }
+
+  List<Dino> _speciesDinos(DinoProvider p) => p.allDinos
+      .where((d) => d.espece.toLowerCase() == widget.species.toLowerCase())
+      .toList();
+
+  Dino? _resolveHeaderDino(List<Dino> dinos) {
+    if (dinos.isEmpty) return null;
+    if (_headerDinoId != null) {
+      final match = dinos.where((d) => d.id == _headerDinoId);
+      if (match.isNotEmpty) return match.first;
+    }
+    return dinos.first;
+  }
+
+  SpeciesTracker? _currentTracker(TrackerProvider tp) {
+    for (final t in tp.trackers) {
+      if (t.species.toLowerCase() == widget.species.toLowerCase()) return t;
+    }
+    return null;
+  }
+
+  Future<void> _pickHeaderDino(List<Dino> dinos) async {
+    if (dinos.isEmpty) return;
+    final picked = await showModalBottomSheet<int>(
+      context: context,
+      backgroundColor: AppTheme.bgCard,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.55,
+        maxChildSize: 0.9,
+        minChildSize: 0.3,
+        builder: (_, controller) => Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Choisir le dino vedette',
+                style: GoogleFonts.exo2(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView.builder(
+                  controller: controller,
+                  itemCount: dinos.length,
+                  itemBuilder: (_, i) {
+                    final d = dinos[i];
+                    final selected = d.id == _headerDinoId;
+                    return ListTile(
+                      dense: true,
+                      onTap: () => Navigator.pop(ctx, d.id),
+                      leading: SizedBox(
+                        width: 44,
+                        height: 44,
+                        child: DinoImageWidget(
+                          species: d.espece,
+                          regionColors: d.colorRegions,
+                          width: 44,
+                          height: 44,
+                          fit: BoxFit.contain,
+                          showColorBand: false,
+                        ),
+                      ),
+                      title: Text(
+                        d.nom.isNotEmpty ? d.nom : '#${d.id}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      subtitle: Text(
+                        'Lvl ${d.niveau}',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.6),
+                          fontSize: 11,
+                        ),
+                      ),
+                      trailing: selected
+                          ? const Icon(Icons.check_circle,
+                              color: Colors.cyanAccent)
+                          : null,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (picked != null && mounted) {
+      setState(() => _headerDinoId = picked);
+      await _saveHeaderDinoPref(picked);
+    }
+  }
+
+  Future<void> _addNewDino() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddEditDinoScreen(initialSpecies: widget.species),
+      ),
+    );
+    if (!mounted) return;
+    await context.read<DinoProvider>().loadDinos();
+  }
+
+  void _openCanva() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DinoCanvaScreen(
+          species: widget.species,
+          initialSelection: const <Dino>[],
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // BUILD
+  // ═══════════════════════════════════════════════════════════════════════
+  @override
   Widget build(BuildContext context) {
     return Consumer2<DinoProvider, TrackerProvider>(
-      builder: (context, dinoProvider, trackerProvider, _) {
-        final bottomPadding = MediaQuery.of(context).padding.bottom;
-
-        final libraryDinos = dinoProvider.dinos
-            .where((dino) =>
-                dino.espece.toLowerCase() == widget.species.toLowerCase())
-            .toList();
-
-        final tracker = trackerProvider.trackers.cast<SpeciesTracker?>().firstWhere(
-              (t) => t?.species.toLowerCase() == widget.species.toLowerCase(),
-              orElse: () => null,
-            );
-
-        final mergedBestStats = tracker == null
-            ? _buildLibraryOnlyBestStats(libraryDinos)
-            : _mergeTrackerAndLibraryBestStats(
-                tracker: tracker,
-                libraryDinos: libraryDinos,
-              );
-
-        final mergedColorBank = tracker == null
-            ? _buildLibraryOnlyColorBank(libraryDinos)
-            : _mergeTrackerAndLibraryColorBank(
-                tracker: tracker,
-                libraryDinos: libraryDinos,
-              );
-
-        // ✅ CORRIGÉ : Vérifier que le dino sélectionné existe toujours dans la liste
-        // Si elle n'existe pas, prendre le premier disponible
-        if (_selectedDino == null || 
-            !libraryDinos.any((d) => d.id == _selectedDino!.id)) {
-          if (libraryDinos.isNotEmpty) {
-            _selectedDino = libraryDinos.first;
-          } else {
-            _selectedDino = null;
-          }
-        }
-
-        final previewColors = _selectedDino != null
-            ? [
-                _selectedDino!.colorHex0,
-                _selectedDino!.colorHex1,
-                _selectedDino!.colorHex2,
-                _selectedDino!.colorHex3,
-                _selectedDino!.colorHex4,
-                _selectedDino!.colorHex5,
-              ]
-            : List.generate(6, (_) => '#808080');
-
-        final totalColors = mergedColorBank.values
-            .fold<int>(0, (sum, set) => sum + set.length);
+      builder: (context, dp, tp, _) {
+        final dinos = _speciesDinos(dp);
+        final headerDino = _resolveHeaderDino(dinos);
+        final tracker = _currentTracker(tp);
 
         return Scaffold(
           backgroundColor: AppTheme.bgPrimary,
-          appBar: AppBar(
-            backgroundColor: AppTheme.bgSecondary,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.species.toUpperCase(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                const Text(
-                  'Journal d\'espece',
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-          body: SafeArea(
-            bottom: true,
-            child: ListView(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
-              children: [
-                _buildHeaderCard(
-                  context,
-                  species: widget.species,
-                  previewColors: previewColors,
-                  libraryDinos: libraryDinos,
-                  tracker: tracker,
-                  selectedDino: _selectedDino,
-                  totalColors: totalColors,
-                ),
-                const SizedBox(height: 20),
-                _buildStatsSection(mergedBestStats),
-                const SizedBox(height: 20),
-                _buildColorsSection(mergedColorBank),
-                const SizedBox(height: 20),
-                _buildDinosSection(context, dinoProvider, libraryDinos),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // ─── HEADER CARD ──────────────────────────────────────────────────────────
-  Widget _buildHeaderCard(
-    BuildContext context, {
-    required String species,
-    required List<String> previewColors,
-    required List<Dino> libraryDinos,
-    required SpeciesTracker? tracker,
-    required Dino? selectedDino,
-    required int totalColors,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Row(
-        children: [
-          // ── DINO VISUEL CLIQUABLE ──
-          GestureDetector(
-            onTap: libraryDinos.length > 1
-                ? () => _showDinoSelector(context, libraryDinos)
-                : null,
-            child: Container(
-              width: 110,
-              height: 90,
-              decoration: BoxDecoration(
-                color: AppTheme.bgSecondary,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.borderColor),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  DinoImageWidget(
-                    species: species,
-                    regionColors: previewColors,
-                    width: 110,
-                    height: 90,
-                    fit: BoxFit.contain,
-                    showColorBand: false,
-                  ),
-                  if (libraryDinos.length > 1)
-                    Positioned(
-                      bottom: 4,
-                      right: 4,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.7),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.cyanAccent,
-                            width: 1,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.cyanAccent,
-                          size: 12,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          // ── INFOS ──
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  species,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 19,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _infoLine('DinoCards', '${libraryDinos.length}'),
-                _infoLine('Trackers', tracker != null ? '1' : '0'),
-                _infoLine('Couleurs', '$totalColors'),
-                const SizedBox(height: 10),
-                if (tracker != null)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => SpeciesTrackerDetailScreen(
-                              tracker: tracker,
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.science),
-                      label: const Text('OUVRIR LE LABO'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.cyanAccent,
-                        foregroundColor: Colors.black,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _infoLine(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Text(
-        '$label : $value',
-        style: const TextStyle(color: Colors.grey, fontSize: 12),
-      ),
-    );
-  }
-
-  // ─── DINO SELECTOR MODAL ──────────────────────────────────────────────────
-  void _showDinoSelector(BuildContext context, List<Dino> dinos) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppTheme.bgSecondary,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Choisir un dino favoris',
-              style: GoogleFonts.exo2(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ListView.builder(
-                itemCount: dinos.length,
-                itemBuilder: (_, idx) {
-                  final dino = dinos[idx];
-                  final isSelected = _selectedDino?.id == dino.id;
-                  return GestureDetector(
-                    onTap: () {
-                      // ✅ IMPORTANT : Mettre à jour l'état AVANT de fermer le modal
-                      setState(() => _selectedDino = dino);
-                      Navigator.pop(ctx);
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppTheme.accentPrimary.withValues(alpha: 0.15)
-                            : AppTheme.bgCard,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppTheme.accentPrimary
-                              : AppTheme.borderColor,
-                          width: isSelected ? 2 : 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  dino.nom,
-                                  style: GoogleFonts.exo2(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  'Lvl ${dino.niveau}',
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (isSelected)
-                            const Icon(
-                              Icons.check_circle,
-                              color: AppTheme.accentPrimary,
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ─── STATS SECTION ────────────────────────────────────────────────────────
-  Widget _buildStatsSection(Map<String, BestStatRecord> stats) {
-    const statOrder = [
-      'hp',
-      'stamina',
-      'oxygene',
-      'nourriture',
-      'poids',
-      'degats',
-    ];
-
-    const labels = {
-      'hp': 'VIE',
-      'stamina': 'STAM',
-      'oxygene': 'OXYGÈNE',
-      'nourriture': 'FOOD',
-      'poids': 'POIDS',
-      'degats': 'ATTAQUE',
-    };
-
-    const emojis = {
-      'hp': '❤️',
-      'stamina': '⚡',
-      'oxygene': '🫧',
-      'nourriture': '🍖',
-      'poids': '⚖️',
-      'degats': '⚔️',
-    };
-
-    const colors = {
-      'hp': Color(0xFF4CAF50),
-      'stamina': Color(0xFFFFD700),
-      'oxygene': Color(0xFF10B981),
-      'nourriture': Color(0xFF8B5CF6),
-      'poids': Color(0xFF3B82F6),
-      'degats': Color(0xFFEF4444),
-    };
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.analytics_outlined, color: Colors.cyanAccent),
-                SizedBox(width: 8),
-                Text(
-                  'STATS MAXIMALES',
-                  style: TextStyle(
-                    color: Colors.cyanAccent,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    letterSpacing: 1.1,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Ligne 1 : 3 stats
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMaxStatCard(
-                    statOrder[0],
-                    labels[statOrder[0]]!,
-                    emojis[statOrder[0]]!,
-                    colors[statOrder[0]]!,
-                    stats[statOrder[0]],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildMaxStatCard(
-                    statOrder[1],
-                    labels[statOrder[1]]!,
-                    emojis[statOrder[1]]!,
-                    colors[statOrder[1]]!,
-                    stats[statOrder[1]],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildMaxStatCard(
-                    statOrder[2],
-                    labels[statOrder[2]]!,
-                    emojis[statOrder[2]]!,
-                    colors[statOrder[2]]!,
-                    stats[statOrder[2]],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            // Ligne 2 : 3 stats
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMaxStatCard(
-                    statOrder[3],
-                    labels[statOrder[3]]!,
-                    emojis[statOrder[3]]!,
-                    colors[statOrder[3]]!,
-                    stats[statOrder[3]],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildMaxStatCard(
-                    statOrder[4],
-                    labels[statOrder[4]]!,
-                    emojis[statOrder[4]]!,
-                    colors[statOrder[4]]!,
-                    stats[statOrder[4]],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildMaxStatCard(
-                    statOrder[5],
-                    labels[statOrder[5]]!,
-                    emojis[statOrder[5]]!,
-                    colors[statOrder[5]]!,
-                    stats[statOrder[5]],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMaxStatCard(
-    String statKey,
-    String label,
-    String emoji,
-    Color color,
-    BestStatRecord? record,
-  ) {
-    if (record == null) {
-      return Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: const Color(0xFF15181E),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFF454545), width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              offset: const Offset(2, 2),
-              blurRadius: 4,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 22)),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: GoogleFonts.exo2(
-                color: Colors.white.withValues(alpha: 0.7),
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'N/A',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final displayValue = record.value % 1 == 0
-        ? record.value.toInt().toString()
-        : record.value.toStringAsFixed(1);
-
-    final suffixe = statKey == 'degats' ? '%' : '';
-
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF15181E),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF454545), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
-            offset: const Offset(2, 2),
-            blurRadius: 4,
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 22)),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.exo2(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '$displayValue$suffixe',
-            style: GoogleFonts.exo2(
-              color: Colors.greenAccent,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '${record.points ?? 0} pts',
-            style: const TextStyle(
-              color: Colors.cyanAccent,
-              fontSize: 11,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── COLORS SECTION (COLLAPSIBLE) ──────────────────────────────────────────
-  Widget _buildColorsSection(Map<int, Set<int>> colorBank) {
-    final visibility = ArkSpeciesColorRegions.visibilityFor(widget.species);
-    final visibleCount = visibility.where((v) => v).length;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── En-tête collapsible ──────────────────────────────────
-            GestureDetector(
-              onTap: () =>
-                  setState(() => _isColorsExpanded = !_isColorsExpanded),
-              child: Row(
-                children: [
-                  const Icon(Icons.palette_outlined,
-                      color: Colors.cyanAccent),
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      'BANQUE DE COULEURS',
-                      style: TextStyle(
-                        color: Colors.cyanAccent,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        letterSpacing: 1.1,
-                      ),
-                    ),
-                  ),
-                  // Badge : nb régions visibles
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 7, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.cyanAccent.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                          color: Colors.cyanAccent.withValues(alpha: 0.3)),
-                    ),
-                    child: Text(
-                      '$visibleCount/6 visible${visibleCount > 1 ? 's' : ''}',
-                      style: const TextStyle(
-                        color: Colors.cyanAccent,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    _isColorsExpanded
-                        ? Icons.expand_less
-                        : Icons.expand_more,
-                    color: Colors.cyanAccent,
-                  ),
-                ],
-              ),
-            ),
-
-            // ── Vue compacte 6 cases (toujours visible) ──────────────
-            const SizedBox(height: 12),
-            _buildColorRegionsOverview(visibility),
-
-            // ── Détail par région (collapsible) ──────────────────────
-            if (_isColorsExpanded) ...[
-              const SizedBox(height: 14),
-              const Divider(color: Color(0xFF2A2D35), height: 1),
-              const SizedBox(height: 14),
-              ...List.generate(6, (region) {
-                final sorted =
-                    (colorBank[region] ?? {}).toList()..sort();
-                final isVisible = visibility[region];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _buildRegionColorBar(
-                    region,
-                    sorted,
-                    isVisible: isVisible,
-                  ),
-                );
-              }),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Vue compacte : 6 cases côte à côte avec badge visible/invisible
-  Widget _buildColorRegionsOverview(List<bool> visibility) {
-    return Row(
-      children: List.generate(6, (i) {
-        final isVisible = visibility[i];
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(right: i < 5 ? 6 : 0),
-            child: _buildRegionBadge(i, isVisible),
-          ),
-        );
-      }),
-    );
-  }
-
-  /// Case individuelle d'une région : numéro + indicateur visible/invisible
-  Widget _buildRegionBadge(int region, bool isVisible) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      decoration: BoxDecoration(
-        color: isVisible
-            ? Colors.cyanAccent.withValues(alpha: 0.07)
-            : Colors.grey.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: isVisible
-              ? Colors.cyanAccent.withValues(alpha: 0.35)
-              : Colors.grey.withValues(alpha: 0.2),
-          width: isVisible ? 1.2 : 1,
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Numéro de région
-          Text(
-            'R$region',
-            style: TextStyle(
-              color: isVisible ? Colors.cyanAccent : Colors.grey,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 5),
-          // Icône visible/invisible
-          Icon(
-            isVisible ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-            size: 14,
-            color: isVisible
-                ? Colors.cyanAccent.withValues(alpha: 0.8)
-                : Colors.grey.withValues(alpha: 0.4),
-          ),
-          const SizedBox(height: 4),
-          // Label
-          Text(
-            isVisible ? 'Visible' : 'Invis.',
-            style: TextStyle(
-              color: isVisible
-                  ? Colors.cyanAccent.withValues(alpha: 0.7)
-                  : Colors.grey.withValues(alpha: 0.4),
-              fontSize: 8,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRegionColorBar(int region, List<int> colors,
-      {bool isVisible = true}) {
-    return Opacity(
-      opacity: isVisible ? 1.0 : 0.45,
-      child: Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: isVisible
-            ? AppTheme.bgSecondary
-            : AppTheme.bgSecondary.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isVisible
-              ? AppTheme.borderColor
-              : AppTheme.borderColor.withValues(alpha: 0.4),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          body: Stack(
             children: [
-              Text(
-                'Région $region',
-                style: TextStyle(
-                  color: isVisible ? Colors.white : Colors.grey,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+              Positioned.fill(
+                child: Image.asset(
+                  _bgAsset,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) =>
+                      Container(color: AppTheme.bgPrimary),
                 ),
               ),
-              const SizedBox(width: 8),
-              // Badge visible/invisible
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: isVisible
-                      ? Colors.cyanAccent.withValues(alpha: 0.1)
-                      : Colors.grey.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: isVisible
-                        ? Colors.cyanAccent.withValues(alpha: 0.3)
-                        : Colors.grey.withValues(alpha: 0.2),
-                  ),
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.55),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+              ),
+              SafeArea(
+                child: Column(
                   children: [
-                    Icon(
-                      isVisible
-                          ? Icons.visibility_rounded
-                          : Icons.visibility_off_rounded,
-                      size: 10,
-                      color: isVisible
-                          ? Colors.cyanAccent.withValues(alpha: 0.8)
-                          : Colors.grey.withValues(alpha: 0.5),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isVisible ? 'Visible' : 'Invisible',
-                      style: TextStyle(
-                        color: isVisible
-                            ? Colors.cyanAccent.withValues(alpha: 0.8)
-                            : Colors.grey.withValues(alpha: 0.5),
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
+                    _buildAppBar(),
+                    _buildHeader(headerDino, dinos, tracker),
+                    _buildSpotlightTabBar(),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          JournalTabStatsMax(
+                            species: widget.species,
+                            dinos: dinos,
+                            tracker: tracker,
+                          ),
+                          JournalTabColors(
+                            species: widget.species,
+                            dinos: dinos,
+                            tracker: tracker,
+                          ),
+                          JournalTabMyDinos(
+                            species: widget.species,
+                            dinos: dinos,
+                            tracker: tracker,
+                          ),
+                          JournalTabSimulator(species: widget.species),
+                        ],
                       ),
                     ),
                   ],
@@ -846,375 +266,315 @@ class _SpeciesJournalDetailScreenState
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          if (colors.isEmpty)
-            const Text(
-              'Aucune couleur enregistree',
-              style: TextStyle(color: Colors.grey, fontSize: 11),
-            )
-          else
-            SizedBox(
-              height: 34,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: colors.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 6),
-                itemBuilder: (context, index) {
-                  final id = colors[index];
-                  final ark = ArkColorPalette.fromId(id);
-                  final color = ark?.color ?? Colors.grey;
-                  return Container(
-                    width: 42,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.35),
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$id',
-                        style: TextStyle(
-                          color:
-                              _isLight(color) ? Colors.black : Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-        ],
-      ),
-    ));
+        );
+      },
+    );
   }
 
-  // ─── DINOS SECTION ────────────────────────────────────────────────────────
-  Widget _buildDinosSection(
-    BuildContext context,
-    DinoProvider dinoProvider,
-    List<Dino> dinos,
-  ) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
+  // ─── App bar ────────────────────────────────────────────────────────────
+  Widget _buildAppBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+          Expanded(
+            child: Text(
+              widget.species.toUpperCase(),
+              style: GoogleFonts.cinzelDecorative(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // ─── Bouton Canva rectangulaire ───────────────────────────────
+          _CanvaHeaderButton(onTap: _openCanva),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.cyanAccent),
+            tooltip: 'Nouveau Dinocard pour ${widget.species}',
+            onPressed: _addNewDino,
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
+    );
+  }
+
+  // ─── Header : image + infos ─────────────────────────────────────────────
+  Widget _buildHeader(Dino? headerDino, List<Dino> dinos, SpeciesTracker? t) {
+    final hasTracker = t != null;
+    final colorsCount = t == null
+        ? 0
+        : t.colorBank.values.fold<int>(0, (s, l) => s + l.length);
+    final lastUpdate = t?.updatedAt;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () => _pickHeaderDino(dinos),
+            child: Container(
+              width: 110,
+              height: 130,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: Colors.cyanAccent.withValues(alpha: 0.4),
+                  width: 1.2,
+                ),
+              ),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: headerDino == null
+                        ? const Center(
+                            child: Icon(Icons.pets,
+                                color: Colors.white24, size: 36),
+                          )
+                        : DinoImageWidget(
+                            species: headerDino.espece,
+                            regionColors: headerDino.colorRegions,
+                            width: 110,
+                            height: 130,
+                            fit: BoxFit.contain,
+                            showColorBand: false,
+                          ),
+                  ),
+                  Positioned(
+                    right: 4,
+                    bottom: 4,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.7),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.edit,
+                          size: 12, color: Colors.cyanAccent),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.auto_stories_rounded, color: Colors.cyanAccent),
-                SizedBox(width: 8),
                 Text(
-                  'DINOS DE LA BIBLIOTHEQUE',
-                  style: TextStyle(
+                  'Journal d\'espèce',
+                  style: GoogleFonts.exo2(
                     color: Colors.cyanAccent,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    letterSpacing: 1.1,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                _miniStat(Icons.pets, '${dinos.length} dinos'),
+                const SizedBox(height: 2),
+                _miniStat(
+                  Icons.science,
+                  hasTracker
+                      ? 'Tracker actif · $colorsCount couleurs'
+                      : 'Aucun tracker',
+                ),
+                if (lastUpdate != null) ...[
+                  const SizedBox(height: 2),
+                  _miniStat(
+                    Icons.update,
+                    'MAJ ${lastUpdate.day}/${lastUpdate.month}/${lastUpdate.year}',
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _miniStat(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 12, color: Colors.white.withValues(alpha: 0.6)),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.exo2(
+              color: Colors.white.withValues(alpha: 0.8),
+              fontSize: 11,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── TabBar 4 onglets, largeur égale, effet spotlight ───────────────────
+  Widget _buildSpotlightTabBar() {
+    const tabs = ['Stats Max', 'Couleurs', 'Mes dinos', 'Simulateur'];
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+      ),
+      child: TabBar(
+        controller: _tabController,
+        isScrollable: false, // ← 4 onglets égaux (1/4 chacun)
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: const _SpotlightIndicator(color: Colors.cyanAccent),
+        dividerColor: Colors.transparent,
+        labelPadding: EdgeInsets.zero,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white.withValues(alpha: 0.55),
+        labelStyle: GoogleFonts.exo2(
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.5,
+        ),
+        unselectedLabelStyle: GoogleFonts.exo2(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+        tabs: tabs
+            .map((t) => Tab(
+                  height: 40,
+                  child: Center(
+                    child: Text(t, textAlign: TextAlign.center),
+                  ),
+                ))
+            .toList(),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Bouton Canva rectangulaire (header) — orange dégradé, bord sombre
+// ═══════════════════════════════════════════════════════════════════════════
+class _CanvaHeaderButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _CanvaHeaderButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'Ouvrir le Canva',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFF6B00), Color(0xFFFF9500)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Colors.black.withValues(alpha: 0.55),
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFF6B00).withValues(alpha: 0.35),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.dashboard_customize_rounded,
+                  color: Colors.white,
+                  size: 14,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'Canva',
+                  style: GoogleFonts.exo2(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
-            if (dinos.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(12),
-                child: Text(
-                  'Aucun dino complet enregistre dans la bibliotheque.',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              )
-            else
-              ...dinos.map((dino) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: ArkDinoCard(
-                    dino: dino,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => DinoDetailScreen(dino: dino),
-                        ),
-                      ).then((_) => dinoProvider.loadDinos());
-                    },
-                    onEdit: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => AddEditDinoScreen(dino: dino),
-                        ),
-                      ).then((_) => dinoProvider.loadDinos());
-                    },
-                    onDelete: () =>
-                        _confirmDelete(context, dinoProvider, dino),
-                  ),
-                );
-              }),
-          ],
+          ),
         ),
       ),
     );
   }
+}
 
-  // ─── CONFIRM DELETE ───────────────────────────────────────────────────────
-  void _confirmDelete(
-      BuildContext context, DinoProvider provider, Dino dino) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.bgCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          'Supprimer ${dino.nom} ?',
-          style: const TextStyle(color: AppTheme.textPrimary),
-        ),
-        content: const Text(
-          'Cette action est irreversible.',
-          style: TextStyle(color: AppTheme.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Annuler',
-              style: TextStyle(color: AppTheme.textSecondary),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              if (dino.id != null) {
-                provider.deleteDino(dino.id!);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.danger,
-            ),
-            child: const Text('Supprimer'),
-          ),
+/// Indicateur "spotlight" : halo radial centré derrière le label de l'onglet actif.
+class _SpotlightIndicator extends Decoration {
+  final Color color;
+  const _SpotlightIndicator({required this.color});
+
+  @override
+  BoxPainter createBoxPainter([VoidCallback? onChanged]) =>
+      _SpotlightPainter(color);
+}
+
+class _SpotlightPainter extends BoxPainter {
+  final Color color;
+  _SpotlightPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Offset offset, ImageConfiguration cfg) {
+    final size = cfg.size ?? Size.zero;
+    if (size == Size.zero) return;
+    final rect = offset & size;
+
+    final paint = Paint()
+      ..shader = RadialGradient(
+        center: Alignment.center,
+        radius: 0.7,
+        colors: [
+          color.withValues(alpha: 0.55),
+          color.withValues(alpha: 0.18),
+          Colors.transparent,
         ],
-      ),
+        stops: const [0.0, 0.55, 1.0],
+      ).createShader(rect);
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect.deflate(2), const Radius.circular(10)),
+      paint,
+    );
+
+    final underline = Paint()
+      ..color = color.withValues(alpha: 0.9)
+      ..strokeWidth = 2;
+    canvas.drawLine(
+      Offset(rect.left + 14, rect.bottom - 4),
+      Offset(rect.right - 14, rect.bottom - 4),
+      underline,
     );
   }
-
-  // ─── LIBRARY-ONLY BEST STATS ──────────────────────────────────────────────
-  Map<String, BestStatRecord> _buildLibraryOnlyBestStats(List<Dino> dinos) {
-    final merged = <String, BestStatRecord>{};
-
-    void considerStat({
-      required String statName,
-      required num value,
-      required int points,
-      required String sourceName,
-      required DateTime recordedAt,
-    }) {
-      final current = merged[statName];
-      final doubleValue = value.toDouble();
-
-      if (current == null || doubleValue > current.value) {
-        merged[statName] = BestStatRecord(
-          value: doubleValue,
-          points: points,
-          source: sourceName,
-          recordedAt: recordedAt,
-        );
-      }
-    }
-
-    for (final dino in dinos) {
-      final src = dino.nom.isNotEmpty ? dino.nom : 'Dino#${dino.id ?? 0}';
-      final date = dino.dateAjout;
-
-      considerStat(
-          statName: 'hp',
-          value: dino.hp,
-          points: dino.hpPoints,
-          sourceName: src,
-          recordedAt: date);
-      considerStat(
-          statName: 'stamina',
-          value: dino.stamina,
-          points: dino.staminaPoints,
-          sourceName: src,
-          recordedAt: date);
-      considerStat(
-          statName: 'oxygene',
-          value: dino.oxygene,
-          points: dino.oxygenePoints,
-          sourceName: src,
-          recordedAt: date);
-      considerStat(
-          statName: 'nourriture',
-          value: dino.nourriture,
-          points: dino.nourriturePoints,
-          sourceName: src,
-          recordedAt: date);
-      considerStat(
-          statName: 'poids',
-          value: dino.poids,
-          points: dino.poidsPoints,
-          sourceName: src,
-          recordedAt: date);
-      considerStat(
-          statName: 'degats',
-          value: dino.degats,
-          points: dino.degatsPoints,
-          sourceName: src,
-          recordedAt: date);
-      considerStat(
-          statName: 'vitesse',
-          value: dino.vitesse,
-          points: dino.vitessePoints,
-          sourceName: src,
-          recordedAt: date);
-    }
-
-    return merged;
-  }
-
-  // ─── LIBRARY-ONLY COLOR BANK ──────────────────────────────────────────────
-  Map<int, Set<int>> _buildLibraryOnlyColorBank(List<Dino> libraryDinos) {
-    final result = <int, Set<int>>{};
-
-    void addColor(int region, int colorId) {
-      if (colorId <= 0) return;
-      result[region] ??= <int>{};
-      result[region]!.add(colorId);
-    }
-
-    for (final dino in libraryDinos) {
-      final ids = dino.colorIds;
-      for (int r = 0; r < 6; r++) {
-        addColor(r, ids[r]);
-      }
-    }
-
-    return result;
-  }
-
-  bool _isLight(Color c) => c.computeLuminance() > 0.5;
 }
-
-// ═══════════════════════════════════════════════════════
-// TOP-LEVEL MERGE HELPERS
-// ═══════════════════════════════════════════════════════
-
-Map<String, BestStatRecord> _mergeTrackerAndLibraryBestStats({
-  required SpeciesTracker tracker,
-  required List<Dino> libraryDinos,
-}) {
-  final merged = <String, BestStatRecord>{};
-
-  // Start with tracker's best stats
-  merged.addAll(tracker.bestStats);
-
-  void considerStat({
-    required String statName,
-    required num value,
-    required int points,
-    required String sourceName,
-    required DateTime recordedAt,
-  }) {
-    final current = merged[statName];
-    final doubleValue = value.toDouble();
-
-    if (current == null || doubleValue > current.value) {
-      merged[statName] = BestStatRecord(
-        value: doubleValue,
-        points: points,
-        source: sourceName,
-        recordedAt: recordedAt,
-      );
-    }
-  }
-
-  for (final dino in libraryDinos) {
-    final src = dino.nom.isNotEmpty ? dino.nom : 'Dino#${dino.id ?? 0}';
-    final date = dino.dateAjout;
-
-    considerStat(
-        statName: 'hp',
-        value: dino.hp,
-        points: dino.hpPoints,
-        sourceName: src,
-        recordedAt: date);
-    considerStat(
-        statName: 'stamina',
-        value: dino.stamina,
-        points: dino.staminaPoints,
-        sourceName: src,
-        recordedAt: date);
-    considerStat(
-        statName: 'oxygene',
-        value: dino.oxygene,
-        points: dino.oxygenePoints,
-        sourceName: src,
-        recordedAt: date);
-    considerStat(
-        statName: 'nourriture',
-        value: dino.nourriture,
-        points: dino.nourriturePoints,
-        sourceName: src,
-        recordedAt: date);
-    considerStat(
-        statName: 'poids',
-        value: dino.poids,
-        points: dino.poidsPoints,
-        sourceName: src,
-        recordedAt: date);
-    considerStat(
-        statName: 'degats',
-        value: dino.degats,
-        points: dino.degatsPoints,
-        sourceName: src,
-        recordedAt: date);
-    considerStat(
-        statName: 'vitesse',
-        value: dino.vitesse,
-        points: dino.vitessePoints,
-        sourceName: src,
-        recordedAt: date);
-  }
-
-  return merged;
-}
-
-Map<int, Set<int>> _mergeTrackerAndLibraryColorBank({
-  required SpeciesTracker tracker,
-  required List<Dino> libraryDinos,
-}) {
-  final merged = <int, Set<int>>{};
-
-  // Start with tracker's color bank
-  tracker.colorBank.forEach((region, colors) {
-    merged[region] = <int>{...colors};
-  });
-
-  void addColor(int region, int colorId) {
-    if (colorId <= 0) return;
-    merged[region] ??= <int>{};
-    merged[region]!.add(colorId);
-  }
-
-  for (final dino in libraryDinos) {
-    final ids = dino.colorIds;
-    for (int r = 0; r < 6; r++) {
-      addColor(r, ids[r]);
-    }
-  }
-
-  return merged;
-}
-

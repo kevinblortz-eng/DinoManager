@@ -4,10 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../providers/dino_provider.dart';
 import '../providers/role_theme_provider.dart';
 import '../models/dino.dart';
-import '../widgets/ark_dino_card.dart';
+import '../widgets/dino_card_widget.dart';
 import '../theme/app_theme.dart';
 import 'dino_detail_screen.dart';
 import 'add_edit_dino_screen.dart';
+import 'dino_canva_screen.dart'; // ← AJOUT
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -48,6 +49,20 @@ class _LibraryScreenState extends State<LibraryScreen> {
     super.dispose();
   }
 
+  // ─── Ouverture Canva depuis la bibliothèque complète ──────────────────
+void _openCanva() {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const DinoCanvaScreen(
+        species: 'Bibliothèque',
+        initialSelection: <Dino>[],
+        filterBySpecies: false, // ← AJOUT : mode bibliothèque complète
+      ),
+    ),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,7 +94,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // HEADER
+  // HEADER — avec bouton Canva à gauche du bouton stats
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildHeader(BuildContext context) {
     return Consumer<DinoProvider>(
@@ -112,6 +127,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   ],
                 ),
               ),
+              // ─── Bouton Canva (NOUVEAU) ─────────────────────────────
+              _CanvaHeaderButton(onTap: _openCanva),
+              const SizedBox(width: 8),
               _SettingsButton(provider: provider),
             ],
           ),
@@ -214,13 +232,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // FILTER CHIPS — 4 tags les plus utilisés (dynamiques)
+  // FILTER CHIPS — inchangé
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildRoleFilterChips() {
     return Consumer<DinoProvider>(
       builder: (context, provider, _) {
         final topTags = _getTopTags(provider.allDinos);
-        final chips = ['', ...topTags]; // '' = "Tous"
+        final chips = ['', ...topTags];
 
         return Container(
           color: const Color(0xFF0D1117),
@@ -284,7 +302,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // LISTE DES DINOS — roleThemeProvider lu via context ✅
+  // LISTE DES DINOS — inchangé
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildDinoList() {
     return Consumer2<DinoProvider, RoleThemeProvider>(
@@ -334,7 +352,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
               return Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 640),
-                  child: ArkDinoCard(
+                  child: DinoCardWidget(
                     dino: dino,
                     onTap: () => Navigator.push(
                       context,
@@ -348,7 +366,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     ).then((_) => provider.loadDinos()),
                     onDelete: () =>
                         _confirmDelete(context, provider, dino),
-                    // ✅ Correctement lu depuis le Consumer2
                     roleTheme:
                         roleThemeProvider.themeForRole(dino.role),
                   ),
@@ -484,7 +501,71 @@ class _LibraryScreenState extends State<LibraryScreen> {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// BOUTON SETTINGS
+// BOUTON CANVA HEADER (NOUVEAU) — même style que celui du journal d'espèce
+// ══════════════════════════════════════════════════════════════════════════════
+class _CanvaHeaderButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _CanvaHeaderButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'Ouvrir le Canva',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFF6B00), Color(0xFFFF9500)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Colors.black.withValues(alpha: 0.55),
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFF6B00).withValues(alpha: 0.35),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.dashboard_customize_rounded,
+                  color: Colors.white,
+                  size: 14,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'Canva',
+                  style: GoogleFonts.exo2(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BOUTON SETTINGS — inchangé
 // ══════════════════════════════════════════════════════════════════════════════
 class _SettingsButton extends StatelessWidget {
   final DinoProvider provider;
@@ -654,7 +735,7 @@ class _SettingsButton extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// BOTTOM SHEET FILTRES
+// BOTTOM SHEET FILTRES — inchangé
 // ══════════════════════════════════════════════════════════════════════════════
 class _FilterSheet extends StatelessWidget {
   final DinoProvider provider;
@@ -739,7 +820,6 @@ class _FilterSheet extends StatelessWidget {
   }
 
   Widget _filterRowTags(BuildContext context, DinoProvider provider) {
-    // Tous les tags présents dans la collection
     final usedTags = <String>{};
     for (final d in provider.allDinos) {
       usedTags.addAll(d.tags);

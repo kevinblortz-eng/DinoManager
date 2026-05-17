@@ -682,171 +682,208 @@ class _SimulatorScreenState extends State<SimulatorScreen> {
 
   /// Carte de sélection des 6 régions de couleur avec style optimisé.
   /// Les zones inactives pour l'espèce sont affichées grisées et non cliquables.
-  Widget _buildColorRegionsCard() {
-    final visibility = ArkSpeciesColorRegions.visibilityFor(_species);
+ /// Carte de sélection des 6 régions de couleur.
+/// Les zones inactives pour l'espèce sont marquées d'un Ø barré
+/// mais restent entièrement modifiables (couleur sélectionnable).
+Widget _buildColorRegionsCard() {
+  final visibility = ArkSpeciesColorRegions.visibilityFor(_species);
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Titre + compteur de zones actives ──
-          Row(
-            children: [
-              Text(
-                'RÉGIONS DE COULEUR',
+  return Container(
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: AppTheme.bgCard,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: AppTheme.borderColor),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Titre + compteur de zones actives ──
+        Row(
+          children: [
+            Text(
+              'RÉGIONS DE COULEUR',
+              style: GoogleFonts.exo2(
+                color: Colors.cyanAccent,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2,
+              ),
+            ),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.cyanAccent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+                border:
+                    Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                '${ArkSpeciesColorRegions.visibleCount(_species)}/6 actives',
                 style: GoogleFonts.exo2(
                   color: Colors.cyanAccent,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.cyanAccent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3)),
-                ),
-                child: Text(
-                  '${ArkSpeciesColorRegions.visibleCount(_species)}/6 actives',
-                  style: GoogleFonts.exo2(
-                    color: Colors.cyanAccent,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
+            ),
+          ],
+        ),
+        
+        const SizedBox(height: 10),
 
-          // ── 6 cases de couleur (style card) ──
-          Row(
-            children: List.generate(6, (i) {
-              final isActive = i < visibility.length ? visibility[i] : true;
-              final id = _selectedColors[i];
-              final color = !isActive
-                  ? Colors.white.withValues(alpha: 0.04)
-                  : id == null
-                      ? Colors.grey.withValues(alpha: 0.18)
-                      : ArkColorPalette.fromId(id)?.color ?? Colors.grey;
+        // ── 6 cases de couleur (toutes cliquables) ──
+        Row(
+          children: List.generate(6, (i) {
+            final isActive = i < visibility.length ? visibility[i] : true;
+            final id = _selectedColors[i];
+            final hasColor = id != null;
+            final color = hasColor
+                ? (ArkColorPalette.fromId(id)?.color ?? Colors.grey)
+                : Colors.grey.withValues(alpha: 0.18);
 
-              return Expanded(
-                child: GestureDetector(
-                  onTap: isActive ? () => _pickColor(i) : null,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    height: 56,
-                    margin: EdgeInsets.only(right: i < 5 ? 5 : 0),
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: !isActive
-                            ? Colors.white.withValues(alpha: 0.06)
-                            : id != null
-                                ? Colors.white.withValues(alpha: 0.5)
-                                : Colors.white.withValues(alpha: 0.2),
-                        width: id != null && isActive ? 1.5 : 1,
-                      ),
-                      boxShadow: id != null && isActive
-                          ? [
-                              BoxShadow(
-                                color: color.withValues(alpha: 0.45),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ]
-                          : null,
+            return Expanded(
+              child: GestureDetector(
+                // ✅ Toujours cliquable, même pour les régions inactives.
+                onTap: () => _pickColor(i),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: 56,
+                  margin: EdgeInsets.only(right: i < 5 ? 5 : 0),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: hasColor
+                          ? Colors.white.withValues(alpha: 0.5)
+                          : Colors.white.withValues(alpha: 0.2),
+                      width: hasColor ? 1.5 : 1,
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (!isActive)
-                          Icon(Icons.block_rounded,
-                              color: Colors.white.withValues(alpha: 0.15),
-                              size: 16)
-                        else if (id == null)
-                          Icon(Icons.add_rounded,
-                              color: Colors.white.withValues(alpha: 0.45),
-                              size: 20)
-                        else
-                          Text(
-                            '$id',
-                            style: TextStyle(
-                              color: _isLight(color) ? Colors.black : Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w900,
+                    boxShadow: hasColor
+                        ? [
+                            BoxShadow(
+                              color: color.withValues(alpha: 0.45),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Stack(
+                    children: [
+                      // Contenu principal : ID couleur ou icône +
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (hasColor)
+                              Text(
+                                '$id',
+                                style: TextStyle(
+                                  color: _isLight(color)
+                                      ? Colors.black
+                                      : Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              )
+                            else
+                              Icon(Icons.add_rounded,
+                                  color:
+                                      Colors.white.withValues(alpha: 0.45),
+                                  size: 20),
+                            const SizedBox(height: 2),
+                            Text(
+                              'R$i',
+                              style: TextStyle(
+                                color: hasColor
+                                    ? (_isLight(color)
+                                        ? Colors.black.withValues(alpha: 0.5)
+                                        : Colors.white.withValues(alpha: 0.5))
+                                    : Colors.white.withValues(alpha: 0.3),
+                                fontSize: 8,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // ── Badge Ø barré en coin si zone inactive ──
+                      if (!isActive)
+                        Positioned(
+                          top: 2,
+                          right: 2,
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.75),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.redAccent
+                                    .withValues(alpha: 0.85),
+                                width: 1,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Ø',
+                              style: TextStyle(
+                                color: Colors.redAccent
+                                    .withValues(alpha: 0.95),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                height: 1.0,
+                              ),
                             ),
                           ),
-                        const SizedBox(height: 2),
-                        Text(
-                          isActive ? 'R$i' : '—',
-                          style: TextStyle(
-                            color: !isActive
-                                ? Colors.white.withValues(alpha: 0.12)
-                                : id == null
-                                    ? Colors.white.withValues(alpha: 0.3)
-                                    : (_isLight(color)
-                                        ? Colors.black.withValues(alpha: 0.5)
-                                        : Colors.white.withValues(alpha: 0.5)),
-                            fontSize: 8,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.4,
-                          ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
-              );
-            }),
-          ),
-          const SizedBox(height: 12),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 12),
 
-          // ── Boutons rapides ──
-          Row(
-            children: [
-              Expanded(
-                child: _QuickButton(
-                  icon: Icons.shuffle_rounded,
-                  label: 'Aléatoire',
-                  color: Colors.purpleAccent,
-                  onTap: _randomize,
-                ),
+        // ── Boutons rapides ──
+        Row(
+          children: [
+            Expanded(
+              child: _QuickButton(
+                icon: Icons.shuffle_rounded,
+                label: 'Aléatoire',
+                color: Colors.purpleAccent,
+                onTap: _randomize,
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _QuickButton(
-                  icon: Icons.star_rounded,
-                  label: 'Solid',
-                  color: Colors.amber,
-                  onTap: _testSolid,
-                ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _QuickButton(
+                icon: Icons.star_rounded,
+                label: 'Solid',
+                color: Colors.amber,
+                onTap: _testSolid,
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _QuickButton(
-                  icon: Icons.refresh_rounded,
-                  label: 'Reset',
-                  color: AppTheme.danger,
-                  onTap: _resetColors,
-                ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _QuickButton(
+                icon: Icons.refresh_rounded,
+                label: 'Reset',
+                color: AppTheme.danger,
+                onTap: _resetColors,
               ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildColorSources() {
     return Container(

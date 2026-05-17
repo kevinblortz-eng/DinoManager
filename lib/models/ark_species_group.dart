@@ -3,7 +3,7 @@
 // Trois groupes : terrestre (défaut), aquatique, volant.
 // L'utilisateur pourra ajuster manuellement les assignations ici.
 
-enum ArkSpeciesGroup { terrestre, aquatic, volant }
+enum ArkSpeciesGroup { terrestre, aquatic, volant, fantastic, compagnon }
 
 class ArkSpeciesGroupData {
   // ─── API publique ─────────────────────────────────────────────────────────
@@ -17,6 +17,8 @@ class ArkSpeciesGroupData {
       case ArkSpeciesGroup.terrestre: return '🦕';
       case ArkSpeciesGroup.aquatic:   return '🌊';
       case ArkSpeciesGroup.volant:    return '🦅';
+      case ArkSpeciesGroup.fantastic:    return '✨';
+      case ArkSpeciesGroup.compagnon:    return '🐾';
     }
   }
 
@@ -26,6 +28,8 @@ class ArkSpeciesGroupData {
       case ArkSpeciesGroup.terrestre: return 'Terrestre';
       case ArkSpeciesGroup.aquatic:   return 'Aquatique';
       case ArkSpeciesGroup.volant:    return 'Volant';
+      case ArkSpeciesGroup.fantastic:    return 'Fantastique';
+      case ArkSpeciesGroup.compagnon:    return 'Compagnon';
     }
   }
 
@@ -33,8 +37,19 @@ class ArkSpeciesGroupData {
   // À compléter manuellement selon les besoins.
   // Toute espèce absente de cette map est considérée comme Terrestre.
   static const Map<String, ArkSpeciesGroup> _data = {
-
     // ══════════════════════════════════════════════════════
+    // Compagnon
+    // ══════════════════════════════════════════════════════
+    
+    'Drakeling (Autumn)':   ArkSpeciesGroup.fantastic,
+    'Drakeling (Spring)':   ArkSpeciesGroup.fantastic,
+    'Drakeling (Summer)':   ArkSpeciesGroup.fantastic,
+    'Drakeling (Winter)':   ArkSpeciesGroup.fantastic,
+    'Dreadmare':            ArkSpeciesGroup.fantastic,
+    'Elderclaw':            ArkSpeciesGroup.fantastic,
+    'Pyromane':             ArkSpeciesGroup.fantastic,
+
+     // ══════════════════════════════════════════════════════
     // AQUATIQUES
     // ══════════════════════════════════════════════════════
     'Anglerfish':           ArkSpeciesGroup.aquatic,
@@ -82,12 +97,6 @@ class ArkSpeciesGroupData {
     'Aureliax':             ArkSpeciesGroup.volant,
     'Dimorphodon':          ArkSpeciesGroup.volant,
     'Dimorphodon Aberrant': ArkSpeciesGroup.volant,
-    'Drakeling (Autumn)':   ArkSpeciesGroup.volant,
-    'Drakeling (Spring)':   ArkSpeciesGroup.volant,
-    'Drakeling (Summer)':   ArkSpeciesGroup.volant,
-    'Drakeling (Winter)':   ArkSpeciesGroup.volant,
-    'Dreadmare':            ArkSpeciesGroup.volant,
-    'Elderclaw':            ArkSpeciesGroup.volant,
     'Fire Wyvern':          ArkSpeciesGroup.volant,
     'Gasbags':              ArkSpeciesGroup.volant,
     'Gigadesmodus':         ArkSpeciesGroup.volant,

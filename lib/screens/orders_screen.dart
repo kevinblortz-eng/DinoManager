@@ -7,6 +7,9 @@ import '../providers/order_provider.dart';
 import '../models/order.dart';
 import '../theme/app_theme.dart';
 import 'order_create_edit_screen.dart';
+import '../providers/currency_provider.dart';
+import '../models/currency.dart';
+
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -133,18 +136,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return Consumer<OrderProvider>(
       builder: (context, provider, _) {
         // ✅ Commande terminée = progressionRatio >= 0.99 OU status completed/validated
-        final inProgress = provider.orders
-            .where((o) =>
-                o.progressionRatio < 0.99 &&
-                o.status != OrderStatus.completed &&
-                o.status != OrderStatus.validated)
-            .length;
-        final completed = provider.orders
-            .where((o) =>
-                o.progressionRatio >= 0.99 ||
-                o.status == OrderStatus.completed ||
-                o.status == OrderStatus.validated)
-            .length;
+        // Dans _buildHeader (Consumer builder), remplace inProgress/completed par :
+final inProgress = provider.orders
+    .where((o) =>
+        o.status != OrderStatus.completed &&
+        o.status != OrderStatus.validated)
+    .length;
+final completed = provider.orders
+    .where((o) =>
+        o.status == OrderStatus.completed ||
+        o.status == OrderStatus.validated)
+    .length;
+
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
@@ -353,12 +356,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
             }
           }
           // ✅ Commande terminée = ratio >= 0.99 OU status completed/validated
-          final isCompleted = order.progressionRatio >= 0.99 ||
-              order.status == OrderStatus.completed ||
-              order.status == OrderStatus.validated;
-          if (!_showCompleted && isCompleted) {
-            return false;
-          }
+          final isCompleted = order.status == OrderStatus.completed ||
+    order.status == OrderStatus.validated;
+if (!_showCompleted && isCompleted) {
+  return false;
+}
           return true;
         }).toList();
 
@@ -410,29 +412,52 @@ class _OrdersScreenState extends State<OrdersScreen> {
   // CARTE COMMANDE
   // ═══════════════════════════════════════════════════════════════════════════
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CARTE COMMANDE — version retravaillée
+  //
+  // Règles :
+  //   - "Prête" = progressionRatio >= 0.99 mais PAS encore validée.
+  //     → badge "PRÊTE", anneau plein doré, bouton ✓ au centre du cercle.
+  //   - "Terminée" = status validated (ou completed).
+  //     → badge "VALIDÉE", anneau plein vert, trophée au centre.
+  //   - Sinon → progression normale + % au centre.
+  //
+  // Mise en page :
+  //   Ligne 1 : Nom · NbDinos                            Date
+  //   Ligne 2 : Prix + monnaie                           Statut
+  //   Barre fine de progression en bas.
+  // ═══════════════════════════════════════════════════════════════════════════
+
   Widget _buildOrderCard(
       BuildContext context, OrderProvider provider, Order order) {
-    final ratio = order.progressionRatio;
+    final ratio = order.progressionRatio.clamp(0.0, 1.0);
     final pct = (ratio * 100).round();
 
-    // ✅ Commande terminée si ratio >= 0.99 OU status completed/validated
-    final bool isFinished = ratio >= 0.99 ||
-        order.status == OrderStatus.completed ||
+    final bool isValidated = order.status == OrderStatus.completed ||
         order.status == OrderStatus.validated;
+    final bool isReadyToValidate = !isValidated && ratio >= 0.99;
 
-    // Couleur statut : vert si terminée, sinon couleur normale
-    final statusColor = isFinished
+    // Couleur d'accent selon l'état.
+    final Color accent = isValidated
         ? AppTheme.success
-        : _getStatusColor(order.status);
+        : isReadyToValidate
+            ? const Color(0xFFFFC107) // doré "prête"
+            : ratio > 0.5
+                ? Colors.orangeAccent
+                : AppTheme.accentPrimary;
+
+    // Total dinos commandés (toutes paires/genres confondus).
+    final int totalDinos = order.items.fold<int>(0, (sum, it) {
+      // une "paire" = 2 dinos, sinon quantity
+      final isPair = it.gender.toString().toLowerCase().contains('les2');
+      return sum + (isPair ? it.quantity * 2 : it.quantity);
+    });
 
     final dateStr =
-        '${order.createdAt.day.toString().padLeft(2, '0')}-${_monthName(order.createdAt.month).toUpperCase()}';
+        '${order.createdAt.day.toString().padLeft(2, '0')}-${_monthName(order.createdAt.month).toUpperCase()}-${order.createdAt.year.toString().substring(2)}';
 
-    final progressColor = isFinished
-        ? AppTheme.success
-        : ratio > 0.5
-            ? Colors.orangeAccent
-            : AppTheme.accentPrimary;
+    // Monnaie globale de l'app
+    final currency = context.watch<CurrencyProvider>().defaultCurrency;
 
     return GestureDetector(
       onTap: () async {
@@ -446,33 +471,32 @@ class _OrdersScreenState extends State<OrdersScreen> {
       },
       onLongPress: () => _showOrderOptions(context, provider, order),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
+        margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              // ✅ Fond vert subtil si terminée
-              isFinished
-                  ? AppTheme.success.withValues(alpha: 0.12)
-                  : statusColor.withValues(alpha: 0.08),
-              const Color(0xFF111827).withValues(alpha: 0.92),
+              accent.withValues(alpha: isValidated ? 0.14 : 0.08),
+              const Color(0xFF111827).withValues(alpha: 0.94),
             ],
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: statusColor.withValues(alpha: isFinished ? 0.6 : 0.35),
-            width: isFinished ? 2.0 : 1.5,
+            color: accent.withValues(
+                alpha: isValidated || isReadyToValidate ? 0.7 : 0.35),
+            width: isValidated || isReadyToValidate ? 2 : 1.5,
           ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.4),
-              blurRadius: 8,
+              blurRadius: 10,
               offset: const Offset(0, 3),
             ),
             BoxShadow(
-              color: statusColor.withValues(alpha: isFinished ? 0.15 : 0.06),
-              blurRadius: 16,
+              color: accent.withValues(
+                  alpha: isValidated || isReadyToValidate ? 0.20 : 0.06),
+              blurRadius: 18,
               offset: const Offset(0, 4),
             ),
           ],
@@ -480,115 +504,125 @@ class _OrdersScreenState extends State<OrdersScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+              padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildCircularProgress(pct, ratio, progressColor,
-                      isFinished: isFinished),
+                  // ── Jauge circulaire avec action centrale ────────────────
+                  _buildCircularProgress(
+                    pct: pct,
+                    ratio: ratio,
+                    color: accent,
+                    isValidated: isValidated,
+                    isReadyToValidate: isReadyToValidate,
+                    onValidate: () => _confirmValidate(provider, order),
+                  ),
                   const SizedBox(width: 14),
+
+                  // ── Bloc texte ───────────────────────────────────────────
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Ligne 1 : Nom · NbDinos                Date
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
-                              child: Row(
-                                children: [
-                                  // ✅ Icône trophée si terminée
-                                  if (isFinished) ...[
-                                    const Text('🏆',
-                                        style: TextStyle(fontSize: 13)),
-                                    const SizedBox(width: 4),
-                                  ],
-                                  Expanded(
-                                    child: Text(
-                                      order.name.isEmpty
+                              child: RichText(
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                text: TextSpan(
+                                  children: [
+                                    if (isValidated) ...[
+                                      const WidgetSpan(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(right: 4),
+                                          child: Text('🏆',
+                                              style: TextStyle(fontSize: 13)),
+                                        ),
+                                      ),
+                                    ] else if (isReadyToValidate) ...[
+                                      const WidgetSpan(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(right: 4),
+                                          child: Text('✨',
+                                              style: TextStyle(fontSize: 13)),
+                                        ),
+                                      ),
+                                    ],
+                                    TextSpan(
+                                      text: order.name.isEmpty
                                           ? '— Sans nom —'
                                           : order.name,
                                       style: GoogleFonts.exo2(
-                                        fontSize: 14,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.w800,
-                                        color: isFinished
+                                        color: isValidated
                                             ? AppTheme.success
                                             : Colors.white,
                                         letterSpacing: 0.3,
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ),
-                                ],
+                                    TextSpan(
+                                      text: '  ·  ',
+                                      style: GoogleFonts.exo2(
+                                        fontSize: 13,
+                                        color: AppTheme.textMuted,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          '$totalDinos dino${totalDinos > 1 ? 's' : ''}',
+                                      style: GoogleFonts.exo2(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppTheme.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              dateStr,
-                              style: GoogleFonts.exo2(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textMuted,
-                                letterSpacing: 0.5,
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.35),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                    color: Colors.white
+                                        .withValues(alpha: 0.10),
+                                    width: 1),
+                              ),
+                              child: Text(
+                                dateStr,
+                                style: GoogleFonts.exo2(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.textMuted,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 5),
-                        Text(
-                          order.contentSummary,
-                          style: GoogleFonts.exo2(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
+
+                        const SizedBox(height: 8),
+
+                        // Ligne 2 : Prix + monnaie               Badge statut
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            if (order.computedTotalCost > 0) ...[
-                              Icon(
-                                Icons.monetization_on_rounded,
-                                size: 12,
-                                color: AppTheme.accentPrimary
-                                    .withValues(alpha: 0.8),
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                _formatPrice(order.computedTotalCost),
-                                style: GoogleFonts.exo2(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.accentPrimary,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                            ],
+                            _buildPriceChip(order, currency),
                             const Spacer(),
-                            // ✅ Badge "TERMINÉE" si ratio 100%, sinon badge statut normal
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: statusColor.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: statusColor.withValues(alpha: 0.4),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                isFinished
-                                    ? '✓ TERMINÉE'
-                                    : order.status.label.toUpperCase(),
-                                style: GoogleFonts.exo2(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w800,
-                                  color: statusColor,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
+                            _buildStatusBadge(
+                              isValidated: isValidated,
+                              isReadyToValidate: isReadyToValidate,
+                              order: order,
+                              accent: accent,
                             ),
                           ],
                         ),
@@ -598,16 +632,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ],
               ),
             ),
+
+            // ── Barre fine de progression collée en bas ───────────────────
             ClipRRect(
               borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16),
+                bottomLeft: Radius.circular(18),
+                bottomRight: Radius.circular(18),
               ),
               child: LinearProgressIndicator(
                 value: ratio,
                 minHeight: 3,
                 backgroundColor: Colors.white.withValues(alpha: 0.05),
-                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                valueColor: AlwaysStoppedAnimation<Color>(accent),
               ),
             ),
           ],
@@ -617,20 +653,186 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // JAUGE CIRCULAIRE
+  // PRIX + MONNAIE
   // ═══════════════════════════════════════════════════════════════════════════
 
-  Widget _buildCircularProgress(int pct, double ratio, Color color,
-      {bool isFinished = false}) {
+  Widget _buildPriceChip(Order order, Currency currency) {
+    if (order.computedTotalCost <= 0) {
+      return Text(
+        '— prix non défini',
+        style: GoogleFonts.exo2(
+          fontSize: 11,
+          color: AppTheme.textMuted,
+          fontStyle: FontStyle.italic,
+        ),
+      );
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.35),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            currency.iconPath,
+            width: 14,
+            height: 14,
+            errorBuilder: (_, __, ___) => const Icon(
+              Icons.monetization_on_rounded,
+              size: 12,
+              color: AppTheme.accentPrimary,
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            _formatPrice(order.computedTotalCost),
+            style: GoogleFonts.exo2(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.accentPrimary,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(width: 3),
+          Text(
+            currency.name,
+            style: GoogleFonts.exo2(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.accentPrimary.withValues(alpha: 0.85),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BADGE STATUT
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildStatusBadge({
+    required bool isValidated,
+    required bool isReadyToValidate,
+    required Order order,
+    required Color accent,
+  }) {
+    final String label;
+    if (isValidated) {
+      label = '✓ VALIDÉE';
+    } else if (isReadyToValidate) {
+      label = '✨ PRÊTE';
+    } else {
+      label = order.status.label.toUpperCase();
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: accent.withValues(alpha: 0.55),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.exo2(
+          fontSize: 9,
+          fontWeight: FontWeight.w900,
+          color: accent,
+          letterSpacing: 0.6,
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // JAUGE CIRCULAIRE — avec bouton ✓ au centre quand "prête à valider"
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildCircularProgress({
+    required int pct,
+    required double ratio,
+    required Color color,
+    required bool isValidated,
+    required bool isReadyToValidate,
+    required VoidCallback onValidate,
+  }) {
+    const double size = 62;
+
+    Widget center;
+    if (isValidated) {
+      center = const Text('🏆', style: TextStyle(fontSize: 22));
+    } else if (isReadyToValidate) {
+      // Bouton ✓ tactile au centre — déclenche la validation explicite.
+      center = Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onValidate,
+          customBorder: const CircleBorder(),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withValues(alpha: 0.22),
+              border: Border.all(color: color, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.55),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: Icon(Icons.check_rounded, color: color, size: 22),
+          ),
+        ),
+      );
+    } else {
+      center = Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '$pct',
+            style: GoogleFonts.exo2(
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              color: color,
+              height: 1,
+            ),
+          ),
+          Text(
+            '%',
+            style: GoogleFonts.exo2(
+              fontSize: 8,
+              fontWeight: FontWeight.w600,
+              color: color.withValues(alpha: 0.7),
+              height: 1,
+            ),
+          ),
+        ],
+      );
+    }
+
     return SizedBox(
-      width: 58,
-      height: 58,
+      width: size,
+      height: size,
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Anneau de fond
           SizedBox(
-            width: 58,
-            height: 58,
+            width: size,
+            height: size,
             child: CircularProgressIndicator(
               value: 1.0,
               strokeWidth: 5,
@@ -639,9 +841,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
             ),
           ),
+          // Anneau de progression
           SizedBox(
-            width: 58,
-            height: 58,
+            width: size,
+            height: size,
             child: CircularProgressIndicator(
               value: ratio,
               strokeWidth: 5,
@@ -650,36 +853,66 @@ class _OrdersScreenState extends State<OrdersScreen> {
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ),
-          // ✅ Trophée si terminée, sinon chiffre %
-          if (isFinished)
-            const Text('🏆', style: TextStyle(fontSize: 20))
-          else
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '$pct',
-                  style: GoogleFonts.exo2(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    color: color,
-                    height: 1,
-                  ),
-                ),
-                Text(
-                  '%',
-                  style: GoogleFonts.exo2(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w600,
-                    color: color.withValues(alpha: 0.7),
-                    height: 1,
-                  ),
-                ),
-              ],
-            ),
+          center,
         ],
       ),
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VALIDATION EXPLICITE DEPUIS LA TUILE
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Future<void> _confirmValidate(
+      OrderProvider provider, Order order) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.bgCard,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.check_circle_rounded,
+                color: AppTheme.success, size: 22),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Valider cette commande ?',
+                style: GoogleFonts.exo2(
+                    color: AppTheme.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Tous les dinos sont prêts. Confirmer la validation finale de "${order.name.isEmpty ? '— Sans nom —' : order.name}" ?',
+          style: GoogleFonts.exo2(
+              color: AppTheme.textSecondary, fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Annuler',
+                style: GoogleFonts.exo2(color: AppTheme.textMuted)),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(ctx, true),
+            icon: const Icon(Icons.check_rounded, size: 16),
+            label: const Text('Valider'),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.success),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    await provider.validateOrder(order.id);
+    if (!mounted) return;
+    provider.loadOrders();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -868,7 +1101,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (isFinished) ...[
-                  const Text('🏆', style: TextStyle(fontSize: 16)),
+                  const Text('👾', style: TextStyle(fontSize: 16)),
                   const SizedBox(width: 6),
                 ],
                 Text(

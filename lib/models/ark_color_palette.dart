@@ -257,6 +257,7 @@ class ArkColorPalette {
     252: (name: 'Dusk Coloring',         hex: '#8E4FA4'),
     253: (name: 'Thistle Coloring',      hex: '#E6C2DC'),
     254: (name: 'Bubblegum Coloring',    hex: '#FFBECE'),
+    255: (name: 'White Undefined',    hex: '#ffffff'),
   };
 
   static ArkColor? fromId(int id) {
@@ -271,7 +272,7 @@ class ArkColorPalette {
       return const ArkColor(
         id: 0,
         name: 'Unknown',
-        hex: '#808080',
+        hex: '#E6E6E6',
       );
     }
     return ArkColor(id: id, name: data.name, hex: data.hex);

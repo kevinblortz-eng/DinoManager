@@ -280,50 +280,75 @@ class _DinoImageWidgetState extends State<DinoImageWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: widget.width,
-          height: widget.height,
-          child: _buildContent(),
-        ),
-        if (widget.showColorBand) _buildColorBand(),
-      ],
+@override
+Widget build(BuildContext context) {
+  // Si on demande "infinity" en largeur/hauteur, on s'adapte aux contraintes
+  // du parent au lieu d'imposer une SizedBox de taille infinie (qui devient 0
+  // dans une Column ou un Stack non contraint).
+  final bool wInf = widget.width  == double.infinity;
+  final bool hInf = widget.height == double.infinity;
+
+  final Widget content = _buildContent();
+
+  Widget sized;
+  if (wInf || hInf) {
+    sized = LayoutBuilder(
+      builder: (context, constraints) {
+        final w = wInf
+            ? (constraints.hasBoundedWidth  ? constraints.maxWidth  : 200.0)
+            : widget.width;
+        final h = hInf
+            ? (constraints.hasBoundedHeight ? constraints.maxHeight : 150.0)
+            : widget.height;
+        return SizedBox(width: w, height: h, child: content);
+      },
+    );
+  } else {
+    sized = SizedBox(
+      width:  widget.width,
+      height: widget.height,
+      child:  content,
     );
   }
 
-  Widget _buildContent() {
-    if (_loading) {
-      return Container(
-        color: const Color(0xFF0D1117),
-        child: const Center(
-          child: SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Color(0xFFFF6B00),
-            ),
+  if (!widget.showColorBand) return sized;
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [sized, _buildColorBand()],
+  );
+}
+
+ Widget _buildContent() {
+  if (_loading) {
+    return Container(
+      color: const Color(0xFF0D1117),
+      child: const Center(
+        child: SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: Color(0xFFFF6B00),
           ),
         ),
-      );
-    }
-
-    if (_coloredImage == null) return _buildFallback();
-
-    return Center(
-      child: RawImage(
-        image: _coloredImage,
-        width: widget.width,
-        height: widget.height,
-        fit: widget.fit,
-        alignment: Alignment.center,
-        filterQuality: FilterQuality.high,
       ),
     );
   }
+
+  if (_coloredImage == null) return _buildFallback();
+
+  // ⚠️ On ne passe PLUS widget.width/height ici — le parent SizedBox
+  // s'occupe déjà du dimensionnement. RawImage prendra le BoxFit.
+  return Center(
+    child: RawImage(
+      image:         _coloredImage,
+      fit:           widget.fit,
+      alignment:     Alignment.center,
+      filterQuality: FilterQuality.high,
+    ),
+  );
+}
 
   Widget _buildFallback() {
     final emoji = _getEmoji(widget.species);

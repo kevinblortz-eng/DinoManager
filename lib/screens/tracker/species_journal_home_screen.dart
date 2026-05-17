@@ -11,6 +11,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/dino_image_widget.dart';
 import 'species_journal_detail_screen.dart';
 import 'species_tracker_detail_screen.dart';
+import '../../screens/add_edit_dino_screen.dart';
 
 class SpeciesJournalHomeScreen extends StatelessWidget {
   final Dino? initialSelectedDino;
@@ -87,7 +88,7 @@ class _SpeciesJournalHomeScreenBodyState
                       color: AppTheme.accentPrimary, size: 22),
                   const SizedBox(width: 10),
                   Text(
-                    'Nouveau tracker',
+                    '',
                     style: GoogleFonts.exo2(
                       color: AppTheme.textPrimary,
                       fontWeight: FontWeight.bold,
@@ -409,7 +410,7 @@ class _SpeciesJournalHomeScreenBodyState
             foregroundColor: Colors.white,
             icon: const Icon(Icons.track_changes_rounded, size: 20),
             label: Text(
-              'Nouveau tracker',
+              '',
               style: GoogleFonts.exo2(
                   fontWeight: FontWeight.w700, fontSize: 13),
             ),
@@ -591,16 +592,18 @@ class _SpeciesJournalHomeScreenBodyState
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => SpeciesJournalDetailScreen(
-                species: item.species,
-                initialSelectedDino: item.defaultFavoriteDino,
-              ),
-            ),
-          );
+            onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => SpeciesJournalDetailScreen(
+        species: item.species,
+        initialSelectedDino: item.defaultFavoriteDino,
+      ),
+    ),
+  );
+
+
         },
         child: Padding(
           padding: const EdgeInsets.all(14),
