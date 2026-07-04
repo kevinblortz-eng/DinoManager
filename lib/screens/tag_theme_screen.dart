@@ -17,7 +17,7 @@ class TagThemeScreen extends StatelessWidget {
       builder: (context, dinoProvider, tagThemeProvider, _) {
         // Collecte tous les tags utilisés dans les DinoCards
         final usedTags = <String>{};
-        for (final dino in dinoProvider.dinos) {
+        for (final dino in dinoProvider.allDinos) { // FIX BUG-LIB-01
           usedTags.addAll(dino.tags);
         }
         // Ajoute les tags par défaut même si non utilisés
@@ -137,7 +137,7 @@ class TagThemeScreen extends StatelessWidget {
 
     // Nb de dinos utilisant ce tag
     final count =
-        dinoProvider.dinos.where((d) => d.tags.contains(tag)).length;
+        dinoProvider.allDinos.where((d) => d.tags.contains(tag)).length; // FIX BUG-LIB-01
 
     return GestureDetector(
       onTap: () => _openColorPicker(context, tag, customHex, tagThemeProvider),

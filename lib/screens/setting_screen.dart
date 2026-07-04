@@ -52,7 +52,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
         RoleThemeProvider>(
       builder: (context, dinoProvider, trackerProvider, tagThemeProvider,
           roleThemeProvider, _) {
-        final dinos = dinoProvider.dinos;
+        final dinos = dinoProvider.allDinos; // FIX BUG-LIB-01: stats globales = liste complete
         final totalDinos = dinos.length;
         final totalSpecies =
             dinos.map((d) => d.espece.toLowerCase()).toSet().length;
@@ -545,7 +545,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                   ? _hexToColor(customHex)
                   : _defaultTagColor(tag);
               final isCustom = customHex != null;
-              final count = dinoProvider.dinos
+              final count = dinoProvider.allDinos
                   .where((d) => d.tags.contains(tag))
                   .length;
 

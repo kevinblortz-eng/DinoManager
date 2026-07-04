@@ -264,7 +264,7 @@ class ArkSpeciesColorRegions {
     'Shadowmane':              [true,  false, true,  true,   true,  true ], 
     'Shastasaurus':            [true,  false,  true, false,  true, true], 
     'Shinehorn':               [true,  false, true,  true,  true,  true ], // Corrigé JSON
-    'Snow Owl':                [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Snow Owl':                [true,  false, true,  false, true,  true ], // Corrigé (source ARK Wiki: région 3 non utilisée)
     'Solwyn':                  [true,  false,  true,  false,  true,  true ], 
     'Spino':                   [true,  true,  true,  false, true,  true ], // Corrigé JSON
     'Spino Aberrant':          [true,  true,  true,  false, true,  true ], // Verif (hérité de Spino)
