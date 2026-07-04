@@ -5,6 +5,26 @@ import '../models/dino.dart';
 /// Évite la duplication de _hexToColor / _parseHex dans chaque widget.
 class DinoHelpers {
 
+  // ─── Localisation ──────────────────────────────────────────────────────────
+
+  /// Map les valeurs internes de sexe aux clés i18n
+  static String sexeToL10nKey(String sexe) {
+    return switch (sexe) {
+      'Mâle' => 'sexMale',
+      'Femelle' => 'sexFemale',
+      'Mâle+Femelle' => 'sexMaleFemale',
+      _ => 'sexUnknown',
+    };
+  }
+
+  /// Retourne la liste des valeurs possibles pour le sexe (avec clés i18n)
+  static List<String> sexeOptionsL10n() => [
+    'sexUnknown',
+    'sexMale',
+    'sexFemale',
+    'sexMaleFemale',
+  ];
+
   // ─── Formatage ────────────────────────────────────────────────────────────
 
   static String toTitleCase(String text) {
@@ -18,7 +38,7 @@ class DinoHelpers {
   /// Formate un grand nombre : 12500 → "12.5k", 1200000 → "1.2m"
   static String formatNumber(int value) {
     if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}m';
-    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}k';
+    if (value >= 10000) return '${(value / 1000).toStringAsFixed(1)}k';
     return value.toString();
   }
 

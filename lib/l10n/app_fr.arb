@@ -247,5 +247,262 @@
     "placeholders": {
       "id": {"type": "int"}
     }
-  }
+  },
+
+  "sexMaleFemale": "Mâle+Femelle",
+
+  "sampleDinoNote1": "Rex boss PvE parfait. 44 pts HP, 42 pts dégâts.",
+  "sampleDinoNote2": "Raptor CC bleu nuit. 4 mutations dégâts.",
+
+  "excelShareText": "Sauvegarde Excel ARK complète",
+  "excelShareSubject": "Backup Excel ARK",
+  "backupShareSubject": "[ARK Dino Manager] Sauvegarde complète — {timestamp}",
+  "@backupShareSubject": {
+    "placeholders": {
+      "timestamp": {"type": "String"}
+    }
+  },
+  "backupShareText": "Sauvegarde complète ARK Dino Manager",
+
+  "regionLabel": "Région {index}",
+  "@regionLabel": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+
+  "scanHintCamera": "Utilisez la caméra ou une capture d'écran existante",
+  "scanButtonCamera": "CAMÉRA",
+  "scanButtonGallery": "Photo de l'écran",
+
+  "ocrWarningImprint": "⚠️ Stats HP/Stam/Weight/Melee corrigées à 0% imprint",
+
+  "importErrorFormat": "Format invalide : clé \"dinos\" manquante.",
+  "importErrorDino": "Dino #{number} ignoré : {error}",
+  "@importErrorDino": {
+    "placeholders": {
+      "number": {"type": "int"},
+      "error": {"type": "String"}
+    }
+  },
+  "importErrorTracker": "Tracker #{number} ignoré : {error}",
+  "@importErrorTracker": {
+    "placeholders": {
+      "number": {"type": "int"},
+      "error": {"type": "String"}
+    }
+  },
+
+  "buttonCancel": "Annuler",
+  "buttonDelete": "Supprimer",
+  "buttonValidate": "Valider",
+  "buttonRemove": "Retirer",
+  "buttonHide": "Masquer",
+  "buttonSave": "Enregistrer",
+  "buttonCreate": "Créer",
+  "buttonImport": "Importer",
+  "buttonOpen": "Ouvrir",
+  "buttonCopy": "Recopier",
+  "buttonResume": "Reprendre",
+  "buttonBack": "Retour",
+  "buttonClose": "Fermer",
+  "buttonContinue": "Continuer",
+  "buttonOk": "OK",
+  "buttonApply": "Appliquer",
+
+  "errorGenericWithDetails": "Erreur : {error}",
+  "@errorGenericWithDetails": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorExportFailed": "Erreur export : {error}",
+  "@errorExportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorScanFailed": "Erreur scanner : {error}",
+  "errorScanFailed2": "Erreur scan : {error}",
+
+  "successValidated": "✅ Commande validée !",
+  "successCopied": "✅ Copié dans le presse-papier",
+  "successObservationSaved": "✓ Observation enregistrée et sauvegardée",
+
+  "messageNoOtherDinos": "Aucun autre dinosaure de cette espèce",
+  "messageNoDinosAvailable": "Aucun dino disponible",
+  "messageNoCommonColors": "Aucune couleur commune",
+  "messageNoColorsForRegion": "Aucune couleur enregistrée pour la région {region}",
+  "@messageNoColorsForRegion": {
+    "placeholders": {
+      "region": {"type": "String"}
+    }
+  },
+  "messageNoColorsToRegister": "Aucune couleur à enregistrer",
+  "messageNoStatsToRegister": "Aucune stat à enregistrer",
+  "messageNoStatsAvailable": "Aucune stat disponible",
+  "messageNoStatsEntered": "Aucune stat saisie",
+  "messageNoDinoDataDetected": "Aucune donnée de dino détectée.\\nAjustez le cadrage.",
+
+  "trackerCreated": "Tracker créé pour {species}",
+  "@trackerCreated": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "trackerCreationFailed": "Impossible de créer le tracker",
+  "trackerDeleted": "Tracker {species} supprimé",
+  "@trackerDeleted": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+
+  "validationSpeciesRequired": "Le nom de l'espèce est requis",
+  "validationSpeciesNotFound": "Espèce \"{species}\" non reconnue",
+  "@validationSpeciesNotFound": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "validationSelectColors": "Selectionnez au moins une couleur",
+  "validationAddDinos": "Ajoutez au moins un dino",
+  "validationNameOrDino": "Ajoutez un nom ou un dino",
+
+  "settingsDefaultsUpdated": "Valeurs par défaut mises à jour",
+  "settingsBackupRestore": "Sauvegarde & Restauration",
+  "settingsMaxVariants": "Maximum 6 variantes sélectionnables",
+
+  "statsRegistered": "{count} stats → tracker",
+  "@statsRegistered": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsRecorded": "{count} stats enregistrées",
+  "@statsRecorded": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "selectionCount": "Ajouter ({count})",
+  "@selectionCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "colorsTrackerSpecies": "Couleurs → tracker {species}",
+  "@colorsTrackerSpecies": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "colorDeletedFromRegion": "Couleur {colorId} supprimée de la région {region}",
+  "@colorDeletedFromRegion": {
+    "placeholders": {
+      "colorId": {"type": "int"},
+      "region": {"type": "String"}
+    }
+  }  ,
+  "scannerTooltip": "Scanner Cryopod / Tek Jumelles",
+
+  "scanDetectedTitle": "Scan détecté — {source}",
+  "@scanDetectedTitle": {
+    "placeholders": { "source": {"type": "String"} }
+  },
+
+  "scanRowSpecies": "Espèce",
+  "scanRowLevel": "Niveau",
+  "scanRowSex": "Sexe",
+  "scanRowStatus": "Statut",
+  "scanRowImprint": "Imprint",
+  "scanRowHp": "HP",
+  "scanRowStamina": "Stamina",
+  "scanRowOxygen": "Oxygène",
+  "scanRowFood": "Nourriture",
+  "scanRowWeight": "Poids",
+  "scanRowMelee": "Attaque",
+  "scanRowColors": "Couleurs",
+  "scanRowMutations": "Mutations",
+
+  "scanImprintWarning": "⚠️ Imprint détecté : HP, Stam, Poids et Attaque seront automatiquement corrigés à 0% imprint.",
+  "scanImportedToast": "Données importées ({source}){correction} — vérifiez et sauvegardez",
+  "@scanImportedToast": {
+    "placeholders": {
+      "source": {"type": "String"},
+      "correction": {"type": "String"}
+    }
+  },
+  "scanImprintCorrectionSuffix": " — stats corrigées imprint",
+  "scanNoteImportOcr": "Import OCR ({source})",
+  "@scanNoteImportOcr": {
+    "placeholders": { "source": {"type": "String"} }
+  },
+  "scanNoteImprint": "Imprint: {percent}%{imprinter}",
+  "@scanNoteImprint": {
+    "placeholders": {
+      "percent": {"type": "String"},
+      "imprinter": {"type": "String"}
+    }
+  },
+  "scanNoteMutations": "Mutations: ♂{male} ♀{female}",
+  "@scanNoteMutations": {
+    "placeholders": {
+      "male": {"type": "String"},
+      "female": {"type": "String"}
+    }
+  },
+
+  "dinoDuplicated": "{name} dupliqué !",
+  "@dinoDuplicated": {
+    "placeholders": { "name": {"type": "String"} }
+  },
+  "dinoAdded": "{name} ajouté !",
+  "@dinoAdded": {
+    "placeholders": { "name": {"type": "String"} }
+  },
+  "dinoUpdated": "{name} mis à jour !",
+  "@dinoUpdated": {
+    "placeholders": { "name": {"type": "String"} }
+  },
+
+  "addEditCreateDinoCard": "CRÉER DINOCARD",
+  "addEditSavingProgress": "SAUVEGARDE...",
+  "addEditSaveButton": "SAUVEGARDER",
+  "addEditSaveStats": "Sauver les stats",
+  "addEditSaveColors": "Sauver les couleurs",
+
+  "addEditNameDialogTitle": "Nom du dinosaure",
+  "addEditNamePlaceholder": "Tap pour nommer",
+  "addEditTagPlaceholder": "TAG",
+
+  "tagsDialogTitle": "Tags & Role",
+  "tagsNewTagTitle": "Nouveau tag",
+  "tagsNewTagHint": "Ex: Alpha, Mutant...",
+  "tagsAdd": "Ajouter",
+  "tagsValidate": "Valider",
+
+  "speciesPickerTitle": "Choisir une espèce",
+  "speciesPickerEmpty": "Aucune espèce",
+
+  "regionDetailRegion": "RÉGION {index}",
+  "@regionDetailRegion": {
+    "placeholders": { "index": {"type": "int"} }
+  },
+  "regionDetailNoColor": "Sans couleur",
+  "regionDetailLongPressHint": "Appui long sur la case → réinitialiser",
+
+  "inlineEditPointsBase": "Points Base",
+  "inlineEditPointsMuta": "Points Muta",
+  "inlineEditPointsPerso": "Points Perso",
+
+  "statLabelHp": "VIE",
+  "statLabelStam": "STAM",
+  "statLabelAttack": "ATTAQUE",
+  "statLabelWeight": "POIDS",
+  "statLabelFood": "NOURRITURE",
+  "statLabelOxy": "OXY",
+
+  "dinoCopySuffix": " (copie)"
+
 }

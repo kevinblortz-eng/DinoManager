@@ -250,6 +250,156 @@
     }
   },
 
+  "sexMaleFemale": "Macho+Hembra",
+  "sampleDinoNote1": "Rex jefe PvE perfecto. 44 pts HP, 42 pts daño.",
+  "sampleDinoNote2": "Raptor CC azul noche. 4 mutaciones daño.",
+  "excelShareText": "Copia de seguridad completa de ARK Excel",
+  "excelShareSubject": "Copia de seguridad de ARK Excel",
+  "backupShareSubject": "[ARK Dino Manager] Copia de seguridad completa — {timestamp}",
+  "@backupShareSubject": {
+    "placeholders": {
+      "timestamp": {"type": "String"}
+    }
+  },
+  "backupShareText": "Copia de seguridad completa de ARK Dino Manager",
+  "regionLabel": "Región {index}",
+  "@regionLabel": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+  "scanHintCamera": "Use la cámara o una captura de pantalla existente",
+  "scanButtonCamera": "CÁMARA",
+  "scanButtonGallery": "Captura de pantalla",
+  "ocrWarningImprint": "⚠️ Estadísticas de HP/Stam/Weight/Melee corregidas al 0% imprint",
+  "importErrorFormat": "Formato no válido: falta la clave \"dinos\".",
+  "importErrorDino": "Dino #{number} ignorado: {error}",
+  "@importErrorDino": {
+    "placeholders": {
+      "number": {"type": "int"},
+      "error": {"type": "String"}
+    }
+  },
+  "importErrorTracker": "Rastreador #{number} ignorado: {error}",
+  "@importErrorTracker": {
+    "placeholders": {
+      "number": {"type": "int"},
+      "error": {"type": "String"}
+    }
+  },
+
+  "buttonCancel": "Cancelar",
+  "buttonDelete": "Eliminar",
+  "buttonValidate": "Validar",
+  "buttonRemove": "Quitar",
+  "buttonHide": "Ocultar",
+  "buttonSave": "Guardar",
+  "buttonCreate": "Crear",
+  "buttonImport": "Importar",
+  "buttonOpen": "Abrir",
+  "buttonCopy": "Copiar",
+  "buttonResume": "Reanudar",
+  "buttonBack": "Atrás",
+  "buttonClose": "Cerrar",
+  "buttonContinue": "Continuar",
+  "buttonOk": "Aceptar",
+  "buttonApply": "Aplicar",
+
+  "errorGenericWithDetails": "Error: {error}",
+  "@errorGenericWithDetails": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorExportFailed": "Error de exportación: {error}",
+  "@errorExportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorScanFailed": "Error de escáner: {error}",
+  "errorScanFailed2": "Error de escaneo: {error}",
+
+  "successValidated": "✅ ¡Pedido validado!",
+  "successCopied": "✅ Copiado al portapapeles",
+  "successObservationSaved": "✓ Observación guardada",
+
+  "messageNoOtherDinos": "Ningún otro dinosaurio de esta especie",
+  "messageNoDinosAvailable": "No hay dinos disponibles",
+  "messageNoCommonColors": "Sin colores comunes",
+  "messageNoColorsForRegion": "Sin colores registrados para la región {region}",
+  "@messageNoColorsForRegion": {
+    "placeholders": {
+      "region": {"type": "String"}
+    }
+  },
+  "messageNoColorsToRegister": "Sin colores para registrar",
+  "messageNoStatsToRegister": "Sin estadísticas para registrar",
+  "messageNoStatsAvailable": "Sin estadísticas disponibles",
+  "messageNoStatsEntered": "Sin estadísticas ingresadas",
+  "messageNoDinoDataDetected": "Sin datos de dino detectados.\\nAjusta el encuadre.",
+
+  "trackerCreated": "Rastreador creado para {species}",
+  "@trackerCreated": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "trackerCreationFailed": "Error al crear el rastreador",
+  "trackerDeleted": "Rastreador {species} eliminado",
+  "@trackerDeleted": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+
+  "validationSpeciesRequired": "Se requiere el nombre de la especie",
+  "validationSpeciesNotFound": "Especie \"{species}\" no reconocida",
+  "@validationSpeciesNotFound": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "validationSelectColors": "Seleccione al menos un color",
+  "validationAddDinos": "Añada al menos un dino",
+  "validationNameOrDino": "Añada un nombre o un dino",
+
+  "settingsDefaultsUpdated": "Valores por defecto actualizados",
+  "settingsBackupRestore": "Copia de seguridad y restauración",
+  "settingsMaxVariants": "Máximo 6 variantes seleccionables",
+
+  "statsRegistered": "{count} estadísticas → rastreador",
+  "@statsRegistered": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsRecorded": "{count} estadísticas registradas",
+  "@statsRecorded": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "selectionCount": "Añadir ({count})",
+  "@selectionCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "colorsTrackerSpecies": "Colores → rastreador {species}",
+  "@colorsTrackerSpecies": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "colorDeletedFromRegion": "Color {colorId} eliminado de la región {region}",
+  "@colorDeletedFromRegion": {
+    "placeholders": {
+      "colorId": {"type": "int"},
+      "region": {"type": "String"}
+    }
+  },
+
   "simulatorTitle": "SIMULADOR",
   "simulatorSpecies": "Especie",
   "simulatorRandom": "Aleatorio",

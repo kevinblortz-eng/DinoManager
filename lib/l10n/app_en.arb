@@ -247,5 +247,155 @@
     "placeholders": {
       "id": {"type": "int"}
     }
+  },
+
+  "sexMaleFemale": "Male+Female",
+  "sampleDinoNote1": "Rex boss PvE perfect. 44 HP points, 42 damage points.",
+  "sampleDinoNote2": "Raptor CC midnight blue. 4 damage mutations.",
+  "excelShareText": "Complete ARK Excel Backup",
+  "excelShareSubject": "ARK Backup Excel",
+  "backupShareSubject": "[ARK Dino Manager] Complete Backup — {timestamp}",
+  "@backupShareSubject": {
+    "placeholders": {
+      "timestamp": {"type": "String"}
+    }
+  },
+  "backupShareText": "Complete ARK Dino Manager Backup",
+  "regionLabel": "Region {index}",
+  "@regionLabel": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+  "scanHintCamera": "Use camera or existing screenshot",
+  "scanButtonCamera": "CAMERA",
+  "scanButtonGallery": "Screenshot",
+  "ocrWarningImprint": "⚠️ HP/Stam/Weight/Melee stats corrected to 0% imprint",
+  "importErrorFormat": "Invalid format: missing \"dinos\" key.",
+  "importErrorDino": "Dino #{number} ignored: {error}",
+  "@importErrorDino": {
+    "placeholders": {
+      "number": {"type": "int"},
+      "error": {"type": "String"}
+    }
+  },
+  "importErrorTracker": "Tracker #{number} ignored: {error}",
+  "@importErrorTracker": {
+    "placeholders": {
+      "number": {"type": "int"},
+      "error": {"type": "String"}
+    }
+  },
+
+  "buttonCancel": "Cancel",
+  "buttonDelete": "Delete",
+  "buttonValidate": "Validate",
+  "buttonRemove": "Remove",
+  "buttonHide": "Hide",
+  "buttonSave": "Save",
+  "buttonCreate": "Create",
+  "buttonImport": "Import",
+  "buttonOpen": "Open",
+  "buttonCopy": "Copy",
+  "buttonResume": "Resume",
+  "buttonBack": "Back",
+  "buttonClose": "Close",
+  "buttonContinue": "Continue",
+  "buttonOk": "OK",
+  "buttonApply": "Apply",
+
+  "errorGenericWithDetails": "Error: {error}",
+  "@errorGenericWithDetails": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorExportFailed": "Export error: {error}",
+  "@errorExportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorScanFailed": "Scanner error: {error}",
+  "errorScanFailed2": "Scan error: {error}",
+
+  "successValidated": "✅ Order validated!",
+  "successCopied": "✅ Copied to clipboard",
+  "successObservationSaved": "✓ Observation saved",
+
+  "messageNoOtherDinos": "No other dinosaur of this species",
+  "messageNoDinosAvailable": "No dinos available",
+  "messageNoCommonColors": "No common colors",
+  "messageNoColorsForRegion": "No colors registered for region {region}",
+  "@messageNoColorsForRegion": {
+    "placeholders": {
+      "region": {"type": "String"}
+    }
+  },
+  "messageNoColorsToRegister": "No colors to register",
+  "messageNoStatsToRegister": "No stats to register",
+  "messageNoStatsAvailable": "No stats available",
+  "messageNoStatsEntered": "No stats entered",
+  "messageNoDinoDataDetected": "No dino data detected.\\nAdjust the framing.",
+
+  "trackerCreated": "Tracker created for {species}",
+  "@trackerCreated": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "trackerCreationFailed": "Failed to create tracker",
+  "trackerDeleted": "Tracker {species} deleted",
+  "@trackerDeleted": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+
+  "validationSpeciesRequired": "Species name is required",
+  "validationSpeciesNotFound": "Species \"{species}\" not recognized",
+  "@validationSpeciesNotFound": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "validationSelectColors": "Select at least one color",
+  "validationAddDinos": "Add at least one dino",
+  "validationNameOrDino": "Add a name or a dino",
+
+  "settingsDefaultsUpdated": "Default values updated",
+  "settingsBackupRestore": "Backup & Restore",
+  "settingsMaxVariants": "Maximum 6 selectable variants",
+
+  "statsRegistered": "{count} stats → tracker",
+  "@statsRegistered": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsRecorded": "{count} stats recorded",
+  "@statsRecorded": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "selectionCount": "Add ({count})",
+  "@selectionCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "colorsTrackerSpecies": "Colors → tracker {species}",
+  "@colorsTrackerSpecies": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "colorDeletedFromRegion": "Color {colorId} deleted from region {region}",
+  "@colorDeletedFromRegion": {
+    "placeholders": {
+      "colorId": {"type": "int"},
+      "region": {"type": "String"}
+    }
   }
 }

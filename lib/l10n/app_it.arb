@@ -250,6 +250,156 @@
     }
   },
 
+  "sexMaleFemale": "Maschio+Femmina",
+  "sampleDinoNote1": "Rex capo PvE perfetto. 44 pts HP, 42 pts danno.",
+  "sampleDinoNote2": "Raptor CC blu notte. 4 mutazioni danno.",
+  "excelShareText": "Backup completo ARK Excel",
+  "excelShareSubject": "Backup ARK Excel",
+  "backupShareSubject": "[ARK Dino Manager] Backup completo — {timestamp}",
+  "@backupShareSubject": {
+    "placeholders": {
+      "timestamp": {"type": "String"}
+    }
+  },
+  "backupShareText": "Backup completo ARK Dino Manager",
+  "regionLabel": "Regione {index}",
+  "@regionLabel": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+  "scanHintCamera": "Usa la fotocamera o uno screenshot esistente",
+  "scanButtonCamera": "FOTOCAMERA",
+  "scanButtonGallery": "Screenshot",
+  "ocrWarningImprint": "⚠️ Statistiche HP/Stam/Weight/Melee corrette al 0% imprint",
+  "importErrorFormat": "Formato non valido: manca la chiave \"dinos\".",
+  "importErrorDino": "Dino #{number} ignorato: {error}",
+  "@importErrorDino": {
+    "placeholders": {
+      "number": {"type": "int"},
+      "error": {"type": "String"}
+    }
+  },
+  "importErrorTracker": "Tracker #{number} ignorato: {error}",
+  "@importErrorTracker": {
+    "placeholders": {
+      "number": {"type": "int"},
+      "error": {"type": "String"}
+    }
+  },
+
+  "buttonCancel": "Annulla",
+  "buttonDelete": "Elimina",
+  "buttonValidate": "Valida",
+  "buttonRemove": "Rimuovi",
+  "buttonHide": "Nascondi",
+  "buttonSave": "Salva",
+  "buttonCreate": "Crea",
+  "buttonImport": "Importa",
+  "buttonOpen": "Apri",
+  "buttonCopy": "Copia",
+  "buttonResume": "Riprendi",
+  "buttonBack": "Indietro",
+  "buttonClose": "Chiudi",
+  "buttonContinue": "Continua",
+  "buttonOk": "OK",
+  "buttonApply": "Applica",
+
+  "errorGenericWithDetails": "Errore: {error}",
+  "@errorGenericWithDetails": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorExportFailed": "Errore di esportazione: {error}",
+  "@errorExportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorScanFailed": "Errore scanner: {error}",
+  "errorScanFailed2": "Errore scansione: {error}",
+
+  "successValidated": "✅ Ordine convalidato!",
+  "successCopied": "✅ Copiato negli appunti",
+  "successObservationSaved": "✓ Osservazione salvata",
+
+  "messageNoOtherDinos": "Nessun altro dinosauro di questa specie",
+  "messageNoDinosAvailable": "Nessun dino disponibile",
+  "messageNoCommonColors": "Nessun colore comune",
+  "messageNoColorsForRegion": "Nessun colore registrato per la regione {region}",
+  "@messageNoColorsForRegion": {
+    "placeholders": {
+      "region": {"type": "String"}
+    }
+  },
+  "messageNoColorsToRegister": "Nessun colore da registrare",
+  "messageNoStatsToRegister": "Nessuna statistica da registrare",
+  "messageNoStatsAvailable": "Nessuna statistica disponibile",
+  "messageNoStatsEntered": "Nessuna statistica inserita",
+  "messageNoDinoDataDetected": "Nessun dato dino rilevato.\\nAdjusta la composizione.",
+
+  "trackerCreated": "Tracker creato per {species}",
+  "@trackerCreated": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "trackerCreationFailed": "Impossibile creare il tracker",
+  "trackerDeleted": "Tracker {species} eliminato",
+  "@trackerDeleted": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+
+  "validationSpeciesRequired": "Il nome della specie è obbligatorio",
+  "validationSpeciesNotFound": "Specie \"{species}\" non riconosciuta",
+  "@validationSpeciesNotFound": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "validationSelectColors": "Seleziona almeno un colore",
+  "validationAddDinos": "Aggiungi almeno un dino",
+  "validationNameOrDino": "Aggiungi un nome o un dino",
+
+  "settingsDefaultsUpdated": "Valori predefiniti aggiornati",
+  "settingsBackupRestore": "Backup e ripristino",
+  "settingsMaxVariants": "Massimo 6 varianti selezionabili",
+
+  "statsRegistered": "{count} statistiche → tracker",
+  "@statsRegistered": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsRecorded": "{count} statistiche registrate",
+  "@statsRecorded": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "selectionCount": "Aggiungi ({count})",
+  "@selectionCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "colorsTrackerSpecies": "Colori → tracker {species}",
+  "@colorsTrackerSpecies": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "colorDeletedFromRegion": "Colore {colorId} eliminato dalla regione {region}",
+  "@colorDeletedFromRegion": {
+    "placeholders": {
+      "colorId": {"type": "int"},
+      "region": {"type": "String"}
+    }
+  },
+
   "simulatorTitle": "SIMULATORE",
   "simulatorSpecies": "Specie",
   "simulatorRandom": "Casuale",

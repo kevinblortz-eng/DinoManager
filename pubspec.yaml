@@ -1,7 +1,7 @@
 name: dino_manager
 description: ARK Dino Manager – Mobile Smart Breeding
 publish_to: 'none'
-version: 1.2.4+14
+version: 1.2.6+16
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -46,6 +46,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+flutter_intl:
+  enabled: true
+
 
 flutter:
   uses-material-design: true

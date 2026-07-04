@@ -1,0 +1,407 @@
+{
+  "@@locale": "fr",
+
+  "appTitle": "ARK Dino Manager",
+  "@appTitle": {"description": "Titre de l'application"},
+
+  "settingsTitle": "Paramètres & Informations",
+  "settingsBackup": "SAUVEGARDE",
+  "settingsBestiary": "BESTIAIRE",
+  "settingsTags": "TAGS & COULEURS",
+  "settingsRoleThemes": "THÈMES PAR RÔLE",
+  "settingsLanguage": "LANGUE",
+  "settingsNews": "ACTUALITÉS",
+
+  "languageActive": "Langue active",
+  "languageSelectorTitle": "Choisir la langue",
+  "languageSelectorSubtitle": "La langue sera appliquée immédiatement",
+
+  "backupAutoActive": "Google Auto-Backup actif",
+  "backupAutoDesc": "Tes données sont sauvegardées automatiquement dans Google Drive toutes les 24h. Elles seront restaurées automatiquement à la réinstallation sur le même compte Google.",
+  "backupManage": "Gérer les sauvegardes manuelles",
+
+  "bestiaryDinoCards": "DinoCards",
+  "bestiaryTrackers": "Trackers",
+  "bestiarySpecies": "Espèces",
+  "bestiaryArkBestiary": "Bestiaire ARK",
+  "bestiarySpeciesCount": "{current} / {total} espèces",
+  "@bestiarySpeciesCount": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "bestiaryDiscovered": "{percent}% du bestiaire ARK découvert",
+  "@bestiaryDiscovered": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+
+  "tagsTitle": "TAGS & COULEURS",
+  "tagsTapToChange": "Appuie sur un tag pour changer sa couleur",
+  "tagsLongPressReset": "Appui long sur un tag personnalisé pour le réinitialiser",
+  "tagsResetAll": "Reset tout",
+
+  "roleThemesTitle": "THÈMES PAR RÔLE",
+  "roleThemesTapHint": "Appuie sur un rôle pour personnaliser ses 3 couleurs",
+  "roleThemesResetAll": "Reset tout",
+  "roleThemesBackground": "Fond",
+  "roleThemesBorder": "Bordure",
+  "roleThemesText": "Texte",
+  "roleThemesApply": "Appliquer",
+  "roleThemesCancel": "Annuler",
+  "roleThemesPreview": "Aperçu",
+  "roleThemesConfirmReset": "Réinitialiser tous les thèmes ?",
+  "roleThemesConfirmResetDesc": "Cette action supprimera toutes les personnalisations de rôles.",
+
+  "colorRegionsTitle": "RÉGIONS DE COULEUR",
+  "colorRegionVisible": "Visible",
+  "colorRegionInvisible": "Invisible",
+  "colorRegionLabel": "R{index}",
+  "@colorRegionLabel": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+  "colorBankTitle": "BANQUE DE COULEURS",
+  "colorBankNoColor": "Aucune couleur enregistrée",
+  "colorBankRegion": "Région {index}",
+  "@colorBankRegion": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+
+  "speciesJournalTitle": "Journal d'Espèce",
+  "speciesJournalSubtitle": "Journal d'espece",
+  "speciesJournalBestStats": "MEILLEURES STATS",
+  "speciesJournalLibraryDinos": "DINOS DE LA BIBLIOTHÈQUE",
+  "speciesJournalNoTracker": "Aucun tracker actif",
+  "speciesJournalTotalColors": "{count} couleurs",
+  "@speciesJournalTotalColors": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "homeTitle": "ARK MANAGER",
+  "homeSubtitle": "Ta bibliothèque de dinos",
+  "homeNoDinos": "Aucun dino dans la bibliothèque",
+  "homeAddFirst": "Ajoute ton premier dino !",
+  "homeSearch": "Rechercher...",
+  "homeFilter": "Filtrer",
+  "homeSortBy": "Trier par",
+  "homeStats": "Statistiques",
+  "homeSortName": "Nom",
+  "homeSortLevel": "Niveau",
+  "homeSortSpecies": "Espèce",
+  "homeSortDate": "Date",
+  "homeSortMutations": "Mutations",
+
+  "libraryTitle": "BIBLIOTHÈQUE",
+  "libraryEmpty": "Bibliothèque vide",
+  "libraryAddDino": "Ajouter un dino",
+  "libraryImport": "Importer",
+  "libraryExport": "Exporter",
+  "libraryExportExcel": "Exporter Excel",
+  "libraryShare": "Partager",
+
+  "dinoDetailTitle": "Détail du Dino",
+  "dinoDetailEdit": "Modifier",
+  "dinoDetailDelete": "Supprimer",
+  "dinoDetailShare": "Partager",
+  "dinoDetailStats": "STATISTIQUES",
+  "dinoDetailColors": "COULEURS",
+  "dinoDetailMutations": "MUTATIONS",
+  "dinoDetailNotes": "NOTES",
+  "dinoDetailBreeding": "ÉLEVAGE",
+  "dinoDetailConfirmDelete": "Supprimer ce dino ?",
+  "dinoDetailConfirmDeleteDesc": "Cette action est irréversible.",
+
+  "addEditDinoTitle": "Ajouter un Dino",
+  "editDinoTitle": "Modifier le Dino",
+  "addEditDinoSave": "Sauvegarder",
+  "addEditDinoCancel": "Annuler",
+  "addEditDinoSpecies": "Espèce",
+  "addEditDinoName": "Nom",
+  "addEditDinoLevel": "Niveau",
+  "addEditDinoSex": "Sexe",
+  "addEditDinoSexMale": "Mâle",
+  "addEditDinoSexFemale": "Femelle",
+  "addEditDinoTamed": "Apprivoisé",
+  "addEditDinoBred": "Élevé",
+  "addEditDinoNotes": "Notes",
+  "addEditDinoTags": "Tags",
+  "addEditDinoStats": "Statistiques",
+  "addEditDinoColors": "Couleurs",
+  "addEditDinoMutations": "Mutations",
+  "addEditDinoMutPaternal": "Paternelles",
+  "addEditDinoMutMaternal": "Maternelles",
+
+  "scanTitle": "Scanner un Dino",
+  "scanCapture": "Capturer",
+  "scanAnalyze": "Analyser",
+  "scanRetry": "Réessayer",
+  "scanSuccess": "Scan réussi !",
+  "scanFailed": "Scan échoué",
+  "scanNoText": "Aucun texte détecté",
+  "scanHint": "Pointez la caméra sur les stats ARK",
+
+  "trackerTitle": "Trackers",
+  "trackerEmpty": "Aucun tracker actif",
+  "trackerAdd": "Nouveau tracker",
+  "trackerSpecies": "Espèce suivie",
+  "trackerGoal": "Objectif",
+  "trackerProgress": "Progression",
+  "trackerStatus": "Statut",
+  "trackerStatusActive": "Actif",
+  "trackerStatusCompleted": "Terminé",
+  "trackerStatusPaused": "En pause",
+  "trackerNotes": "Notes",
+
+  "ordersTitle": "Commandes",
+  "ordersEmpty": "Aucune commande",
+  "ordersAdd": "Nouvelle commande",
+  "ordersStatus": "Statut",
+  "ordersPending": "En attente",
+  "ordersCompleted": "Terminé",
+  "ordersCancelled": "Annulé",
+  "ordersTotal": "Total",
+  "ordersCurrency": "Monnaie",
+
+  "confirmYes": "Oui",
+  "confirmNo": "Non",
+  "confirmDelete": "Supprimer",
+  "confirmCancel": "Annuler",
+  "confirmOk": "OK",
+  "confirmSave": "Sauvegarder",
+  "confirmClose": "Fermer",
+  "confirmApply": "Appliquer",
+  "confirmReset": "Réinitialiser",
+  "confirmResetAll": "Tout réinitialiser",
+
+  "errorGeneric": "Une erreur s'est produite",
+  "errorLoading": "Erreur de chargement",
+  "errorSaving": "Erreur de sauvegarde",
+  "errorPermission": "Permission refusée",
+  "errorCameraPermission": "Permission caméra requise",
+
+  "navHome": "Accueil",
+  "navLibrary": "Bibliothèque",
+  "navScan": "Scanner",
+  "navTracker": "Tracker",
+  "navSettings": "Paramètres",
+
+  "statHp": "PV",
+  "statStamina": "Endurance",
+  "statTorpor": "Torpeur",
+  "statOxygen": "Oxygène",
+  "statFood": "Nourriture",
+  "statWater": "Eau",
+  "statTemperature": "Température",
+  "statWeight": "Poids",
+  "statMelee": "Mêlée",
+  "statSpeed": "Vitesse",
+  "statFortitude": "Vigueur",
+  "statCrafting": "Artisanat",
+
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "changelogTitle": "Changelog",
+  "changelogView": "Voir le changelog",
+
+  "searchNoResults": "Aucun résultat pour \"{query}\"",
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {"type": "String"}
+    }
+  },
+
+  "resetConfirmTitle": "Confirmer la réinitialisation",
+  "resetConfirmMessage": "Toutes les personnalisations seront supprimées.",
+  "deleteConfirmTitle": "Confirmer la suppression",
+  "deleteConfirmMessage": "Cette action est irréversible.",
+
+  "mutationsPaternal": "Paternelles",
+  "mutationsMaternal": "Maternelles",
+  "mutationsTotal": "Total mutations",
+
+  "sexMale": "Mâle",
+  "sexFemale": "Femelle",
+  "sexUnknown": "Inconnu",
+
+  "levelLabel": "Niv. {level}",
+  "@levelLabel": {
+    "placeholders": {
+      "level": {"type": "int"}
+    }
+  },
+
+  "colorIdLabel": "ID {id}",
+  "@colorIdLabel": {
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+
+  "sexMaleFemale": "Mâle+Femelle",
+
+  "sampleDinoNote1": "Rex boss PvE parfait. 44 pts HP, 42 pts dégâts.",
+  "sampleDinoNote2": "Raptor CC bleu nuit. 4 mutations dégâts.",
+
+  "excelShareText": "Sauvegarde Excel ARK complète",
+  "excelShareSubject": "Backup Excel ARK",
+  "backupShareSubject": "[ARK Dino Manager] Sauvegarde complète — {timestamp}",
+  "@backupShareSubject": {
+    "placeholders": {
+      "timestamp": {"type": "String"}
+    }
+  },
+  "backupShareText": "Sauvegarde complète ARK Dino Manager",
+
+  "regionLabel": "Région {index}",
+  "@regionLabel": {
+    "placeholders": {
+      "index": {"type": "int"}
+    }
+  },
+
+  "scanHintCamera": "Utilisez la caméra ou une capture d'écran existante",
+  "scanButtonCamera": "CAMÉRA",
+  "scanButtonGallery": "Photo de l'écran",
+
+  "ocrWarningImprint": "⚠️ Stats HP/Stam/Weight/Melee corrigées à 0% imprint",
+
+  "importErrorFormat": "Format invalide : clé \"dinos\" manquante.",
+  "importErrorDino": "Dino #{number} ignoré : {error}",
+  "@importErrorDino": {
+    "placeholders": {
+      "number": {"type": "int"},
+      "error": {"type": "String"}
+    }
+  },
+  "importErrorTracker": "Tracker #{number} ignoré : {error}",
+  "@importErrorTracker": {
+    "placeholders": {
+      "number": {"type": "int"},
+      "error": {"type": "String"}
+    }
+  },
+
+  "buttonCancel": "Annuler",
+  "buttonDelete": "Supprimer",
+  "buttonValidate": "Valider",
+  "buttonRemove": "Retirer",
+  "buttonHide": "Masquer",
+  "buttonSave": "Enregistrer",
+  "buttonCreate": "Créer",
+  "buttonImport": "Importer",
+  "buttonOpen": "Ouvrir",
+  "buttonCopy": "Recopier",
+  "buttonResume": "Reprendre",
+  "buttonBack": "Retour",
+  "buttonClose": "Fermer",
+  "buttonContinue": "Continuer",
+  "buttonOk": "OK",
+  "buttonApply": "Appliquer",
+
+  "errorGenericWithDetails": "Erreur : {error}",
+  "@errorGenericWithDetails": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorExportFailed": "Erreur export : {error}",
+  "@errorExportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorScanFailed": "Erreur scanner : {error}",
+  "errorScanFailed2": "Erreur scan : {error}",
+
+  "successValidated": "✅ Commande validée !",
+  "successCopied": "✅ Copié dans le presse-papier",
+  "successObservationSaved": "✓ Observation enregistrée et sauvegardée",
+
+  "messageNoOtherDinos": "Aucun autre dinosaure de cette espèce",
+  "messageNoDinosAvailable": "Aucun dino disponible",
+  "messageNoCommonColors": "Aucune couleur commune",
+  "messageNoColorsForRegion": "Aucune couleur enregistrée pour la région {region}",
+  "@messageNoColorsForRegion": {
+    "placeholders": {
+      "region": {"type": "String"}
+    }
+  },
+  "messageNoColorsToRegister": "Aucune couleur à enregistrer",
+  "messageNoStatsToRegister": "Aucune stat à enregistrer",
+  "messageNoStatsAvailable": "Aucune stat disponible",
+  "messageNoStatsEntered": "Aucune stat saisie",
+  "messageNoDinoDataDetected": "Aucune donnée de dino détectée.\\nAjustez le cadrage.",
+
+  "trackerCreated": "Tracker créé pour {species}",
+  "@trackerCreated": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "trackerCreationFailed": "Impossible de créer le tracker",
+  "trackerDeleted": "Tracker {species} supprimé",
+  "@trackerDeleted": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+
+  "validationSpeciesRequired": "Le nom de l'espèce est requis",
+  "validationSpeciesNotFound": "Espèce \"{species}\" non reconnue",
+  "@validationSpeciesNotFound": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "validationSelectColors": "Selectionnez au moins une couleur",
+  "validationAddDinos": "Ajoutez au moins un dino",
+  "validationNameOrDino": "Ajoutez un nom ou un dino",
+
+  "settingsDefaultsUpdated": "Valeurs par défaut mises à jour",
+  "settingsBackupRestore": "Sauvegarde & Restauration",
+  "settingsMaxVariants": "Maximum 6 variantes sélectionnables",
+
+  "statsRegistered": "{count} stats → tracker",
+  "@statsRegistered": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsRecorded": "{count} stats enregistrées",
+  "@statsRecorded": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "selectionCount": "Ajouter ({count})",
+  "@selectionCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "colorsTrackerSpecies": "Couleurs → tracker {species}",
+  "@colorsTrackerSpecies": {
+    "placeholders": {
+      "species": {"type": "String"}
+    }
+  },
+  "colorDeletedFromRegion": "Couleur {colorId} supprimée de la région {region}",
+  "@colorDeletedFromRegion": {
+    "placeholders": {
+      "colorId": {"type": "int"},
+      "region": {"type": "String"}
+    }
+  }
+}

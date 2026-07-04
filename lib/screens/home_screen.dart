@@ -47,7 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _pickSpotlightDino() {
-    final dinos = context.read<DinoProvider>().dinos;
+    // ⬇️ FIX BUG-LIB-01/02 : on tire le dino vedette dans la liste COMPLÈTE,
+    // jamais dans la liste filtrée par la Bibliothèque.
+    final dinos = context.read<DinoProvider>().allDinos;
     if (dinos.isEmpty) {
       setState(() => _spotlightDino = null);
       return;
@@ -69,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _pickSpotlightDino();
     });
   }
-  
+
  @override
 Widget build(BuildContext context) {
   final l10n = AppLocalizations.of(context)!;
@@ -80,7 +82,9 @@ Widget build(BuildContext context) {
   }
   return Consumer2<DinoProvider, TrackerProvider>(
     builder: (context, dinoProvider, trackerProvider, _) {
-      final dinos = dinoProvider.dinos;
+      // ⬇️ FIX BUG-LIB-01/02 : Home affiche TOUJOURS la bibliothèque complète,
+      // indépendamment du filtre actif dans l'écran Bibliothèque.
+      final dinos = dinoProvider.allDinos;
       final speciesSet =
           dinos.map((d) => d.espece.toLowerCase()).toSet();
 

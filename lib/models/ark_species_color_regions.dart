@@ -1,11 +1,11 @@
 // lib/models/ark_species_color_regions.dart
 // Données de visibilité des 6 régions de couleur ARK par espèce.
-// Source : référence C# ARK Stats Extractor (ARKpedia / ARK wiki).
+// Source : JSON officiel ARK Survival Ascended fourni + estimations pour variantes.
 // true  = région visible sur le modèle 3D
 // false = région invisible (pas de coloration affichée)
 // Ordre : [R0, R1, R2, R3, R4, R5]
 //
-// NOTE : Les espèces marquées "// Verif" sont absentes de la référence C#
+// NOTE : Les espèces marquées "// Verif" sont absentes de la référence JSON
 // fournie — leurs valeurs sont des estimations ou des héritages depuis la
 // version de base (cas des variantes Aberrant / Tek / Alpha / Zombie /
 // déclinaisons saisonnières). À valider individuellement.
@@ -15,295 +15,302 @@ class ArkSpeciesColorRegions {
   /// Si une espèce est absente, on retourne [true,true,true,true,true,true] par défaut.
   static const Map<String, List<bool>> _data = {
     // ── A ─────────────────────────────────────────────────────────────
-    'Achatina':                [true,  true,  true,  true,  true,  true ],
-    'Achatina Aberrant':       [true,  true,  true,  true,  true,  true ], // Verif (hérité d'Achatina, absent de la ref)
-    'Acrocanthosaurus':        [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Allosaurus':              [true,  false, false,  false, true,  true ],
-    'Ammonite':                [true,  false, false, false, false, false],
-    'Anglerfish':              [true,  true,  false, false, true,  true ],
-    'Anglerfish Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité d'Anglerfish, absent de la ref)
-    'Ankylosaurus':            [true,  false, true,  false, true,  false],
-    'Ankylosaurus Aberrant':   [true,  false, true,  false, true,  false], // Verif (hérité d'Ankylosaurus, absent de la ref)
-    'Araneo':                  [true,  true,  false, false, true,  true ],
-    'Araneo Aberrant':         [true,  true,  false, false, true,  true ], // Verif (hérité d'Araneo, absent de la ref)
-    'Archaeopteryx':           [true,  false, true,  false, true,  true ],
-    'Archelon':                [true,  true,  false,  true,  true, true], 
-    'Argentavis':              [true,  false, true,  true,  true,  true ],
-    'Armadoggo':               [true,  true,  true,  false, true,  true ], // Verif (Bob's Tall Tales — à valider)
-    'Arthropluera':            [true,  true,  false, false, true,  true ],
-    'Arthropluera Aberrant':   [true,  true,  false, false, true,  true ], // Verif (hérité d'Arthropluera, absent de la ref)
-    'Astrocetus':              [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Aureliax':                [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Achatina':                [true,  true,  false, true,  true,  true ], // Corrigé JSON
+    'Achatina Aberrant':       [true,  true,  false, true,  true,  true ], // Verif (hérité d'Achatina)
+    'Acrocanthosaurus':        [true,  true,  false,  false,  true,  true ], 
+    'Allosaurus':              [true,  false, false, true,  true,  true ], // Corrigé JSON
+    'Ammonite':                [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Anglerfish':              [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Anglerfish Aberrant':     [true,  false, false, false, true,  true ], // Verif (hérité d'Anglerfish)
+    'Ankylosaurus':            [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Ankylosaurus Aberrant':   [true,  true,  true,  true,  true,  true ], // Verif (hérité d'Ankylosaurus)
+    'Araneo':                  [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Araneo Aberrant':         [true,  false, true,  true,  true,  true ], // Verif (hérité d'Araneo)
+    'Archaeopteryx':           [true,  false, true,  false, true,  true ], // Corrigé JSON
+    'Archelon':                [true,  true,  false, true,  true,  false ], 
+    'Argentavis':              [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Armadoggo':               [true,  true,  true,  true, true,  false ], 
+    'Arthropluera':            [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Arthropluera Aberrant':   [true,  true,  true,  true,  true,  true ], // Verif (hérité d'Arthropluera)
+    'Astrocetus':              [true,  true,  true,  false, true,  true ], 
+    'Aureliax':                [true,  true,  true,  false,  true,  true ], 
 
     // ── B ─────────────────────────────────────────────────────────────
-    'Baryonyx':                [true,  true,  true,  false, true,  true ],
-    'Baryonyx Aberrant':       [true,  true,  true,  false, true,  true ], // Verif (hérité de Baryonyx, absent de la ref)
-    'Basilisk':                [true,  true,  true,  false, true,  true ],
-    'Basilosaurus':            [true,  false, true,  false, true,  false],
-    'Beelzebufo':              [true,  true,  false, false, true,  true ],
-    'Beelzebufo Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Beelzebufo, absent de la ref)
-    'Bison':                   [true,  true,  true,  true,  false, false], // Verif (absent de la ref)
-    'Bloodstalker':            [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Brontosaurus':            [true,  true,  false, false, true,  true ],
-    'Bulbdog':                 [true,  false, true,  false, true,  true ],
+    'Baryonyx':                [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Baryonyx Aberrant':       [true,  true,  false, false, true,  true ], // Verif (hérité de Baryonyx)
+    'Basilisk':                [true,  true,  true,  false, true,  true ], // Corrigé JSON
+    'Basilosaurus':            [true,  false, false, false, false, true ], // Corrigé JSON
+    'Beelzebufo':              [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Beelzebufo Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Beelzebufo)
+    'Bison':                   [true,  true,  true,  true,  true, false], 
+    'Bloodstalker':            [true,  true,  false,  true, true,  false ], // Verif (absent du JSON)
+    'Brontosaurus':            [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Bulbdog':                 [true,  false, true,  true,  true,  true ], //
+    'Burrowbuck':              [true,  true,  true,  false, true,  true ], //Pelage 1 / oeil / petit pellage /corne / pellage avant / pellage arriere Corrigé JSON
 
     // ── C ─────────────────────────────────────────────────────────────
-    'Carbonemys':              [true,  true,  true,  false, true,  true ],
-    'Carbonemys Aberrant':     [true,  true,  true,  false, true,  true ], // Verif (hérité de Carbonemys, absent de la ref)
-    'Carcharodontosaurus':     [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Carnotaurus':             [true,  false, true,  false, true,  true ],
-    'Carnotaurus Aberrant':    [true,  false, true,  false, true,  true ], // Verif (hérité de Carnotaurus, absent de la ref)
-    'Castoroides':             [true,  false, true,  false, true,  false],
-    'Cat':                     [true,  true,  true,  true,  false, false], // Verif (absent de la ref)
-    'Ceratosaurus':            [true,  true,  true,  false, true,  true ], // Verif (ASA Addition — à valider)
-    'Chalicotherium':          [true,  false, true,  false, true,  true ],
-    'Chalk Elemental':         [true,  true,  false, false, false, false], // Verif (absent de la ref)
-    'Cnidaria':                [true,  false, false, false, false, false],
-    'Coelacanth':              [true,  false, true,  false, true,  true ],
-    'Coelacanth Aberrant':     [true,  false, true,  false, true,  true ], // Verif (hérité de Coelacanth, absent de la ref)
-    'Compy':                   [true,  false, true,  false, true,  true ], // (mappé sur Compsognathus de la ref)
-    'Cosmo':                   [true,  true,  true,  false, true,  true ], // Verif (Bob's Tall Tales — à valider)
-    'Cryolophosaurus':         [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Carbonemys':              [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Carbonemys Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Carbonemys)
+    'Carcharodontosaurus':     [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Carnotaurus':             [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Carnotaurus Aberrant':    [true,  true,  false, false, true,  true ], // Verif (hérité de Carnotaurus)
+    'Castoroides':             [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Cat':                     [true,  false,  false,  false,  true, true], 
+    'Ceratosaurus':            [true,  true,  true,  false, true,  true ], // Verif (ASA Addition)
+    'Chalicotherium':          [true,  false, false, false, true,  true ], 
+    'Chalk Elemental':         [true,  true,  false, false, false, false], // Verif (absent du JSON)
+    'Cnidaria':                [false, false, false, false, false, false], // Corrigé JSON
+    'Coelacanth':              [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Coelacanth Aberrant':     [true,  false, false, false, true,  true ], // Verif (hérité de Coelacanth)
+    'Compy':                   [true,  false, false, true,  true,  true ], // Corrigé JSON
+    'Cosmo':                   [true,  true,  true,  true, true,  true ], // zone id 4 lighterif (Bob's Tall Tales)
+    'Cryolophosaurus':         [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
 
     // ── D ─────────────────────────────────────────────────────────────
-    'Daeodon':                 [true,  false, true,  false, true,  true ],
-    'Deinonychus':             [true,  true,  false,  true, true,  true ],
-    'Deinosuchus':             [true,  true,  true,  false, true,  true ], // Verif (ASA Addition — à valider)
-    'Deinotherium':            [true,  true,  true,  true,  false, false], // Verif (absent de la ref)
-    'Desmodus':                [true,  true,  true,  true,  true,  false], // Verif (absent de la ref)
-    'Dimetrodon':              [true,  true,  false, false, true,  true ],
-    'Dimetrodon Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Dimetrodon, absent de la ref)
-    'Dimorphodon':             [true,  false, true,  false, true,  true ],
-    'Dimorphodon Aberrant':    [true,  false, true,  false, true,  true ], // Verif (hérité de Dimorphodon, absent de la ref)
-    'Diplocaulus':             [true,  false, true,  false, true,  true ],
-    'Diplocaulus Aberrant':    [true,  false, true,  false, true,  true ], // Verif (hérité de Diplocaulus, absent de la ref)
-    'Diplodocus':              [true,  false, true,  false, true,  true ],
-    'Diplodocus Aberrant':     [true,  false, true,  false, true,  true ], // Verif (hérité de Diplodocus, absent de la ref)
-    'Dire Bear':               [true,  false, true,  false, true,  true ], // (mappé sur Direbear de la ref)
-    'Dire Bear Aberrant':      [true,  false, true,  false, true,  true ], // Verif (hérité de Direbear, absent de la ref)
-    'Dire Polar Bear':         [true,  false, true,  false, true,  true ], // Verif (variante de Direbear, absent de la ref)
-    'Direwolf':                [true,  false, true,  false, true,  true ],
-    'Dodo':                    [true,  false, true,  false, true,  true ],
-    'Dodo Aberrant':           [true,  false, true,  false, true,  true ], // Verif (hérité de Dodo, absent de la ref)
-    'Doedicurus':              [true,  false, true,  false, true,  false],
-    'Doedicurus Aberrant':     [true,  false, true,  false, true,  false], // Verif (hérité de Doedicurus, absent de la ref)
-    'Drakeling (Autumn)':      [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Drakeling (Spring)':      [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Drakeling (Summer)':      [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Drakeling (Winter)':      [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Dreadmare':               [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Dreadnoughtus':           [true,  true,  true,  true,  false, false], // Verif (absent de la ref)
-    'Dung Beetle':             [true,  true,  false, false, true,  false], // (mappé sur DungBeetle de la ref)
-    'Dung Beetle Aberrant':    [true,  true,  false, false, true,  false], // Verif (hérité de DungBeetle, absent de la ref)
-    'Dunkleosteus':            [true,  false, false,  false, true,  true ],
+    'Daeodon':                 [true,  false, true,  false, false, true ], // Corrigé JSON
+    'Deinonychus':             [true,  true,  false, true,  true,  true ], // Corrigé JSON
+    'Deinosuchus':             [true,  false,  false,  false, true,  true ], 
+    'Deinotherium':            [true,  true,  false,  false,  true, true], 
+    'Desmodus':                [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Dilophosaur':             [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Dimetrodon':              [true,  true,  true,  true,  true,  false], // Corrigé JSON
+    'Dimetrodon Aberrant':     [true,  true,  true,  true,  true,  false], // Verif (hérité de Dimetrodon)
+    'Dimorphodon':             [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Dimorphodon Aberrant':    [true,  false, false, false, true,  true ], // Verif (hérité de Dimorphodon)
+    'Diplocaulus':             [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Diplocaulus Aberrant':    [true,  true,  false, false, true,  true ], // Verif (hérité de Diplocaulus)
+    'Diplodocus':              [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Diplodocus Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Diplodocus)
+    'Dire Bear':               [true,  false, false, false, false, true ], // Corrigé JSON
+    'Dire Bear Aberrant':      [true,  false, false, false, false, true ], // Verif (hérité de Dire Bear)
+    'Dire Polar Bear':         [true,  false, false, false, false, true ], // Verif (variante de Dire Bear)
+    'Direwolf':                [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Dodo':                    [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Dodo Aberrant':           [true,  true,  true,  true,  true,  true ], // Verif (hérité de Dodo)
+    'Doedicurus':              [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Doedicurus Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Doedicurus)
+    'Drakeling (Autumn)':      [true,  true,  true,  true,  true,  true ], 
+    'Drakeling (Spring)':      [true,  true,  true,  true,  true,  true ], 
+    'Drakeling (Summer)':      [true,  true,  true,  true,  true,  true ], 
+    'Drakeling (Winter)':      [true,  true,  true,  true,  true,  true ], 
+    'Dreadmare':               [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
+    'Dreadnoughtus':           [true,  true, false, false, true,  true,], // Verif (absent du JSON)
+    'Dung Beetle':             [true,  true,  false, true,  true,  true ], // Corrigé JSON
+    'Dung Beetle Aberrant':    [true,  true,  false, true,  true,  true ], // Verif (hérité de Dung Beetle)
+    'Dunkleosteus':            [true,  false, false, false, true,  true ], // Corrigé JSON
 
     // ── E ─────────────────────────────────────────────────────────────
-    'Elderclaw':               [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Electrophorus':           [true,  false, true,  false, true,  true ],
-    'Electrophorus Aberrant':  [true,  false, true,  false, true,  true ], // Verif (hérité d'Electrophorus, absent de la ref)
-    'Enforcer':                [true,  true,  true,  false, true,  true ],
-    'Equus':                   [true,  false, true,  false, true,  true ],
-    'Equus Aberrant':          [true,  false, true,  false, true,  true ], // Verif (hérité d'Equus, absent de la ref)
-    'Eurypterid':              [true,  true,  false, false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
+    'Elderclaw':               [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
+    'Electrophorus':           [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Electrophorus Aberrant':  [true,  true,  true,  true,  true,  true ], // Verif (hérité d'Electrophorus)
+    'Enforcer':                [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Equus':                   [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Equus Aberrant':          [true,  false, false, false, true,  true ], // Verif (hérité d'Equus)
+    'Eurypterid':              [true,  true,  true,  true,  true,  true ], // Corrigé JSON
 
     // ── F ─────────────────────────────────────────────────────────────
-    'Fasolasuchus':            [true,  true,  true,  false, true,  true ], // Verif (ASA Addition — à valider)
-    'Fasolasuchus Aberrant':   [true,  true,  true,  false, true,  true ], // Verif (hérité de Fasolasuchus, absent de la ref)
-    'Featherlight':            [true,  true,  true,  true,  true,  true ],
-    'Ferox':                   [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Fire Wyvern':             [true,  true,  true,  false, true,  true ], // (mappé sur FireWyvern de la ref)
+    'Fasolasuchus':            [true,  true,  true,  false, true,  true ], 
+    'Fasolasuchus Aberrant':   [true,  true,  true,  false, true,  true ], // Verif (hérité de Fasolasuchus)
+    'Featherlight':            [true,  true,  false, true,  true,  true ], // Corrigé JSON
+    'Ferox':                   [true,  true,  false,  false, true,  true ], 
+    'Fire Wyvern':             [true,  false, true,  false, true,  true ], // Corrigé JSON
 
     // ── G ─────────────────────────────────────────────────────────────
-    'Gacha':                   [true,  false, true,  false, true,  true ],
-    'Gallimimus':              [true,  false, true,  false, true,  true ],
-    'Gasbags':                 [true,  true,  true,  false, true,  true ],
-    'GiantBee':                [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Gigadesmodus':            [true,  true,  true,  true,  true,  false], // Verif (absent de la ref)
-    'Giganotosaurus':          [true,  false, true,  false, true,  true ],
-    'Giganotosaurus Tek':      [true,  true, true,  true, true,  true ], // Verif (hérité de Giganotosaurus, absent de la ref)
-    'Gigantopithecus':         [true,  false, true,  false, true,  true ],
-    'Gigantopithecus Aberrant':[true,  false, true,  false, true,  true ], // Verif (hérité de Gigantopithecus, absent de la ref)
-    'Gigantoraptor':           [true,  true,  true,  true,  true,  true ], // Verif (ASA Addition — à valider)
-    'Gigantoraptor Aberrant':  [true,  true,  true,  true,  true,  true ], // Verif (hérité de Gigantoraptor, absent de la ref)
-    'Gloon':                   [true,  true,  true,  true,  true,  false], // Verif (absent de la ref)
-    'Glowtail':                [true,  true,  true,  false, true,  true ],
-    'Grand Tortugar':          [true,  true,  true,  true,  false, false], // Verif (absent de la ref)
-    'Grendel (Alpha)':         [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Griffin':                 [true,  false, true,  false, true,  true ],
+    'Gacha':                   [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Gallimimus':              [true,  true,  false, true,  true,  true ], // Corrigé JSON
+    'Gasbags':                 [true,  false, true,  false, true,  true ], // Corrigé JSON
+    'Giant Bee':               [true,  false, true,  false, false, true ], // Corrigé JSON
+    'Giant Queen Bee':         [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Gigadesmodus':            [true,  true,  true,  true,  true,  false], // Verif (absent du JSON)
+    'Giganotosaurus':          [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Giganotosaurus Tek':      [true,  true, true,true, true,  true ],
+    'Gigantopithecus':         [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Gigantopithecus Aberrant':[true,  false, false, false, true,  true ], // Verif (hérité de Gigantopithecus)
+    'Gigantoraptor':           [true,  true,  true,  true,  true,  true ], // Verif (ASA Addition)
+    'Gigantoraptor Aberrant':  [true,  true,  true,  true,  true,  true ], // Verif (hérité de Gigantoraptor)
+    'Gloon':                   [true,  true,  true,  false,  true,  false], 
+    'Glowbug':                 [true,  false, true,  false, true,  true ], // Corrigé JSON
+    'Glowtail':                [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Grand Tortugar':          [true,  false,  true,  true,  true,  true ], // Verif (absent du JSON)
+    'Griffin':                 [true,  false, false, false, true,  true ], // Corrigé JSON
 
     // ── H ─────────────────────────────────────────────────────────────
-    'Helicoprion':             [true,  true,  true,  false, false, false], // Verif (absent de la ref)
-    'Hesperornis':             [true,  false, true,  true,  true,  true ],
-    'Hyaenodon':               [true,  false, true,  false, true,  true ],
-    'Hydraskos the Unbroken':  [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
+    'Helicoprion':             [true,  false, false, false,  true,  true], 
+    'Hesperornis':             [true,  false, true,  false, true,  true ], // Corrigé JSON
+    'Hyaenodon':               [true,  false, false, false, true,  true ], // Verif (absent du JSON)
 
     // ── I ─────────────────────────────────────────────────────────────
-    'Ice Elemental':           [true,  true,  false, false, false, false], // Verif (absent de la ref)
-    'Ice Wyvern':              [true,  true,  true,  false, true,  true ], // Verif (héritée des Wyverns, absent de la ref)
-    'Ichthyornis':             [true,  false, true,  true,  true,  true ],
-    'Ichthyosaurus':           [true,  false, true,  false, true,  true ],
-    'Iguanodon':               [true,  true,  true,  false, true,  true ],
-    'Iguanodon Aberrant':      [true,  true,  true,  false, true,  true ], // Verif (hérité d'Iguanodon, absent de la ref)
+    'Ice Elemental':           [true,  true,  false, false, false, false], // Verif (absent du JSON)
+    'Ice Wyvern':              [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Ichthyornis':             [true,  true,  false, false, false, true ], // Corrigé JSON
+    'Ichthyosaurus':           [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Iguanodon':               [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Iguanodon Aberrant':      [true,  false, false, false, true,  true ], // Verif (hérité d'Iguanodon)
 
     // ── J ─────────────────────────────────────────────────────────────
-    'Jerboa':                  [true,  false, true,  false, true,  true ],
+    'Jerboa':                  [true,  false, false, false, true,  true ], // Corrigé JSON
 
     // ── K ─────────────────────────────────────────────────────────────
-    'Kairuku':                 [true,  false, true,  false, true,  true ],
-    'Kaprosuchus':             [true,  false, true,  false, true,  true ],
-    'Karkinos':                [true,  false, true,  false, true,  true ],
-    'Kentrosaurus':            [true,  false, true,  false, true,  true ],
+    'Kairuku':                 [true,  true,  true,  false, true,  false], // Corrigé JSON
+    'Kaprosuchus':             [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Karkinos':                [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Kentrosaurus':            [true,  true,  true,  true,  true,  true ], // Corrigé JSON
 
     // ── L ─────────────────────────────────────────────────────────────
-    'Lamprey':                 [true,  false, false, false, false, false], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Lava Elemental':          [true,  true,  false, false, false, false], // Verif (absent de la ref)
-    'Leech':                   [true,  false, false, false, false, false], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Leedsichthys':            [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Lightning Wyvern':        [true,  true,  true,  false, true,  true ], // (mappé sur LightningWyvern de la ref)
-    'Liopleurodon':            [true,  false, true,  false, true,  true ],
-    'Lymantria':               [true,  true,  true,  false, true,  true ],
-    'Lystrosaurus':            [true,  false, true,  false, true,  true ],
-    'Lystrosaurus Aberrant':   [true,  false, true,  false, true,  true ], // Verif (hérité de Lystrosaurus, absent de la ref)
+    'Lamprey':                 [false, false, false, false, false, false], // Corrigé JSON
+    'Lava Elemental':          [true,  false, false, false, false,  true], // Verif (absent du JSON)
+    'Leech':                   [false, false, false, false, false, false], // Corrigé JSON
+    'Leedsichthys':            [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Lightning Wyvern':        [true,  true,  true,  false, true,  true ], // Corrigé JSON
+    'Liopleurodon':            [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Lymantria':               [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Lystrosaurus':            [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Lystrosaurus Aberrant':   [true,  false, false, false, true,  true ], // Verif (hérité de Lystrosaurus)
 
     // ── M ─────────────────────────────────────────────────────────────
-    'Maeguana':                [true,  true,  true,  true,  true,  false], // Verif (absent de la ref)
-    'Maewing':                 [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Magmasaur':               [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Malwyn':                  [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Mammoth':                 [true,  false, true,  false, true,  true ],
-    'Managarmr':               [true,  true,  true,  false, true,  true ],
-    'Manta':                   [true,  true,  false, false, true,  true ],
-    'Manta Aberrant':          [true,  true,  false, false, true,  true ], // Verif (hérité de Manta, absent de la ref)
-    'Mantis':                  [true,  false,  false,  false, true,  true ],
-    'Megachelon':              [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Megalania':               [true,  false, true,  false, true,  true ],
-    'Megalania Aberrant':      [true,  false, true,  false, true,  true ], // Verif (hérité de Megalania, absent de la ref)
-    'Megaloceros':             [true,  false, true,  false, true,  true ],
-    'Megalodon':               [true,  false, true,  false, true,  true ],
-    'Megalosaurus':            [true,  true,  false, false, true,  true ],
-    'Megalosaurus Aberrant':   [true,  true,  false, false, true,  true ], // Verif (hérité de Megalosaurus, absent de la ref)
-    'Meganeura':               [true,  false, false, false, true,  true ],
-    'Meganeura Aberrant':      [true,  false, false, false, true,  true ], // Verif (hérité de Meganeura, absent de la ref)
-    'Megaraptor':              [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Megatherium':             [true,  false, true,  false, true,  true ],
-    'Mesopithecus':            [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Microraptor':             [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Minotarchos':             [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Morellatops':             [true,  false, true,  false, true,  true ],
-    'Mosasaurus':              [true,  false, true,  false, true,  true ],
-    'Moschops':                [true,  false, true,  false, true,  true ],
-    'Moschops Aberrant':       [true,  false, true,  false, true,  true ], // Verif (hérité de Moschops, absent de la ref)
+    'Maeguana':                [true,  true,  true,  true,  true,  true], 
+    'Maewing':                 [true,  true,  true,  true,  true,  true], 
+    'Magmasaur':               [true,  true,  true,  false, true,  true ], // Verif (absent du JSON)
+    'Malwyn':                  [true,  false,  true,  false,  false,  true ], 
+    'Mammoth':                 [true,  true,  true,  false, true,  true ], // Corrigé JSON
+    'Managarmr':               [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Manta':                   [true,  true,  false, false, true,  false], // Corrigé JSON
+    'Manta Aberrant':          [true,  true,  false, false, true,  false], // Verif (hérité de Manta)
+    'Mantis':                  [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Megachelon':              [true,  true,  true,  false, true,  true ], // Verif (absent du JSON)
+    'Megalania':               [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Megalania Aberrant':      [true,  false, false, false, true,  true ], // Verif (hérité de Megalania)
+    'Megaloceros':             [true,  false, true,  false, true,  false], // Corrigé JSON
+    'Megalodon':               [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Megalosaurus':            [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Megalosaurus Aberrant':   [true,  false, false, false, true,  true ], // Verif (hérité de Megalosaurus)
+    'Meganeura':               [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Meganeura Aberrant':      [true,  false, true,  true,  true,  true ], // Verif (hérité de Meganeura)
+    'Megaraptor':              [true,  false,  true,  true,  true,  true ], 
+    'Megatherium':             [true,  false, false, false, false, true ], // Corrigé JSON
+    'Mesopithecus':            [true,  false, true,  false, true,  true ], // Corrigé JSON
+    'Microraptor':             [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Morellatops':             [true,  true,  false, true,  true,  true ], // Corrigé JSON
+    'Mosasaurus':              [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Moschops':                [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Moschops Aberrant':       [true,  true,  true,  true,  true,  true ], // Verif (hérité de Moschops)
 
     // ── N ─────────────────────────────────────────────────────────────
-    'Neophyte':                [true,  true,  true,  true,  true,  false], // Verif (absent de la ref)
+    'Nameless':                [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Neophyte':                [true,  true,  true,  true,  true,  false], // Verif (absent du JSON)
 
     // ── O ─────────────────────────────────────────────────────────────
-    'Oasisaur':                [true,  true,  true,  false, true,  true ], // Verif (Bob's Tall Tales — à valider)
-    'Onyc':                    [true,  false, false, false, true,  true ],
-    'Ossidon':                 [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Otter':                   [true,  false, true,  false, true,  true ],
-    'Otter Aberrant':          [true,  false, true,  false, true,  true ], // Verif (hérité d'Otter, absent de la ref)
-    'Oviraptor':               [true,  false, true,  false, true,  true ],
-    'Oviraptor Aberrant':      [true,  false, true,  false, true,  true ], // Verif (hérité d'Oviraptor, absent de la ref)
-    'Ovis':                    [true,  false, true,  false, true,  true ],
-    'Ovis Aberrant':           [true,  false, true,  false, true,  true ], // Verif (hérité d'Ovis, absent de la ref)
+    'Oasisaur':                [true,  true,  true,  true, true,  true ], 
+    'Onyc':                    [true,  true,  true,  false, true,  true ], // Corrigé JSON
+    'Ossidon':                 [true,  false,  true,  true,  true,  true ], 
+    'Otter':                   [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Otter Aberrant':          [true,  false, false, false, true,  true ], // Verif (hérité d'Otter)
+    'Oviraptor':               [true,  true,  true,  false, true,  true ], // Corrigé JSON
+    'Oviraptor Aberrant':      [true,  true,  true,  false, true,  true ], // Verif (hérité d'Oviraptor)
+    'Ovis':                    [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Ovis Aberrant':           [true,  false, false, false, true,  true ], // Verif (hérité d'Ovis)
 
     // ── P ─────────────────────────────────────────────────────────────
-    'Pachy':                   [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Pachyrhinosaurus':        [true,  true,  true,  false, true,  true ],
-    'Paraceratherium':         [true,  false, true,  false, true,  true ],
-    'Paraceratherium Aberrant':[true,  false, true,  false, true,  true ], // Verif (hérité de Paraceratherium, absent de la ref)
-    'Parasaur':                [true,  true,  true,  false, true,  true ],
-    'Parasaur Aberrant':       [true,  true,  true,  false, true,  true ], // Verif (hérité de Parasaur, absent de la ref)
-    'Parasaur Tek':            [true,  true,  true,  false, true,  true ], // Verif (hérité de Parasaur, absent de la ref)
-    'Pegomastax':              [true,  false, true,  false, true,  true ],
-    'Pelagornis':              [true,  false, true,  true,  true,  true ],
-    'Phiomia':                 [true,  false, true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Phoenix':                 [true,  true,  true,  false, true,  true ],
-    'Piranha':                 [true,  false, true,  false, true,  true ],
-    'Piranha Aberrant':        [true,  false, true,  false, true,  true ], // Verif (hérité de Piranha, absent de la ref)
-    'Plesiosaur':              [true,  false, true,  false, true,  true ],
-    'Poison Wyvern':           [true,  true,  true,  false, true,  true ], // (mappé sur PoisonWyvern de la ref)
-    'Procoptodon':             [true,  false, true,  false, true,  true ],
-    'Pteranodon':              [true,  true,  true,  false, true,  true ],
-    'Pulmonoscorpius':         [true,  true,  false, false, true,  true ],
-    'Pulmonoscorpius Aberrant':[true,  true,  false, false, true,  true ], // Verif (hérité de Pulmonoscorpius, absent de la ref)
-    'Purlovia':                [true,  false, true,  false, true,  true ],
-    'Purlovia Aberrant':       [true,  false, true,  false, true,  true ], // Verif (hérité de Purlovia, absent de la ref)
-    'Pyromane':                [true,  true,  true,  false, true,  true ], // (ASA Addition — issu de la ref, à valider)
+    'Pachy':                   [true,  false, false, true,  true,  true ], // Corrigé JSON
+    'Pachyrhinosaurus':        [true,  false, true,  false, true,  true ], // Corrigé JSON
+    'Paraceratherium':         [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Paraceratherium Aberrant':[true,  false, false, false, true,  true ], // Verif (hérité de Paraceratherium)
+    'Parasaur':                [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Parasaur Aberrant':       [true,  true,  true,  true,  true,  true ], // Verif (hérité de Parasaur)
+    'Parasaur Tek':            [true,  true,  true,  true,  true,  true ], // Verif (hérité de Parasaur)
+    'Pegomastax':              [true,  true,  true,  false, true,  true ], // Corrigé JSON
+    'Pelagornis':              [true,  false, false, false, false, true ], // Corrigé JSON
+    'Phiomia':                 [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Phoenix':                 [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Piranha':                 [true,  true,  true,  false, true,  true ], // Corrigé JSON
+    'Piranha Aberrant':        [true,  true,  true,  false, true,  true ], // Verif (hérité de Piranha)
+    'Plesiosaur':              [true,  true,  true,  false, true,  true ], // Corrigé JSON
+    'Poison Wyvern':           [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Procoptodon':             [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Pteranodon':              [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Pulmonoscorpius':         [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Pulmonoscorpius Aberrant':[true,  true,  true,  true,  true,  true ], // Verif (hérité de Pulmonoscorpius)
+    'Purlovia':                [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Purlovia Aberrant':       [true,  false, false, false, true,  true ], // Verif (hérité de Purlovia)
+    'Pyromane':                [false,  false,  true, true, false, true ], // Verif (ASA Addition)
 
     // ── Q ─────────────────────────────────────────────────────────────
-    'Quetzal':                 [true,  true,  true,  true,  true,  true ],
-    'Quetzal Tek':             [true,  true,  true,  true,  true,  true ], // Verif (hérité de Quetzal, absent de la ref)
+    'Quetzal':                 [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Quetzal Tek':             [true,  true,  true,  true,  true,  true ], // Verif (hérité de Quetzal)
 
     // ── R ─────────────────────────────────────────────────────────────
-    'Raptor':                  [true,  true,  true,  false, true,  true ],
-    'Raptor Aberrant':         [true,  true,  true,  false, true,  true ], // Verif (hérité de Raptor, absent de la ref)
-    'Raptor Tek':              [true,  true,  true,  false, true,  true ], // Verif (hérité de Raptor, absent de la ref)
-    'Ravager':                 [true,  true,  true,  false, true,  true ],
-    'Reaper King':             [true,  false, true,  false, true,  true ], // (mappé sur Reaper de la ref)
-    'Rex':                     [true,  true,  false, false, true,  true ],
-    'Rex Tek':                 [true,  true,  false, false, true,  true ], // Verif (hérité de Rex, absent de la ref)
-    'Rhyniognatha':            [true,  true,  true,  false, true,  true ], // (ASA Addition — issu de la ref, à valider)
-    'Rhyniognatha Drone':      [true,  true,  true,  false, true,  true ], // Verif (variante de Rhyniognatha, absent de la ref)
-    'Rock Drake':              [true,  true,  true,  false, true,  true ], // (mappé sur RockDrake de la ref)
-    'Rock Elemental':          [true,  false, false, false, true,  false], // (mappé sur RockElemental de la ref)
-    'Roll Rat':                [true,  false, true,  false, true,  true ], // (mappé sur RollRat de la ref)
-    'Rubble Golem':            [true,  true,  false, false, false, false], // Verif (absent de la ref)
+    'Raptor':                  [true,  true,  false, true,  true,  true ], // Corrigé JSON
+    'Raptor Aberrant':         [true,  true,  false, true,  true,  true ], // Verif (hérité de Raptor)
+    'Raptor Tek':              [true,  true,  false, true,  true,  true ], // Verif (hérité de Raptor)
+    'Ravager':                 [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Reaper King':             [true,  false, true,  false, true,  true ], 
+    'Rex':                     [true,  true,  false, false, true,  true ], // Corrigé JSON
+    'Rex Tek':                 [true,  true,  false, false, true,  true ], // Verif (hérité de Rex)
+    'Rhyniognatha':            [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Rhyniognatha Drone':      [true,  true,  true,  true,  true,  true ], // Verif (variante de Rhyniognatha)
+    'Rock Drake':              [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Rock Elemental':          [false, true,  false, false, false, false], // Corrigé JSON
+    'Roll Rat':                [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Rubble Golem':            [true,  true,  false, false, false, false], // Verif (absent du JSON)
 
     // ── S ─────────────────────────────────────────────────────────────
-    'Sabertooth':              [true,  false, true,  false, true,  true ],
-    'Sabertooth Salmon':       [true,  false, true,  false, true,  true ], // (mappé sur SabertoothSalmon de la ref)
-    'Salmon Aberrant':         [true,  false, true,  false, true,  true ], // Verif (variante du SabertoothSalmon, absent de la ref)
-    'Sarco':                   [true,  true,  true,  false, true,  true ],
-    'Sarco Aberrant':          [true,  true,  true,  false, true,  true ], // Verif (hérité de Sarco, absent de la ref)
-    'Seeker':                  [true,  false, false, false, true,  false], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Shadowmane':              [true,  true,  true,  false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Shastasaurus':            [true,  true,  false, false, false, false], // Verif (absent de la ref)
-    'Shinehorn':               [true,  true,  true,  false, true,  true ],
-    'Snow Owl':                [true,  true,  true,  true,  true,  true ], // (mappé sur SnowOwl de la ref)
-    'Solwyn':                  [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Spino':                   [true,  false, true,  false, true,  true ], // (mappé sur Spinosaurus de la ref)
-    'Spino Aberrant':          [true,  false, true,  false, true,  true ], // Verif (hérité de Spinosaurus, absent de la ref)
-    'Stegosaurus':             [true,  false, true,  false, true,  true ],
-    'Stegosaurus Aberrant':    [true,  false, true,  false, true,  true ], // Verif (hérité de Stegosaurus, absent de la ref)
-    'Stegosaurus Tek':         [true,  false, true,  false, true,  true ], // Verif (hérité de Stegosaurus, absent de la ref)
+    'Sabertooth':              [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Sabertooth Salmon':       [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Salmon Aberrant':         [true,  false, false, false, true,  true ], // Verif (variante du Sabertooth Salmon)
+    'Sarco':                   [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Sarco Aberrant':          [true,  false, true,  true,  true,  true ], // Verif (hérité de Sarco)
+    'Scout':                   [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Seeker':                  [true,  false, true,  false, true,  true ], // Corrigé JSON
+    'Shadowmane':              [true,  false, true,  true,   true,  true ], 
+    'Shastasaurus':            [true,  false,  true, false,  true, true], 
+    'Shinehorn':               [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Snow Owl':                [true,  false, true,  true,  true,  true ], // Corrigé JSON
+    'Solwyn':                  [true,  false,  true,  false,  true,  true ], 
+    'Spino':                   [true,  true,  true,  false, true,  true ], // Corrigé JSON
+    'Spino Aberrant':          [true,  true,  true,  false, true,  true ], // Verif (hérité de Spino)
+    'Stegosaurus':             [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Stegosaurus Aberrant':    [true,  true,  true,  true,  true,  true ], // Verif (hérité de Stegosaurus)
+    'Stegosaurus Tek':         [true,  true,  true,  true,  true,  true ], // Verif (hérité de Stegosaurus)
 
     // ── T ─────────────────────────────────────────────────────────────
-    'Tapejara':                [true,  true,  true,  true,  true,  true ],
-    'Terror Bird':             [true,  false, true,  false, true,  true ], // (mappé sur TerrorBird de la ref)
-    'Therizinosaur':           [true,  false, true,  false, true,  true ],
-    'Thorny Dragon':           [true,  false, true,  false, true,  true ], // (mappé sur ThornyDragon de la ref)
-    'Thylacoleo':              [true,  false, true,  false, true,  true ],
-    'Titanoboa':               [true,  false, true,  false, true,  true ],
-    'Titanoboa Aberrant':      [true,  false, true,  false, true,  true ], // Verif (hérité de Titanoboa, absent de la ref)
-    'Titanomyrma':             [true,  false, false, false, true,  true ], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Triceratops':             [true,  false, true,  false, true,  true ],
-    'Triceratops Aberrant':    [true,  false, true,  false, true,  true ], // Verif (hérité de Triceratops, absent de la ref)
-    'Triceratops Tek':         [true,  false, true,  false, true,  true ], // Verif (hérité de Triceratops, absent de la ref)
-    'Trilobite':               [true,  false, false, false, false, false], // (ajout depuis la ref — pas présent dans ton Dart)
-    'Troodon':                 [true,  true,  true,  false, true,  true ],
-    'Tusoteuthis':             [true,  true,  true,  false, true,  false],
+    'Tapejara':                [true,  true,  false, true,  true,  true ], // Corrigé JSON
+    'Terror Bird':             [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Therizinosaur':           [true,  false, true,  false, true,  true ], // Corrigé JSON
+    'Thorny Dragon':           [true,  true,  true,  false, true,  true ], // Corrigé JSON
+    'Thylacoleo':              [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Titanoboa':               [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Titanoboa Aberrant':      [true,  true,  true,  true,  true,  true ], // Verif (hérité de Titanoboa)
+    'Titanomyrma':             [true,  false, false, false, true,  true ], // Verif (absent du JSON)
+    'Titanosaur':              [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Triceratops':             [true,  true,  false, true,  true,  true ], // Corrigé JSON
+    'Triceratops Aberrant':    [true,  true,  false, true,  true,  true ], // Verif (hérité de Triceratops)
+    'Triceratops Tek':         [true,  true,  false, true,  true,  true ], // Verif (hérité de Triceratops)
+    'Trilobite':               [false, false, false, false, false, false], // Corrigé JSON
+    'Troodon':                 [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Tusoteuthis':             [true,  true,  false, false, true,  true ], // Corrigé JSON
+
+    // ── U ─────────────────────────────────────────────────────────────
+    'Unicorn':                 [false, false, false, false, false, false], // Corrigé JSON
 
     // ── V ─────────────────────────────────────────────────────────────
-    'Veilwyn':                 [true,  true,  true,  true,  true,  true ], // Verif (absent de la ref)
-    'Velonasaur':              [true,  true,  true,  false, true,  true ],
-    'Vulture':                 [true,  false, true,  false, true,  true ],
+    'Veilwyn':                 [true,  true,  false,  true,  true,  true ], 
+    'Velonasaur':              [true,  true,  true,  true,  true,  true ], // Corrigé JSON
+    'Vulture':                 [true,  true,  false, false, true,  true ], // Corrigé JSON
 
     // ── W ─────────────────────────────────────────────────────────────
-    'Woolly Rhino':            [true,  false, true,  false, true,  true ], // (mappé sur WoollyRhino de la ref)
+    'Woolly Rhino':            [true,  true,  false, false, true,  true ], // Corrigé JSON
 
     // ── X ─────────────────────────────────────────────────────────────
-    'Xiphactinus':             [true,  true,  true,  false, true,  true ], // (ASA Addition — issu de la ref, à valider)
+    'Xiphactinus':             [true, false,false,  false, true,  true ], 
 
     // ── Y ─────────────────────────────────────────────────────────────
-    'Yi Ling':                 [true,  true,  true,  true,  true,  true ], // (mappé sur YiLing de la ref — ASA Addition, à valider)
-    'Yutyrannus':              [true,  false, true,  false, true,  true ],
+    'Yi Ling':                 [true,  true,  false,  true,  true,  true ], 
+    'Yutyrannus':              [true,  true,  false, false, true,  true ], // Corrigé JSON
 
     // ── Z ─────────────────────────────────────────────────────────────
-    'Zombie Fire Wyvern':      [true,  true,  true,  false, true,  true ], // Verif (hérité de FireWyvern, absent de la ref)
-    'Zombie Lightning Wyvern': [true,  true,  true,  false, true,  true ], // Verif (hérité de LightningWyvern, absent de la ref)
-    'Zombie Poison Wyvern':    [true,  true,  true,  false, true,  true ], // Verif (hérité de PoisonWyvern, absent de la ref)
+    'Zombie Fire Wyvern':      [true,  true,  false, true, false, true ], // Verif (hérité de Fire Wyvern)
+    'Zombie Lightning Wyvern':  [true,  true,  false, true, false, true ], // Verif (hérité de Lightning Wyvern)
+    'Zombie Poison Wyvern':     [true,  true,  false, true, false, true ], // Verif (hérité de Poison Wyvern)
   };
 
   /// Noms des régions ARK (0-5)

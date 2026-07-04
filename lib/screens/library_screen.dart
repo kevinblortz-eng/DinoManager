@@ -56,7 +56,7 @@ void _openCanva() {
     context,
     MaterialPageRoute(
       builder: (_) => const DinoCanvaScreen(
-        species: 'Bibliothèque',
+        species: 'Bibliothèque\n',
         initialSelection: <Dino>[],
         filterBySpecies: false, // ← AJOUT : mode bibliothèque complète
       ),

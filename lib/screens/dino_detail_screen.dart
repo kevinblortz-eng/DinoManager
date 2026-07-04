@@ -651,7 +651,7 @@ Widget _buildArkCard(Color themeColor) {
   }
 
   Future<void> _duplicateDino() async {
-    final copy = _dino.duplicate(newName: '${_dino.nom} (copie)');
+    final copy = _dino.duplicate(newName: _dino.nom);
     if (!mounted) return;
     Navigator.push(
       context,

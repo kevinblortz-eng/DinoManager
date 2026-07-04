@@ -1,0 +1,144 @@
+﻿Structure du dossier pour le volume Windows-SSD
+Le numÚro de sÚrie du volume est 00000004 78F3:CB32
+C:.
+|   arborescence.txt
+|   flutter_01.log
+|   flutter_02.log
+|   main.dart
+|   
++---database
+|       database_helper.dart
+|       
++---generated
+|   |   l10n.dart
+|   |   
+|   \---intl
+|           messages_all.dart
+|           messages_en.dart
+|           
++---l10n
+|       app_de.arb
+|       app_en.arb
+|       app_es.arb
+|       app_fr copy.arb
+|       app_fr.arb
+|       app_it.arb
+|       app_localizations.dart
+|       app_pt.arb
+|       intl_en.arb
+|       
++---models
+|       ark_color_palette.dart
+|       ark_species_color_regions.dart
+|       ark_species_data.dart
+|       ark_species_group.dart
+|       ark_species_stat.dart
+|       currency.dart
+|       dino.dart
+|       order.dart
+|       order_item.dart
+|       role_theme.dart
+|       species_tracker.dart
+|       
++---providers
+|       currency_provider.dart
+|       dino_provider.dart
+|       gemini_provider.dart
+|       language_provider.dart
+|       order_provider.dart
+|       role_theme_provider.dart
+|       tag_theme_provider.dart
+|       tracker_provider.dart
+|       
++---screens
+|   |   add_edit_dino_screen.dart
+|   |   backup_screen.dart
+|   |   dino_canva_batch_export_screen.dart
+|   |   dino_canva_multi_picker_screen.dart
+|   |   dino_canva_multi_screen.dart
+|   |   dino_canva_picker_screen.dart
+|   |   dino_canva_screen.dart
+|   |   dino_detail_screen.dart
+|   |   dino_scan_screen.dart
+|   |   dino_variant_screen.dart
+|   |   home_screen.dart
+|   |   library_screen.dart
+|   |   main_navigation_screen.dart
+|   |   orders_screen.dart
+|   |   order_create_edit_screen.dart
+|   |   setting_screen.dart
+|   |   share_screen.dart
+|   |   simulator_screen.dart
+|   |   tag_theme_screen.dart
+|   |   
+|   \---tracker
+|       |   species_journal_detail_screen.dart
+|       |   species_journal_home_screen.dart
+|       |   species_tracker_detail_screen.dart
+|       |   tracker_home_screen.dart
+|       |   
+|       \---tabs
+|               journal_tab_colors.dart
+|               journal_tab_my_dinos.dart
+|               journal_tab_simulator.dart
+|               journal_tab_stats_max.dart
+|               
++---services
+|       backup_merge_service.dart
+|       backup_service.dart
+|       dino_ocr_service.dart
+|       dino_scan_helper.dart
+|       excel_backup_service.dart
+|       gemini_ocr_service.dart
+|       image_preprocessor.dart
+|       
++---theme
+|       app_theme.dart
+|       
++---utils
+|       changelog_data.dart
+|       dino_helpers.dart
+|       save_image_helper.dart
+|       
+\---widgets
+    |   ark_color_picker.dart
+    |   ark_dino_card copy.dart
+    |   ark_dino_card.dart
+    |   ark_dino_scanner_service.dart
+    |   capture_guide_overlay.dart
+    |   changelog_dialog.dart
+    |   dino_card_widget copy.dart
+    |   dino_card_widget.dart
+    |   dino_display_widget.dart
+    |   dino_image_widget.dart
+    |   dino_multi_select_bottom_sheet.dart
+    |   dino_scan_button.dart
+    |   scan_crop_overlay.dart
+    |   scan_result_review_sheet.dart
+    |   
+    +---background
+    |       ark_dino_card_background.dart
+    |       ark_dino_card_theme_resolver.dart
+    |       
+    +---canva
+    |       canva_bubble_widgets.dart
+    |       canva_exporter.dart
+    |       canva_layout_engine.dart
+    |       
+    +---common
+    |       dino_color_strip.dart
+    |       dino_region_preview.dart
+    |       dino_sex_badge.dart
+    |       dino_stat_grid.dart
+    |       
+    +---share
+    |       canva_edit_dinos_modal.dart
+    |       selectable_halo.dart
+    |       
+    \---share_card
+            ark_dino_card_exporter.dart
+            dino_share_card.dart
+            dino_share_card_exporter.dart
+            dino_share_card_portrait.dart
+            dino_share_card_portrait_exporter.dart
+            

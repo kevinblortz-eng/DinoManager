@@ -18,6 +18,9 @@ import '../theme/app_theme.dart';
 import '../widgets/ark_color_picker.dart';
 import '../widgets/dino_image_widget.dart';
 import '../utils/dino_helpers.dart';
+import '../widgets/background/ark_dino_card_background.dart';
+import '../widgets/background/ark_dino_card_theme_resolver.dart';
+
 
 class AddEditDinoScreen extends StatefulWidget {
   final Dino? dino;
@@ -310,8 +313,9 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
 
     _nomCtrl = TextEditingController(
       text: widget.isDuplicate && d != null
-          ? '${d.nom} (copie)'
-          : (d?.nom ?? ''),
+    ? d.nom
+    : (d?.nom ?? ''),
+
     );
     _niveauCtrl = TextEditingController(
       text: d != null ? d.niveau.toString() : '0',
@@ -1011,35 +1015,37 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
   // PREVIEW WYSIWYG ÉDITABLE
   // ═══════════════════════════════════════════════════════════════════════
 
-  Widget _buildWysiwygPreview(int niveau) {
-    return AspectRatio(
+Widget _buildWysiwygPreview(int niveau) {
+  return MediaQuery(
+    data: MediaQuery.of(context).copyWith(
+      textScaler: TextScaler.noScaling,
+    ),
+    child: AspectRatio(
       aspectRatio: _refW / _refH,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final w = constraints.maxWidth;
           final scale = w / _refW;
+          final previewStyle = _resolvePreviewStyle();
 
           return Stack(
             clipBehavior: Clip.none,
             children: [
+              // ── 0. FOND ENTIÈREMENT GÉNÉRÉ PAR CODE ─────────────────
               Positioned.fill(
-                child: Image.asset(
-                  _backgroundAssetPath,
-                  fit: BoxFit.fill,
-                  errorBuilder: (_, __, ___) => Image.asset(
-                    _fallbackAssetPath,
-                    fit: BoxFit.fill,
-                    errorBuilder: (_, __, ___) => _fallbackBackground(),
-                  ),
-                ),
+                child: ArkDinoCardBackground(style: previewStyle),
               ),
+
+              // ── 1. IMAGE DINO ──────────────────────────────────────
               _posCentered(
-                cx: 123, cy: 115, w: 169, h: 202, scale: scale,
+                cx: 123, cy: 130, w: 165, h: 210, scale: scale,
                 child: GestureDetector(
                   onTap: _showSpeciesPickerDialog,
                   child: _buildEggImage(),
                 ),
               ),
+
+              // ── 2. LVL ─────────────────────────────────────────────
               _posCentered(
                 cx: 30, cy: 35, w: 32, h: 32, scale: scale,
                 child: GestureDetector(
@@ -1047,6 +1053,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                   child: _buildLvlBadge(niveau, scale),
                 ),
               ),
+
+              // ── 3. SEXE ────────────────────────────────────────────
               _posCentered(
                 cx: 215, cy: 36, w: 32, h: 32, scale: scale,
                 child: GestureDetector(
@@ -1054,24 +1062,59 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                   child: _buildSexBadgePreview(scale),
                 ),
               ),
+
+              // ── 4. ESPÈCE (sur bannière, y=230) ────────────────────
               _posCentered(
-                cx: 123, cy: 218, w: 170, h: 32, scale: scale,
+                cx: 123, cy: 230, w: 145, h: 28, scale: scale,
                 child: GestureDetector(
                   onTap: _showSpeciesPickerDialog,
                   child: _buildSpeciesText(scale),
                 ),
               ),
+
+              // ── 5. NOM + TAG (y=258) ───────────────────────────────
               _posCentered(
-                cx: 123, cy: 243, w: 130, h: 18, scale: scale,
+                cx: 123, cy: 258, w: 130, h: 18, scale: scale,
                 child: _buildNameAndTag(scale),
               ),
+
+              // ── 6. STATS (y=305 / 365) ─────────────────────────────
               ..._buildAllStatCells(scale),
+
+              // ── 7. COULEURS (y=408) ────────────────────────────────
               ..._buildAllColorSquares(scale),
             ],
           );
         },
       ),
+    ),  // ← fermeture AspectRatio (déjà présente mais à vérifier)
+  );    // ← ✅ FERMETURE MANQUANTE du MediaQuery
+}
+
+
+  /// Résout le style à utiliser pour la preview, sans avoir besoin
+  /// d'un Dino complet (juste l'espèce + les tags courants).
+  ArkDinoCardBackgroundStyle _resolvePreviewStyle() {
+    // On crée un Dino "léger" juste pour passer dans le résolveur.
+    final fakeDino = Dino(
+      id: null,
+      nom: _nomCtrl.text,
+      espece: _espece,
+      sexe: _sexe,
+      role: _role,
+      niveau: int.tryParse(_niveauCtrl.text) ?? 0,
+      hp: 0, stamina: 0, oxygene: 0, nourriture: 0, poids: 0, degats: 0,
+      vitesse: 0,
+      hpPoints: 0, staminaPoints: 0, oxygenePoints: 0,
+      nourriturePoints: 0, poidsPoints: 0, degatsPoints: 0, vitessePoints: 0,
+      couleur0: '0|#808080', couleur1: '0|#808080', couleur2: '0|#808080',
+      couleur3: '0|#808080', couleur4: '0|#808080', couleur5: '0|#808080',
+      tagVersion: _tagVersion,
+      tags: _tags,
+      notes: '',
+      dateAjout: DateTime.now(),
     );
+    return ArkDinoCardThemeResolver.resolveStyle(fakeDino);
   }
 
   Widget _posCentered({
@@ -1428,10 +1471,10 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
   // ═══════════════════════════════════════════════════════════════════════
   // STATS
   // ═══════════════════════════════════════════════════════════════════════
-  List<Widget> _buildAllStatCells(double scale) {
+    List<Widget> _buildAllStatCells(double scale) {
     final cells = <_EditableStatCellData>[
       _EditableStatCellData(
-        cx: 48, cy: 291,
+        cx: 48, cy: 305,                    // ← 291 → 305
         emoji: '❤️', label: 'VIE',
         color: const Color(0xFF4CAF50),
         valCtrl: _hpCtrl,
@@ -1440,7 +1483,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         persoCtrl: _hpPersoCtrl,
       ),
       _EditableStatCellData(
-        cx: 123, cy: 291,
+        cx: 123, cy: 305,                   // ← 291 → 305
         emoji: '⚡', label: 'STAM',
         color: const Color(0xFFFFD700),
         valCtrl: _staminaCtrl,
@@ -1449,7 +1492,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         persoCtrl: _staminaPersoCtrl,
       ),
       _EditableStatCellData(
-        cx: 200, cy: 291,
+        cx: 200, cy: 305,                   // ← 291 → 305
         emoji: '⚔️', label: 'ATTACK',
         color: const Color(0xFFEF4444),
         valCtrl: _degatsCtrl,
@@ -1459,7 +1502,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         suffix: '%',
       ),
       _EditableStatCellData(
-        cx: 48, cy: 351,
+        cx: 48, cy: 365,                    // ← 351 → 365
         emoji: '⚖️', label: 'POIDS',
         color: const Color(0xFF3B82F6),
         valCtrl: _poidsCtrl,
@@ -1468,7 +1511,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         persoCtrl: _poidsPersoCtrl,
       ),
       _EditableStatCellData(
-        cx: 125, cy: 351,
+        cx: 125, cy: 365,                   // ← 351 → 365
         emoji: '🍖', label: 'FOOD',
         color: const Color(0xFF8B5CF6),
         valCtrl: _nourritureCtrl,
@@ -1477,7 +1520,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
         persoCtrl: _nourriturePersoCtrl,
       ),
       _EditableStatCellData(
-        cx: 200, cy: 351,
+        cx: 200, cy: 365,                   // ← 351 → 365
         emoji: '🫧', label: 'OXY',
         color: const Color(0xFF10B981),
         valCtrl: _oxygeneCtrl,
@@ -1776,8 +1819,9 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
           c.id <= 0 || c.hex == '#808080' || c.hex == '#7F7F7F';
       final parsed = isNeutral ? null : _parseHex(c.hex);
 
-      return _posCentered(
-        cx: xs[i], cy: 400, w: 22, h: 22, scale: scale,
+       return _posCentered(
+        cx: xs[i], cy: 408, w: 22, h: 22, scale: scale,
+
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => _showArkColorPicker(i),
@@ -2706,7 +2750,7 @@ class _OvalGlowPainter extends CustomPainter {
         radius: 0.7,
         colors: [
           glowColor,
-          glowColor.withValues(alpha: glowColor.a * 0.4),
+          glowColor.withValues(alpha: 0.18), // ← fix : valeur fixe au lieu de glowColor.a * 0.4
           edgeColor,
         ],
         stops: const [0.0, 0.65, 1.0],
