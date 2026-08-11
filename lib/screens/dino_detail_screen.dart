@@ -699,7 +699,10 @@ Widget _buildArkCard(Color themeColor) {
 
   Future<void> _viewVariants() async {
     final provider    = Provider.of<DinoProvider>(context, listen: false);
-    final sameSpecies = provider.dinos
+    // ⚠️ FIX BUG-LIB-01 : utiliser allDinos (liste complète), jamais la liste
+    // filtrée par la Bibliothèque, sinon les variantes disparaissent si un
+    // filtre est actif ailleurs dans l'app.
+    final sameSpecies = provider.allDinos
         .where((d) => d.espece == _dino.espece)
         .toList();
 

@@ -48,7 +48,7 @@ class _SpeciesTrackerDetailScreenState
   }
 
   List<Dino> _getLibraryDinos(DinoProvider dp) {
-    return dp.dinos
+    return dp.allDinos // FIX BUG-LIB-01
         .where((d) => d.espece.toLowerCase() == _tracker.species.toLowerCase())
         .toList();
   }

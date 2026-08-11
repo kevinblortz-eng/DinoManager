@@ -29,7 +29,7 @@ class _JournalTabSimulatorState extends State<JournalTabSimulator> {
   String get _species => widget.species;
 
   void _rebuildData(DinoProvider dinoProvider, TrackerProvider trackerProvider) {
-    final libraryDinos = dinoProvider.dinos
+    final libraryDinos = dinoProvider.allDinos // FIX BUG-LIB-01
         .where((d) => d.espece.toLowerCase() == _species.toLowerCase())
         .toList();
 

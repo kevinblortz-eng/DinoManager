@@ -29,7 +29,7 @@ class _SimulatorScreenState extends State<SimulatorScreen> {
   List<_ColorSourceEntry> _colorSources = [];
 
   void _rebuildData(DinoProvider dinoProvider, TrackerProvider trackerProvider) {
-    final libraryDinos = dinoProvider.dinos
+    final libraryDinos = dinoProvider.allDinos // FIX BUG-LIB-01
         .where((d) => d.espece.toLowerCase() == _species.toLowerCase())
         .toList();
 
