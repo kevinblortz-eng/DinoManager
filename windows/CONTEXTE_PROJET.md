@@ -88,6 +88,8 @@
 - Factories : Dino.empty() (fallback), duplicate(), copyWith()
 - Listes statiques : especesDisponibles, rolesDisponibles, sexesDisponibles,
   tagsParDefaut
+  - Probleme de lecture de l'OCR, n'est pas fiable
+  
 
 ### providers/dino_provider.dart (état des dinos)
 - ChangeNotifier, utilise DatabaseHelper (singleton _db)
