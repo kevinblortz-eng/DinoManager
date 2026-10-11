@@ -43,6 +43,7 @@ class ArkSpeciesColorRegions {
     'Beelzebufo':              [true,  true,  false, false, true,  true ], // Corrigé JSON
     'Beelzebufo Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Beelzebufo)
     'Bison':                   [true,  true,  true,  true,  true, false], 
+    'Boaratos':                  [true,  true,  true,  true,  true,  true ], // Verif 
     'Bloodstalker':            [true,  true,  false,  true, true,  false ], // Verif (absent du JSON)
     'Brontosaurus':            [true,  true,  false, false, true,  true ], // Corrigé JSON
     'Bulbdog':                 [true,  false, true,  true,  true,  true ], //
@@ -56,13 +57,15 @@ class ArkSpeciesColorRegions {
     'Carnotaurus Aberrant':    [true,  true,  false, false, true,  true ], // Verif (hérité de Carnotaurus)
     'Castoroides':             [true,  true,  false, false, true,  true ], // Corrigé JSON
     'Cat':                     [true,  false,  false,  false,  true, true], 
-    'Ceratosaurus':            [true,  true,  true,  false, true,  true ], // Verif (ASA Addition)
+    'Ceratosaurus':            [true,  true,  false,  true, true,  true ], // Verif (ASA Addition)
+    'Cerberax':                 [true,  true,  true,  true,  true,  true ], // attente
     'Chalicotherium':          [true,  false, false, false, true,  true ], 
     'Chalk Elemental':         [true,  true,  false, false, false, false], // Verif (absent du JSON)
     'Cnidaria':                [false, false, false, false, false, false], // Corrigé JSON
     'Coelacanth':              [true,  false, false, false, true,  true ], // Corrigé JSON
     'Coelacanth Aberrant':     [true,  false, false, false, true,  true ], // Verif (hérité de Coelacanth)
     'Compy':                   [true,  false, false, true,  true,  true ], // Corrigé JSON
+    'Concavenator':                [true,  false, true, false, false,  true ], // Corrigé JSON
     'Cosmo':                   [true,  true,  true,  true, true,  true ], // zone id 4 lighterif (Bob's Tall Tales)
     'Cryolophosaurus':         [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
 
@@ -118,6 +121,7 @@ class ArkSpeciesColorRegions {
     // ── G ─────────────────────────────────────────────────────────────
     'Gacha':                   [true,  false, true,  true,  true,  true ], // Corrigé JSON
     'Gallimimus':              [true,  true,  false, true,  true,  true ], // Corrigé JSON
+    'Gargantar':                [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
     'Gasbags':                 [true,  false, true,  false, true,  true ], // Corrigé JSON
     'Giant Bee':               [true,  false, true,  false, false, true ], // Corrigé JSON
     'Giant Queen Bee':         [true,  false, true,  true,  true,  true ], // Corrigé JSON
@@ -163,6 +167,7 @@ class ArkSpeciesColorRegions {
     'Leedsichthys':            [true,  false, false, false, true,  true ], // Corrigé JSON
     'Lightning Wyvern':        [true,  true,  true,  false, true,  true ], // Corrigé JSON
     'Liopleurodon':            [true,  false, false, false, true,  true ], // Corrigé JSON
+    'Lumina':                    [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
     'Lymantria':               [true,  true,  true,  true,  true,  true ], // Corrigé JSON
     'Lystrosaurus':            [true,  false, false, false, true,  true ], // Corrigé JSON
     'Lystrosaurus Aberrant':   [true,  false, false, false, true,  true ], // Verif (hérité de Lystrosaurus)
@@ -186,7 +191,7 @@ class ArkSpeciesColorRegions {
     'Megalosaurus Aberrant':   [true,  false, false, false, true,  true ], // Verif (hérité de Megalosaurus)
     'Meganeura':               [true,  false, true,  true,  true,  true ], // Corrigé JSON
     'Meganeura Aberrant':      [true,  false, true,  true,  true,  true ], // Verif (hérité de Meganeura)
-    'Megaraptor':              [true,  false,  true,  true,  true,  true ], 
+    'Megaraptor':              [true,  false,  true,  true,  false,  true ], 
     'Megatherium':             [true,  false, false, false, false, true ], // Corrigé JSON
     'Mesopithecus':            [true,  false, true,  false, true,  true ], // Corrigé JSON
     'Microraptor':             [true,  true,  true,  true,  true,  true ], // Corrigé JSON
@@ -213,6 +218,7 @@ class ArkSpeciesColorRegions {
     // ── P ─────────────────────────────────────────────────────────────
     'Pachy':                   [true,  false, false, true,  true,  true ], // Corrigé JSON
     'Pachyrhinosaurus':        [true,  false, true,  false, true,  true ], // Corrigé JSON
+    'Palaeoctopus':            [true,  true,  true,  true,  true,  true ], // Verif
     'Paraceratherium':         [true,  false, false, false, true,  true ], // Corrigé JSON
     'Paraceratherium Aberrant':[true,  false, false, false, true,  true ], // Verif (hérité de Paraceratherium)
     'Parasaur':                [true,  true,  true,  true,  true,  true ], // Corrigé JSON
@@ -302,6 +308,7 @@ class ArkSpeciesColorRegions {
 
     // ── X ─────────────────────────────────────────────────────────────
     'Xiphactinus':             [true, false,false,  false, true,  true ], 
+    'Xerabos':                  [true,  true,  false,  true,  true,  true ],
 
     // ── Y ─────────────────────────────────────────────────────────────
     'Yi Ling':                 [true,  true,  false,  true,  true,  true ], 

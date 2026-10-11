@@ -1,7 +1,7 @@
 name: dino_manager
 description: ARK Dino Manager – Mobile Smart Breeding
 publish_to: 'none'
-version: 1.2.6+16
+version: 1.2.8+18
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
