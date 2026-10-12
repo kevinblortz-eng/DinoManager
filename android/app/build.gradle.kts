@@ -67,6 +67,13 @@ android {
     lint {
         disable += "UnsafeOperations"
     }
+    
+    packaging {
+        resources {
+            excludes += "META-INF/*"
+        }
+    }
+
 }
 
 flutter {

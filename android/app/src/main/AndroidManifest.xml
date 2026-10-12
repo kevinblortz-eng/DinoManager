@@ -1,8 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dinomanager.asa"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions pour sauvegarde / export -->
+    <!-- Stockage : uniquement Android 12 et inférieur -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -10,14 +9,17 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29"
-        tools:replace="android:maxSdkVersion"
-        tools:node="merge" />
+        tools:replace="android:maxSdkVersion" />
 
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <!-- Caméra -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- Bloque les permissions médias injectées par les plugins -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
+
     <application
-        android:label="Dino Manager"
+        android:label="dino_manager"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
@@ -29,10 +31,7 @@
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize"
-            android:allowBackup="true"
-            android:fullBackupContent="@xml/backup_rules"
-            android:dataExtractionRules="@xml/data_extraction_rules">
+            android:windowSoftInputMode="adjustResize">
 
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
@@ -44,19 +43,10 @@
             </intent-filter>
         </activity>
 
+        <!-- Ne pas supprimer : utilisé par l'outil Flutter -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
 
     </application>
 
@@ -64,11 +54,6 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />
             <data android:mimeType="text/plain" />
-        </intent>
-
-        <intent>
-            <action android:name="android.intent.action.SEND" />
-            <data android:mimeType="application/json" />
         </intent>
     </queries>
 
