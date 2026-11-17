@@ -1,435 +1,22 @@
 // lib/models/ark_species_color_regions.dart
-// Données de visibilité des 6 régions de couleur ARK par espèce.
-// Source : JSON officiel ARK Survival Ascended fourni + estimations pour variantes.
+// Visibilité des 6 régions de couleur ARK par espèce.
+// Source : assets/data/ark_species.json (via ArkDb).
+// Ordre : [R0, R1, R2, R3, R4, R5]
 // true  = région visible sur le modèle 3D
 // false = région invisible (pas de coloration affichée)
-// Ordre : [R0, R1, R2, R3, R4, R5]
-//
-// NOTE : Les espèces marquées "// Verif" sont absentes de la référence JSON
-// fournie — leurs valeurs sont des estimations ou des héritages depuis la
-// version de base (cas des variantes Aberrant / Tek / Alpha / Zombie /
-// déclinaisons saisonnières). À valider individuellement.
+// Ordre de résolution : _overrides (manuel) > JSON > tout visible.
+
+import 'ark_db.dart';
 
 class ArkSpeciesColorRegions {
-  /// Régions visibles par espèce (clé = nom exact de l'espèce dans l'app).
-  /// Si une espèce est absente, on retourne [true,true,true,true,true,true] par défaut.
-  static const Map<String, List<bool>> _data = {
-    // ── A ─────────────────────────────────────────────────────────────
-    'Achatina':                [true,  true,  false, true,  true,  true ], // Corrigé JSON
-    'Achatina Aberrant':       [true,  true,  false, true,  true,  true ], // Verif (hérité d'Achatina)
-    'Acrocanthosaurus':        [true,  true,  false,  false,  true,  true ], 
-    'Allosaurus':              [true,  false, false, true,  true,  true ], // Corrigé JSON
-    'Ammonite':                [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Anglerfish':              [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Anglerfish Aberrant':     [true,  false, false, false, true,  true ], // Verif (hérité d'Anglerfish)
-    'Ankylosaurus':            [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Ankylosaurus Aberrant':   [true,  true,  true,  true,  true,  true ], // Verif (hérité d'Ankylosaurus)
-    'Araneo':                  [true,  false, true,  true,  true,  true ], // Corrigé JSON
-    'Araneo Aberrant':         [true,  false, true,  true,  true,  true ], // Verif (hérité d'Araneo)
-    'Archaeopteryx':           [true,  false, true,  false, true,  true ], // Corrigé JSON
-    'Archelon':                [true,  true,  false, true,  true,  false ], 
-    'Argentavis':              [true,  false, true,  true,  true,  true ], // Corrigé JSON
-    'Armadoggo':               [true,  true,  true,  true, true,  false ], 
-    'Arthropluera':            [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Arthropluera Aberrant':   [true,  true,  true,  true,  true,  true ], // Verif (hérité d'Arthropluera)
-    'Astrocetus':              [true,  true,  true,  false, true,  true ], 
-    'Aureliax':                [true,  true,  true,  false,  true,  true ], 
+  static const int regionCount = 6;
 
-    // ── B ─────────────────────────────────────────────────────────────
-    'Baryonyx':                [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Baryonyx Aberrant':       [true,  true,  false, false, true,  true ], // Verif (hérité de Baryonyx)
-    'Basilisk':                [true,  true,  true,  false, true,  true ], // Corrigé JSON
-    'Basilosaurus':            [true,  false, false, false, false, true ], // Corrigé JSON
-    'Beelzebufo':              [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Beelzebufo Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Beelzebufo)
-    'Bison':                   [true,  true,  true,  true,  true, false], 
-    'Boaratos':                  [true,  true,  true,  true,  true,  true ], // Verif 
-    'Bloodstalker':            [true,  true,  false,  true, true,  false ], // Verif (absent du JSON)
-    'Brontosaurus':            [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Bulbdog':                 [true,  false, true,  true,  true,  true ], //
-    'Burrowbuck':              [true,  true,  true,  false, true,  true ], //Pelage 1 / oeil / petit pellage /corne / pellage avant / pellage arriere Corrigé JSON
+  /// Régions par défaut quand une espèce n'a pas de données.
+  static const List<bool> _allVisible = [true, true, true, true, true, true];
 
-    // ── C ─────────────────────────────────────────────────────────────
-    'Carbonemys':              [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Carbonemys Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Carbonemys)
-    'Carcharodontosaurus':     [true,  false, true,  true,  true,  true ], // Corrigé JSON
-    'Carnotaurus':             [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Carnotaurus Aberrant':    [true,  true,  false, false, true,  true ], // Verif (hérité de Carnotaurus)
-    'Castoroides':             [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Cat':                     [true,  false,  false,  false,  true, true], 
-    'Ceratosaurus':            [true,  true,  false,  true, true,  true ], // Verif (ASA Addition)
-    'Cerberax':                 [true,  true,  true,  true,  true,  true ], // attente
-    'Chalicotherium':          [true,  false, false, false, true,  true ], 
-    'Chalk Elemental':         [true,  true,  false, false, false, false], // Verif (absent du JSON)
-    'Cnidaria':                [false, false, false, false, false, false], // Corrigé JSON
-    'Coelacanth':              [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Coelacanth Aberrant':     [true,  false, false, false, true,  true ], // Verif (hérité de Coelacanth)
-    'Compy':                   [true,  false, false, true,  true,  true ], // Corrigé JSON
-    'Concavenator':                [true,  false, true, false, false,  true ], // Corrigé JSON
-    'Cosmo':                   [true,  true,  true,  true, true,  true ], // zone id 4 lighterif (Bob's Tall Tales)
-    'Cryolophosaurus':         [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
-
-    // ── D ─────────────────────────────────────────────────────────────
-    'Daeodon':                 [true,  false, true,  false, false, true ], // Corrigé JSON
-    'Deinonychus':             [true,  true,  false, true,  true,  true ], // Corrigé JSON
-    'Deinosuchus':             [true,  false,  false,  false, true,  true ], 
-    'Deinotherium':            [true,  true,  false,  false,  true, true], 
-    'Desmodus':                [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Dilophosaur':             [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Dimetrodon':              [true,  true,  true,  true,  true,  false], // Corrigé JSON
-    'Dimetrodon Aberrant':     [true,  true,  true,  true,  true,  false], // Verif (hérité de Dimetrodon)
-    'Dimorphodon':             [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Dimorphodon Aberrant':    [true,  false, false, false, true,  true ], // Verif (hérité de Dimorphodon)
-    'Diplocaulus':             [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Diplocaulus Aberrant':    [true,  true,  false, false, true,  true ], // Verif (hérité de Diplocaulus)
-    'Diplodocus':              [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Diplodocus Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Diplodocus)
-    'Dire Bear':               [true,  false, false, false, false, true ], // Corrigé JSON
-    'Dire Bear Aberrant':      [true,  false, false, false, false, true ], // Verif (hérité de Dire Bear)
-    'Dire Polar Bear':         [true,  false, false, false, false, true ], // Verif (variante de Dire Bear)
-    'Direwolf':                [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Dodo':                    [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Dodo Aberrant':           [true,  true,  true,  true,  true,  true ], // Verif (hérité de Dodo)
-    'Doedicurus':              [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Doedicurus Aberrant':     [true,  true,  false, false, true,  true ], // Verif (hérité de Doedicurus)
-    'Drakeling (Autumn)':      [true,  true,  true,  true,  true,  true ], 
-    'Drakeling (Spring)':      [true,  true,  true,  true,  true,  true ], 
-    'Drakeling (Summer)':      [true,  true,  true,  true,  true,  true ], 
-    'Drakeling (Winter)':      [true,  true,  true,  true,  true,  true ], 
-    'Dreadmare':               [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
-    'Dreadnoughtus':           [true,  true, false, false, true,  true,], // Verif (absent du JSON)
-    'Dung Beetle':             [true,  true,  false, true,  true,  true ], // Corrigé JSON
-    'Dung Beetle Aberrant':    [true,  true,  false, true,  true,  true ], // Verif (hérité de Dung Beetle)
-    'Dunkleosteus':            [true,  false, false, false, true,  true ], // Corrigé JSON
-
-    // ── E ─────────────────────────────────────────────────────────────
-    'Elderclaw':               [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
-    'Electrophorus':           [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Electrophorus Aberrant':  [true,  true,  true,  true,  true,  true ], // Verif (hérité d'Electrophorus)
-    'Enforcer':                [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Equus':                   [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Equus Aberrant':          [true,  false, false, false, true,  true ], // Verif (hérité d'Equus)
-    'Eurypterid':              [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-
-    // ── F ─────────────────────────────────────────────────────────────
-    'Fasolasuchus':            [true,  true,  true,  false, true,  true ], 
-    'Fasolasuchus Aberrant':   [true,  true,  true,  false, true,  true ], // Verif (hérité de Fasolasuchus)
-    'Featherlight':            [true,  true,  false, true,  true,  true ], // Corrigé JSON
-    'Ferox':                   [true,  true,  false,  false, true,  true ], 
-    'Fire Wyvern':             [true,  false, true,  false, true,  true ], // Corrigé JSON
-
-    // ── G ─────────────────────────────────────────────────────────────
-    'Gacha':                   [true,  false, true,  true,  true,  true ], // Corrigé JSON
-    'Gallimimus':              [true,  true,  false, true,  true,  true ], // Corrigé JSON
-    'Gargantar':                [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
-    'Gasbags':                 [true,  false, true,  false, true,  true ], // Corrigé JSON
-    'Giant Bee':               [true,  false, true,  false, false, true ], // Corrigé JSON
-    'Giant Queen Bee':         [true,  false, true,  true,  true,  true ], // Corrigé JSON
-    'Gigadesmodus':            [true,  true,  true,  true,  true,  false], // Verif (absent du JSON)
-    'Giganotosaurus':          [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Giganotosaurus Tek':      [true,  true, true,true, true,  true ],
-    'Gigantopithecus':         [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Gigantopithecus Aberrant':[true,  false, false, false, true,  true ], // Verif (hérité de Gigantopithecus)
-    'Gigantoraptor':           [true,  true,  true,  true,  true,  true ], // Verif (ASA Addition)
-    'Gigantoraptor Aberrant':  [true,  true,  true,  true,  true,  true ], // Verif (hérité de Gigantoraptor)
-    'Gloon':                   [true,  true,  true,  false,  true,  false], 
-    'Glowbug':                 [true,  false, true,  false, true,  true ], // Corrigé JSON
-    'Glowtail':                [true,  false, true,  true,  true,  true ], // Corrigé JSON
-    'Grand Tortugar':          [true,  false,  true,  true,  true,  true ], // Verif (absent du JSON)
-    'Griffin':                 [true,  false, false, false, true,  true ], // Corrigé JSON
-
-    // ── H ─────────────────────────────────────────────────────────────
-    'Helicoprion':             [true,  false, false, false,  true,  true], 
-    'Hesperornis':             [true,  false, true,  false, true,  true ], // Corrigé JSON
-    'Hyaenodon':               [true,  false, false, false, true,  true ], // Verif (absent du JSON)
-
-    // ── I ─────────────────────────────────────────────────────────────
-    'Ice Elemental':           [true,  true,  false, false, false, false], // Verif (absent du JSON)
-    'Ice Wyvern':              [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Ichthyornis':             [true,  true,  false, false, false, true ], // Corrigé JSON
-    'Ichthyosaurus':           [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Iguanodon':               [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Iguanodon Aberrant':      [true,  false, false, false, true,  true ], // Verif (hérité d'Iguanodon)
-
-    // ── J ─────────────────────────────────────────────────────────────
-    'Jerboa':                  [true,  false, false, false, true,  true ], // Corrigé JSON
-
-    // ── K ─────────────────────────────────────────────────────────────
-    'Kairuku':                 [true,  true,  true,  false, true,  false], // Corrigé JSON
-    'Kaprosuchus':             [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Karkinos':                [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Kentrosaurus':            [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-
-    // ── L ─────────────────────────────────────────────────────────────
-    'Lamprey':                 [false, false, false, false, false, false], // Corrigé JSON
-    'Lava Elemental':          [true,  false, false, false, false,  true], // Verif (absent du JSON)
-    'Leech':                   [false, false, false, false, false, false], // Corrigé JSON
-    'Leedsichthys':            [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Lightning Wyvern':        [true,  true,  true,  false, true,  true ], // Corrigé JSON
-    'Liopleurodon':            [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Lumina':                    [true,  true,  true,  true,  true,  true ], // Verif (absent du JSON)
-    'Lymantria':               [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Lystrosaurus':            [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Lystrosaurus Aberrant':   [true,  false, false, false, true,  true ], // Verif (hérité de Lystrosaurus)
-
-    // ── M ─────────────────────────────────────────────────────────────
-    'Maeguana':                [true,  true,  true,  true,  true,  true], 
-    'Maewing':                 [true,  true,  true,  true,  true,  true], 
-    'Magmasaur':               [true,  true,  true,  false, true,  true ], // Verif (absent du JSON)
-    'Malwyn':                  [true,  false,  true,  false,  false,  true ], 
-    'Mammoth':                 [true,  true,  true,  false, true,  true ], // Corrigé JSON
-    'Managarmr':               [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Manta':                   [true,  true,  false, false, true,  false], // Corrigé JSON
-    'Manta Aberrant':          [true,  true,  false, false, true,  false], // Verif (hérité de Manta)
-    'Mantis':                  [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Megachelon':              [true,  true,  true,  false, true,  true ], // Verif (absent du JSON)
-    'Megalania':               [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Megalania Aberrant':      [true,  false, false, false, true,  true ], // Verif (hérité de Megalania)
-    'Megaloceros':             [true,  false, true,  false, true,  false], // Corrigé JSON
-    'Megalodon':               [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Megalosaurus':            [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Megalosaurus Aberrant':   [true,  false, false, false, true,  true ], // Verif (hérité de Megalosaurus)
-    'Meganeura':               [true,  false, true,  true,  true,  true ], // Corrigé JSON
-    'Meganeura Aberrant':      [true,  false, true,  true,  true,  true ], // Verif (hérité de Meganeura)
-    'Megaraptor':              [true,  false,  true,  true,  false,  true ], 
-    'Megatherium':             [true,  false, false, false, false, true ], // Corrigé JSON
-    'Mesopithecus':            [true,  false, true,  false, true,  true ], // Corrigé JSON
-    'Microraptor':             [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Morellatops':             [true,  true,  false, true,  true,  true ], // Corrigé JSON
-    'Mosasaurus':              [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Moschops':                [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Moschops Aberrant':       [true,  true,  true,  true,  true,  true ], // Verif (hérité de Moschops)
-
-    // ── N ─────────────────────────────────────────────────────────────
-    'Nameless':                [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Neophyte':                [true,  true,  true,  true,  true,  false], // Verif (absent du JSON)
-
-    // ── O ─────────────────────────────────────────────────────────────
-    'Oasisaur':                [true,  true,  true,  true, true,  true ], 
-    'Onyc':                    [true,  true,  true,  false, true,  true ], // Corrigé JSON
-    'Ossidon':                 [true,  false,  true,  true,  true,  true ], 
-    'Otter':                   [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Otter Aberrant':          [true,  false, false, false, true,  true ], // Verif (hérité d'Otter)
-    'Oviraptor':               [true,  true,  true,  false, true,  true ], // Corrigé JSON
-    'Oviraptor Aberrant':      [true,  true,  true,  false, true,  true ], // Verif (hérité d'Oviraptor)
-    'Ovis':                    [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Ovis Aberrant':           [true,  false, false, false, true,  true ], // Verif (hérité d'Ovis)
-
-    // ── P ─────────────────────────────────────────────────────────────
-    'Pachy':                   [true,  false, false, true,  true,  true ], // Corrigé JSON
-    'Pachyrhinosaurus':        [true,  false, true,  false, true,  true ], // Corrigé JSON
-    'Palaeoctopus':            [true,  true,  true,  true,  true,  true ], // Verif
-    'Paraceratherium':         [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Paraceratherium Aberrant':[true,  false, false, false, true,  true ], // Verif (hérité de Paraceratherium)
-    'Parasaur':                [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Parasaur Aberrant':       [true,  true,  true,  true,  true,  true ], // Verif (hérité de Parasaur)
-    'Parasaur Tek':            [true,  true,  true,  true,  true,  true ], // Verif (hérité de Parasaur)
-    'Pegomastax':              [true,  true,  true,  false, true,  true ], // Corrigé JSON
-    'Pelagornis':              [true,  false, false, false, false, true ], // Corrigé JSON
-    'Phiomia':                 [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Phoenix':                 [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Piranha':                 [true,  true,  true,  false, true,  true ], // Corrigé JSON
-    'Piranha Aberrant':        [true,  true,  true,  false, true,  true ], // Verif (hérité de Piranha)
-    'Plesiosaur':              [true,  true,  true,  false, true,  true ], // Corrigé JSON
-    'Poison Wyvern':           [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Procoptodon':             [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Pteranodon':              [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Pulmonoscorpius':         [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Pulmonoscorpius Aberrant':[true,  true,  true,  true,  true,  true ], // Verif (hérité de Pulmonoscorpius)
-    'Purlovia':                [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Purlovia Aberrant':       [true,  false, false, false, true,  true ], // Verif (hérité de Purlovia)
-    'Pyromane':                [false,  false,  true, true, false, true ], // Verif (ASA Addition)
-
-    // ── Q ─────────────────────────────────────────────────────────────
-    'Quetzal':                 [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Quetzal Tek':             [true,  true,  true,  true,  true,  true ], // Verif (hérité de Quetzal)
-
-    // ── R ─────────────────────────────────────────────────────────────
-    'Raptor':                  [true,  true,  false, true,  true,  true ], // Corrigé JSON
-    'Raptor Aberrant':         [true,  true,  false, true,  true,  true ], // Verif (hérité de Raptor)
-    'Raptor Tek':              [true,  true,  false, true,  true,  true ], // Verif (hérité de Raptor)
-    'Ravager':                 [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Reaper King':             [true,  false, true,  false, true,  true ], 
-    'Rex':                     [true,  true,  false, false, true,  true ], // Corrigé JSON
-    'Rex Tek':                 [true,  true,  false, false, true,  true ], // Verif (hérité de Rex)
-    'Rhyniognatha':            [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Rhyniognatha Drone':      [true,  true,  true,  true,  true,  true ], // Verif (variante de Rhyniognatha)
-    'Rock Drake':              [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Rock Elemental':          [false, true,  false, false, false, false], // Corrigé JSON
-    'Roll Rat':                [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Rubble Golem':            [true,  true,  false, false, false, false], // Verif (absent du JSON)
-
-    // ── S ─────────────────────────────────────────────────────────────
-    'Sabertooth':              [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Sabertooth Salmon':       [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Salmon Aberrant':         [true,  false, false, false, true,  true ], // Verif (variante du Sabertooth Salmon)
-    'Sarco':                   [true,  false, true,  true,  true,  true ], // Corrigé JSON
-    'Sarco Aberrant':          [true,  false, true,  true,  true,  true ], // Verif (hérité de Sarco)
-    'Scout':                   [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Seeker':                  [true,  false, true,  false, true,  true ], // Corrigé JSON
-    'Shadowmane':              [true,  false, true,  true,   true,  true ], 
-    'Shastasaurus':            [true,  false,  true, false,  true, true], 
-    'Shinehorn':               [true,  false, true,  true,  true,  true ], // Corrigé JSON
-    'Snow Owl':                [true,  false, true,  false, true,  true ], // Corrigé (source ARK Wiki: région 3 non utilisée)
-    'Solwyn':                  [true,  false,  true,  false,  true,  true ], 
-    'Spino':                   [true,  true,  true,  false, true,  true ], // Corrigé JSON
-    'Spino Aberrant':          [true,  true,  true,  false, true,  true ], // Verif (hérité de Spino)
-    'Stegosaurus':             [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Stegosaurus Aberrant':    [true,  true,  true,  true,  true,  true ], // Verif (hérité de Stegosaurus)
-    'Stegosaurus Tek':         [true,  true,  true,  true,  true,  true ], // Verif (hérité de Stegosaurus)
-
-    // ── T ─────────────────────────────────────────────────────────────
-    'Tapejara':                [true,  true,  false, true,  true,  true ], // Corrigé JSON
-    'Terror Bird':             [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Therizinosaur':           [true,  false, true,  false, true,  true ], // Corrigé JSON
-    'Thorny Dragon':           [true,  true,  true,  false, true,  true ], // Corrigé JSON
-    'Thylacoleo':              [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Titanoboa':               [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Titanoboa Aberrant':      [true,  true,  true,  true,  true,  true ], // Verif (hérité de Titanoboa)
-    'Titanomyrma':             [true,  false, false, false, true,  true ], // Verif (absent du JSON)
-    'Titanosaur':              [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Triceratops':             [true,  true,  false, true,  true,  true ], // Corrigé JSON
-    'Triceratops Aberrant':    [true,  true,  false, true,  true,  true ], // Verif (hérité de Triceratops)
-    'Triceratops Tek':         [true,  true,  false, true,  true,  true ], // Verif (hérité de Triceratops)
-    'Trilobite':               [false, false, false, false, false, false], // Corrigé JSON
-    'Troodon':                 [true,  false, false, false, true,  true ], // Corrigé JSON
-    'Tusoteuthis':             [true,  true,  false, false, true,  true ], // Corrigé JSON
-
-    // ── U ─────────────────────────────────────────────────────────────
-    'Unicorn':                 [false, false, false, false, false, false], // Corrigé JSON
-
-    // ── V ─────────────────────────────────────────────────────────────
-    'Veilwyn':                 [true,  true,  false,  true,  true,  true ], 
-    'Velonasaur':              [true,  true,  true,  true,  true,  true ], // Corrigé JSON
-    'Vulture':                 [true,  true,  false, false, true,  true ], // Corrigé JSON
-
-    // ── W ─────────────────────────────────────────────────────────────
-    'Woolly Rhino':            [true,  true,  false, false, true,  true ], // Corrigé JSON
-
-    // ── X ─────────────────────────────────────────────────────────────
-    'Xiphactinus':             [true, false,false,  false, true,  true ], 
-    'Xerabos':                  [true,  true,  false,  true,  true,  true ],
-
-    // ── Y ─────────────────────────────────────────────────────────────
-    'Yi Ling':                 [true,  true,  false,  true,  true,  true ], 
-    'Yutyrannus':              [true,  true,  false, false, true,  true ], // Corrigé JSON
-
-    // ── Z ─────────────────────────────────────────────────────────────
-    'Zombie Fire Wyvern':      [true,  true,  false, true, false, true ], // Verif (hérité de Fire Wyvern)
-    'Zombie Lightning Wyvern':  [true,  true,  false, true, false, true ], // Verif (hérité de Lightning Wyvern)
-    'Zombie Poison Wyvern':     [true,  true,  false, true, false, true ], // Verif (hérité de Poison Wyvern)
-
-    // ── Ajouts automatiques (espèces avec image sans données) ──────
-    'Acrocanthosaurus X':          [true, true, false, false, true, true], // Verif (hérité de Acrocanthosaurus)
-    'Allosaurus R':                [true, false, false, true, true, true], // Verif (hérité de Allosaurus)
-    'Allosaurus X':                [true, false, false, true, true, true], // Verif (hérité de Allosaurus)
-    'Amargasaurus':                [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Andrewsarchus':               [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Ankylosaurus X':              [true, true, true, true, true, true], // Verif (hérité de Ankylosaurus)
-    'Archelon X':                  [true, true, false, true, true, false], // Verif (hérité de Archelon)
-    'Argentavis X':                [true, false, true, true, true, true], // Verif (hérité de Argentavis)
-    'Astrodelphis':                [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Basilosaurus X':              [true, false, false, false, false, true], // Verif (hérité de Basilosaurus)
-    'Blood Crystal Wyvern':        [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Brontosaurus R':              [true, true, false, false, true, true], // Verif (hérité de Brontosaurus)
-    'Brontosaurus Revenant':       [true, true, false, false, true, true], // Verif (hérité de Brontosaurus)
-    'Carbonemys R':                [true, true, false, false, true, true], // Verif (hérité de Carbonemys)
-    'Carnotaurus Lost':            [true, true, false, false, true, true], // Verif (hérité de Carnotaurus)
-    'Carnotaurus R':               [true, true, false, false, true, true], // Verif (hérité de Carnotaurus)
-    'Carnotaurus Revenant':        [true, true, false, false, true, true], // Verif (hérité de Carnotaurus)
-    'Ceratosaurus Lost':           [true, true, false, true, true, true], // Verif (hérité de Ceratosaurus)
-    'Concavenator Aberrant':       [true, false, true, false, false, true], // Verif (hérité de Concavenator)
-    'Concavenator X':              [true, false, true, false, false, true], // Verif (hérité de Concavenator)
-    'Cryolophosaurus Lost':        [true, true, true, true, true, true], // Verif (hérité de Cryolophosaurus)
-    'Cryolophosaurus X':           [true, true, true, true, true, true], // Verif (hérité de Cryolophosaurus)
-    'Daeodon R':                   [true, false, true, false, false, true], // Verif (hérité de Daeodon)
-    'Deathworm':                   [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Deinosuchus R':               [true, false, false, false, true, true], // Verif (hérité de Deinosuchus)
-    'Deinosuchus X':               [true, false, false, false, true, true], // Verif (hérité de Deinosuchus)
-    'Desmodus Lost':               [true, true, true, true, true, true], // Verif (hérité de Desmodus)
-    'Dilophosaur R':               [true, true, true, true, true, true], // Verif (hérité de Dilophosaur)
-    'Dilophosaur Revenant':        [true, true, true, true, true, true], // Verif (hérité de Dilophosaur)
-    'Dimorphodon Revenant':        [true, false, false, false, true, true], // Verif (hérité de Dimorphodon)
-    'Dinopithecus':                [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Dire Bear Lost':              [true, false, false, false, false, true], // Verif (hérité de Dire Bear)
-    'Dire Bear R':                 [true, false, false, false, false, true], // Verif (hérité de Dire Bear)
-    'Direwolf R':                  [true, false, false, false, true, true], // Verif (hérité de Direwolf)
-    'Direwolf Revenant':           [true, false, false, false, true, true], // Verif (hérité de Direwolf)
-    'Dodo Zombie':                 [true, true, true, true, true, true], // Verif (hérité de Dodo)
-    'Dunkleosteus X':              [true, false, false, false, true, true], // Verif (hérité de Dunkleosteus)
-    'Ember Crystal Wyvern':        [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Equus R':                     [true, false, false, false, true, true], // Verif (hérité de Equus)
-    'Fenrir':                      [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Fjordhawk':                   [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Gasbags R':                   [true, false, true, false, true, true], // Verif (hérité de Gasbags)
-    'Giganotosaurus R':            [true, false, false, false, true, true], // Verif (hérité de Giganotosaurus)
-    'Helicoprion X':               [true, false, false, false, true, true], // Verif (hérité de Helicoprion)
-    'Ichthyosaurus X':             [true, false, false, false, true, true], // Verif (hérité de Ichthyosaurus)
-    'Iguanodon Revenant':          [true, false, false, false, true, true], // Verif (hérité de Iguanodon)
-    'Malwyn Lost':                 [true, false, true, false, false, true], // Verif (hérité de Malwyn)
-    'Malwyn Revenant':             [true, false, true, false, false, true], // Verif (hérité de Malwyn)
-    'Mammoth Revenant':            [true, true, true, false, true, true], // Verif (hérité de Mammoth)
-    'Megalodon X':                 [true, false, false, false, true, true], // Verif (hérité de Megalodon)
-    'Megatherium Lost':            [true, false, false, false, false, true], // Verif (hérité de Megatherium)
-    'Megatherium R':               [true, false, false, false, false, true], // Verif (hérité de Megatherium)
-    'Minotarchos':                 [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Mosasaurus X':                [true, true, true, true, true, true], // Verif (hérité de Mosasaurus)
-    'Noglin':                      [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Ossidon Lost':                [true, false, true, true, true, true], // Verif (hérité de Ossidon)
-    'Ossidon Revenant':            [true, false, true, true, true, true], // Verif (hérité de Ossidon)
-    'Otter X':                     [true, false, false, false, true, true], // Verif (hérité de Otter)
-    'Paraceratherium X':           [true, false, false, false, true, true], // Verif (hérité de Paraceratherium)
-    'Parasaur R':                  [true, true, true, true, true, true], // Verif (hérité de Parasaur)
-    'Parasaur Revenant':           [true, true, true, true, true, true], // Verif (hérité de Parasaur)
-    'Parasaur X':                  [true, true, true, true, true, true], // Verif (hérité de Parasaur)
-    'Parrot':                      [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Procoptodon R':               [true, false, false, false, true, true], // Verif (hérité de Procoptodon)
-    'Pteranodon Revenant':         [true, true, true, true, true, true], // Verif (hérité de Pteranodon)
-    'Pulmonoscorpius Lost':        [true, true, true, true, true, true], // Verif (hérité de Pulmonoscorpius)
-    'Quetzal R':                   [true, true, true, true, true, true], // Verif (hérité de Quetzal)
-    'Raptor Lost':                 [true, true, false, true, true, true], // Verif (hérité de Raptor)
-    'Raptor Revenant':             [true, true, false, true, true, true], // Verif (hérité de Raptor)
-    'Raptor X':                    [true, true, false, true, true, true], // Verif (hérité de Raptor)
-    'Rex Lost':                    [true, true, false, false, true, true], // Verif (hérité de Rex)
-    'Rex Revenant':                [true, true, false, false, true, true], // Verif (hérité de Rex)
-    'Rex X':                       [true, true, false, false, true, true], // Verif (hérité de Rex)
-    'Rock Elemental X':            [false, true, false, false, false, false], // Verif (hérité de Rock Elemental)
-    'Rock Scrap':                  [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Sabertooth Lost':             [true, false, false, false, true, true], // Verif (hérité de Sabertooth)
-    'Sabertooth Revenant':         [true, false, false, false, true, true], // Verif (hérité de Sabertooth)
-    'Sabertooth Salmon X':         [true, false, false, false, true, true], // Verif (hérité de Sabertooth Salmon)
-    'Sabertooth X':                [true, false, false, false, true, true], // Verif (hérité de Sabertooth)
-    'Sinomacrops':                 [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Snow Owl R':                  [true, false, true, false, true, true], // Verif (hérité de Snow Owl)
-    'Spino Lost':                  [true, true, true, false, true, true], // Verif (hérité de Spino)
-    'Spino Revenant':              [true, true, true, false, true, true], // Verif (hérité de Spino)
-    'Spino X':                     [true, true, true, false, true, true], // Verif (hérité de Spino)
-    'Stegosaurus Revenant':        [true, true, true, true, true, true], // Verif (hérité de Stegosaurus)
-    'Strider':                     [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Tapejara X':                  [true, true, false, true, true, true], // Verif (hérité de Tapejara)
-    'Therizinosaur Lost':          [true, false, true, false, true, true], // Verif (hérité de Therizinosaur)
-    'Therizinosaur Revenant':      [true, false, true, false, true, true], // Verif (hérité de Therizinosaur)
-    'Thrall':                      [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Thylacoleo Lost':             [true, false, false, false, true, true], // Verif (hérité de Thylacoleo)
-    'Thylacoleo R':                [true, false, false, false, true, true], // Verif (hérité de Thylacoleo)
-    'Tidepup':                     [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Tidepup (Evo)':               [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Triceratops X':               [true, true, false, true, true, true], // Verif (hérité de Triceratops)
-    'Trilobite Aberrant':          [false, false, false, false, false, false], // Verif (hérité de Trilobite)
-    'Troodon Revenant':            [true, false, false, false, true, true], // Verif (hérité de Troodon)
-    'Tropeognathus':               [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Tropical Crystal Wyvern':     [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Umbra':                       [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Veilwyn Revenant':            [true, true, false, true, true, true], // Verif (hérité de Veilwyn)
-    'Velonasaur R':                [true, true, true, true, true, true], // Verif (hérité de Velonasaur)
-    'Voidwyrm':                    [true, true, true, true, true, true], // Verif (valeurs par défaut)
-    'Woolly Rhino Lost':           [true, true, false, false, true, true], // Verif (hérité de Woolly Rhino)
-    'Woolly Rhino X':              [true, true, false, false, true, true], // Verif (hérité de Woolly Rhino)
-    'Xiphactinus X':               [true, false,false, false, true, true], // Verif (hérité de Xiphactinus)
-    'Yutyrannus Lost':             [true, true, false, false, true, true], // Verif (hérité de Yutyrannus)
-    'Yutyrannus Revenant':         [true, true, false, false, true, true], // Verif (hérité de Yutyrannus)
-    'Yutyrannus X':                [true, true, false, false, true, true], // Verif (hérité de Yutyrannus)
-  };
+  /// Corrections manuelles, prioritaires sur le JSON.
+  /// Exemple : 'Rex': [true, true, false, false, true, true],
+  static const Map<String, List<bool>> _overrides = {};
 
   /// Noms des régions ARK (0-5)
   static const List<String> regionNames = [
@@ -438,30 +25,57 @@ class ArkSpeciesColorRegions {
   ];
 
   /// Retourne la liste des 6 booléens de visibilité pour une espèce.
-  /// Si l'espèce est inconnue, toutes les régions sont visibles par défaut.
+  /// Si l'espèce est inconnue ou sans données, toutes les régions sont visibles.
   static List<bool> visibilityFor(String species) {
-    // Recherche exacte
-    final exact = _data[species];
-    if (exact != null) return exact;
+    final manual = _overrides[species];
+    if (manual != null) return _normalize(manual);
 
-    // Recherche insensible à la casse
-    final lower = species.toLowerCase();
-    for (final entry in _data.entries) {
-      if (entry.key.toLowerCase() == lower) return entry.value;
-    }
-
-    // Défaut : tout visible
-    return [true, true, true, true, true, true];
+    final sp = ArkDb.byName(species) ?? _findIgnoreCase(species);
+    final regions = sp?.regions;
+    if (regions == null) return _allVisible;
+    return _normalize(regions);
   }
 
-  /// Nombre de régions visibles pour une espèce
+  /// Nombre de régions visibles pour une espèce.
   static int visibleCount(String species) =>
       visibilityFor(species).where((v) => v).length;
 
-  /// Retourne true si la région [index] est visible pour cette espèce
+  /// Retourne true si la région [region] est visible pour cette espèce.
   static bool isVisible(String species, int region) {
     final vis = visibilityFor(species);
     if (region < 0 || region >= vis.length) return false;
     return vis[region];
+  }
+
+  /// Espèces sans données de régions dans le JSON (affichées « tout visible »).
+  /// Utile pour l'audit : ces espèces méritent une vérification.
+  static List<String> get speciesWithoutRegionData =>
+      ArkDb.all.where((s) => s.regions == null).map((s) => s.name).toList();
+
+  /// Espèces dont aucune région n'est visible. Elles ne se colorent pas.
+  static List<String> get speciesWithNoVisibleRegion =>
+      ArkDb.all
+          .where((s) => s.regions != null && !s.regions!.any((v) => v))
+          .map((s) => s.name)
+          .toList();
+
+  // ─── Helpers privés ───────────────────────────────────────────────────────
+
+  /// Garantit exactement 6 valeurs : complète par true ou tronque.
+  static List<bool> _normalize(List<bool> input) {
+    final out = List<bool>.generate(
+      regionCount,
+      (i) => i < input.length ? input[i] : true,
+    );
+    return List.unmodifiable(out);
+  }
+
+  /// Recherche insensible à la casse, utilisée si le nom exact n'existe pas.
+  static ArkSpecies? _findIgnoreCase(String species) {
+    final lower = species.toLowerCase();
+    for (final s in ArkDb.all) {
+      if (s.name.toLowerCase() == lower) return s;
+    }
+    return null;
   }
 }

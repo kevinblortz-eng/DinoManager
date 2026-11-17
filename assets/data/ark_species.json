@@ -1,0 +1,8411 @@
+{
+  "generated": "2026-11-09",
+  "count": 327,
+  "especes": [
+    {
+      "name": "Achatina",
+      "base": "Achatina",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 120,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 10,
+        "melee": 5.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Achatina Aberrant",
+      "base": "Achatina",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 120,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 10,
+        "melee": 5.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Acrocanthosaurus",
+      "base": "Acrocanthosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1100,
+        "stamina": 500,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 600,
+        "melee": 58.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Acrocanthosaurus X",
+      "base": "Acrocanthosaurus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Allosaurus",
+      "base": "Allosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 800,
+        "stamina": 250,
+        "oxygen": 150,
+        "food": 3450,
+        "weight": 380,
+        "melee": 66.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Allosaurus R",
+      "base": "Allosaurus",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Allosaurus X",
+      "base": "Allosaurus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Amargasaurus",
+      "base": "Amargasaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Ammonite",
+      "base": "Ammonite",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Andrewsarchus",
+      "base": "Andrewsarchus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Anglerfish",
+      "base": "Anglerfish",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 275,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 100,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Anglerfish Aberrant",
+      "base": "Anglerfish",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 275,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 100,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Ankylosaurus",
+      "base": "Ankylosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 840,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 1500,
+        "melee": 44.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Ankylosaurus Aberrant",
+      "base": "Ankylosaurus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 840,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 1500,
+        "melee": 44.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Ankylosaurus X",
+      "base": "Ankylosaurus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Araneo",
+      "base": "Araneo",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 165,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 50,
+        "melee": 25.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Araneo Aberrant",
+      "base": "Araneo",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 165,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 50,
+        "melee": 25.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Archaeopteryx",
+      "base": "Archaeopteryx",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 85,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 15,
+        "melee": 10.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Archelon",
+      "base": "Archelon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 1400,
+        "stamina": 775,
+        "oxygen": 150,
+        "food": 3500,
+        "weight": 1000,
+        "melee": 100.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Archelon X",
+      "base": "Archelon",
+      "variant": "x",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        false
+      ],
+      "stats": null
+    },
+    {
+      "name": "Argentavis",
+      "base": "Argentavis",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 525,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 350,
+        "melee": 50.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Argentavis X",
+      "base": "Argentavis",
+      "variant": "x",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Armadoggo",
+      "base": "Armadoggo",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 250,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 25.0,
+        "diet": "omnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Arthropluera",
+      "base": "Arthropluera",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 480,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 35.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Arthropluera Aberrant",
+      "base": "Arthropluera",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 480,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 35.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Astrocetus",
+      "base": "Astrocetus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Astrodelphis",
+      "base": "Astrodelphis",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Aureliax",
+      "base": "Aureliax",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 600,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 45.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Baryonyx",
+      "base": "Baryonyx",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 52.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Baryonyx Aberrant",
+      "base": "Baryonyx",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 52.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Basilisk",
+      "base": "Basilisk",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1600,
+        "stamina": 400,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 70.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Basilosaurus",
+      "base": "Basilosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 1850,
+        "stamina": 600,
+        "oxygen": 150,
+        "food": 5000,
+        "weight": 500,
+        "melee": 45.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Basilosaurus X",
+      "base": "Basilosaurus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Beelzebufo",
+      "base": "Beelzebufo",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 210,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 20.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Beelzebufo Aberrant",
+      "base": "Beelzebufo",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 210,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 20.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Bison",
+      "base": "Bison",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 350,
+        "melee": 35.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Blood Crystal Wyvern",
+      "base": "Blood Crystal Wyvern",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Bloodstalker",
+      "base": "Bloodstalker",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        false
+      ],
+      "stats": null
+    },
+    {
+      "name": "Boaratos",
+      "base": "Boaratos",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Brontosaurus",
+      "base": "Brontosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 2950,
+        "stamina": 800,
+        "oxygen": 150,
+        "food": 8000,
+        "weight": 1500,
+        "melee": 32.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Brontosaurus R",
+      "base": "Brontosaurus",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Bulbdog",
+      "base": "Bulbdog",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 120,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 25,
+        "melee": 10.0,
+        "diet": "omnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Burrowbuck",
+      "base": "Burrowbuck",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Carbonemys",
+      "base": "Carbonemys",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 420,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 25.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Carbonemys Aberrant",
+      "base": "Carbonemys",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 420,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 25.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Carbonemys R",
+      "base": "Carbonemys",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Carcharodontosaurus",
+      "base": "Carcharodontosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1800,
+        "stamina": 500,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 110.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Carnotaurus",
+      "base": "Carnotaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 560,
+        "stamina": 300,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 250,
+        "melee": 52.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Carnotaurus Aberrant",
+      "base": "Carnotaurus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 560,
+        "stamina": 300,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 250,
+        "melee": 52.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Carnotaurus R",
+      "base": "Carnotaurus",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Castoroides",
+      "base": "Castoroides",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 520,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 300,
+        "melee": 28.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Cat",
+      "base": "Cat",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 20,
+        "melee": 10.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Ceratosaurus",
+      "base": "Ceratosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 550,
+        "stamina": 300,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 250,
+        "melee": 55.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Cerberax",
+      "base": "Cerberax",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Chalicotherium",
+      "base": "Chalicotherium",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 650,
+        "stamina": 300,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 250,
+        "melee": 35.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Chalk Elemental",
+      "base": "Chalk Elemental",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": {
+        "hp": 2200,
+        "stamina": 400,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 1200,
+        "melee": 80.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Cnidaria",
+      "base": "Cnidaria",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 50,
+        "melee": 20.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Coelacanth",
+      "base": "Coelacanth",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 30,
+        "melee": 10.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Coelacanth Aberrant",
+      "base": "Coelacanth",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 30,
+        "melee": 10.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Compy",
+      "base": "Compy",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 65,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 300,
+        "weight": 15,
+        "melee": 10.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Concavenator",
+      "base": "Concavenator",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Concavenator Aberrant",
+      "base": "Concavenator",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Concavenator X",
+      "base": "Concavenator",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Cosmo",
+      "base": "Cosmo",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 600,
+        "weight": 50,
+        "melee": 15.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Cryolophosaurus",
+      "base": "Cryolophosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 650,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 250,
+        "melee": 55.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Cryolophosaurus X",
+      "base": "Cryolophosaurus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Daeodon",
+      "base": "Daeodon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 300,
+        "melee": 42.0,
+        "diet": "omnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Daeodon R",
+      "base": "Daeodon",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Deathworm",
+      "base": "Deathworm",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Deinonychus",
+      "base": "Deinonychus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 330,
+        "stamina": 210,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 60.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Deinosuchus",
+      "base": "Deinosuchus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 600,
+        "melee": 55.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Deinosuchus R",
+      "base": "Deinosuchus",
+      "variant": "r",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": false,
+      "mask": false,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Deinosuchus X",
+      "base": "Deinosuchus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Deinotherium",
+      "base": "Deinotherium",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1750,
+        "stamina": 450,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 800,
+        "melee": 100.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Desmodus",
+      "base": "Desmodus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 325,
+        "stamina": 500,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 350,
+        "melee": 40.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Dilophosaur",
+      "base": "Dilophosaur",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Dilophosaur R",
+      "base": "Dilophosaur",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Dimetrodon",
+      "base": "Dimetrodon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 350,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 100,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Dimetrodon Aberrant",
+      "base": "Dimetrodon",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 350,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 100,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Dimorphodon",
+      "base": "Dimorphodon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 135,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 30,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Dimorphodon Aberrant",
+      "base": "Dimorphodon",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 135,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 30,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Dinopithecus",
+      "base": "Dinopithecus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Diplocaulus",
+      "base": "Diplocaulus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 210,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 75,
+        "melee": 20.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Diplocaulus Aberrant",
+      "base": "Diplocaulus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 210,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 75,
+        "melee": 20.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Diplodocus",
+      "base": "Diplodocus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 2100,
+        "stamina": 700,
+        "oxygen": 150,
+        "food": 8000,
+        "weight": 1800,
+        "melee": 18.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Diplodocus Aberrant",
+      "base": "Diplodocus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 2100,
+        "stamina": 700,
+        "oxygen": 150,
+        "food": 8000,
+        "weight": 1800,
+        "melee": 18.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Dire Bear",
+      "base": "Dire Bear",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 250,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 350,
+        "melee": 45.0,
+        "diet": "omnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Dire Bear Aberrant",
+      "base": "Dire Bear",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 250,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 350,
+        "melee": 45.0,
+        "diet": "omnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Dire Bear R",
+      "base": "Dire Bear",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Dire Polar Bear",
+      "base": "Dire Polar Bear",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 250,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 350,
+        "melee": 45.0,
+        "diet": "omnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Direwolf",
+      "base": "Direwolf",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 400,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 125,
+        "melee": 52.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Direwolf R",
+      "base": "Direwolf",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Dodo",
+      "base": "Dodo",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 35,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 15,
+        "melee": 5.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Dodo Aberrant",
+      "base": "Dodo",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 35,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 15,
+        "melee": 5.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Doedicurus",
+      "base": "Doedicurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 420,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 300,
+        "melee": 36.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Doedicurus Aberrant",
+      "base": "Doedicurus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 420,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 300,
+        "melee": 36.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Drakeling (Autumn)",
+      "base": "Drakeling (Autumn)",
+      "variant": "none",
+      "stage": "basic",
+      "type": "fantastic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 800,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 300,
+        "melee": 65.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Drakeling (Spring)",
+      "base": "Drakeling (Spring)",
+      "variant": "none",
+      "stage": "basic",
+      "type": "fantastic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 800,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 300,
+        "melee": 65.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Drakeling (Summer)",
+      "base": "Drakeling (Summer)",
+      "variant": "none",
+      "stage": "basic",
+      "type": "fantastic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 800,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 300,
+        "melee": 65.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Drakeling (Winter)",
+      "base": "Drakeling (Winter)",
+      "variant": "none",
+      "stage": "basic",
+      "type": "fantastic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 800,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 300,
+        "melee": 65.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Dreadmare",
+      "base": "Dreadmare",
+      "variant": "none",
+      "stage": "basic",
+      "type": "fantastic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 250,
+        "melee": 55.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Dreadnoughtus",
+      "base": "Dreadnoughtus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100000,
+        "stamina": 300,
+        "oxygen": 150,
+        "food": 8000,
+        "weight": 3000,
+        "melee": 100.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Dung Beetle",
+      "base": "Dung Beetle",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 50,
+        "melee": 10.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Dung Beetle Aberrant",
+      "base": "Dung Beetle",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 50,
+        "melee": 10.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Dunkleosteus",
+      "base": "Dunkleosteus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 600,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 400,
+        "melee": 40.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Dunkleosteus X",
+      "base": "Dunkleosteus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Elderclaw",
+      "base": "Elderclaw",
+      "variant": "none",
+      "stage": "basic",
+      "type": "fantastic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 900,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 350,
+        "melee": 70.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Electrophorus",
+      "base": "Electrophorus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 230,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 50,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Electrophorus Aberrant",
+      "base": "Electrophorus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 230,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 50,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Ember Crystal Wyvern",
+      "base": "Ember Crystal Wyvern",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Enforcer",
+      "base": "Enforcer",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 475,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 300,
+        "melee": 60.0,
+        "diet": "special",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Enigmasaur",
+      "base": "Enigmasaur",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": null,
+      "stats": null
+    },
+    {
+      "name": "Equus",
+      "base": "Equus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 340,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 25.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Equus Aberrant",
+      "base": "Equus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 340,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 25.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Equus R",
+      "base": "Equus",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Eurypterid",
+      "base": "Eurypterid",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Fasolasuchus",
+      "base": "Fasolasuchus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 950,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 400,
+        "melee": 100.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Fasolasuchus Aberrant",
+      "base": "Fasolasuchus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 950,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 400,
+        "melee": 100.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Featherlight",
+      "base": "Featherlight",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 20,
+        "melee": 10.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Fenrir",
+      "base": "Fenrir",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Ferox",
+      "base": "Ferox",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Fire Wyvern",
+      "base": "Fire Wyvern",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 82.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Fjordhawk",
+      "base": "Fjordhawk",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Gacha",
+      "base": "Gacha",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 2800,
+        "stamina": 400,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 1200,
+        "melee": 40.0,
+        "diet": "omnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Gallimimus",
+      "base": "Gallimimus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 600,
+        "weight": 100,
+        "melee": 10.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Gargantar",
+      "base": "Gargantar",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Gasbags",
+      "base": "Gasbags",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 400,
+        "oxygen": 150,
+        "food": 2500,
+        "weight": 500,
+        "melee": 30.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Gasbags R",
+      "base": "Gasbags",
+      "variant": "r",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Giant Bee",
+      "base": "Giant Bee",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Giant Queen Bee",
+      "base": "Giant Queen Bee",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Gigadesmodus",
+      "base": "Gigadesmodus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 500,
+        "oxygen": 150,
+        "food": 2500,
+        "weight": 600,
+        "melee": 70.0,
+        "diet": "special",
+        "taming": "none",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Giganotosaurus",
+      "base": "Giganotosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 17000,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 10000,
+        "weight": 1500,
+        "melee": 100.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Giganotosaurus R",
+      "base": "Giganotosaurus",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Giganotosaurus Tek",
+      "base": "Giganotosaurus",
+      "variant": "tek",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 17000,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 12000,
+        "weight": 1800,
+        "melee": 120.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Gigantopithecus",
+      "base": "Gigantopithecus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 330,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 150,
+        "melee": 35.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Gigantopithecus Aberrant",
+      "base": "Gigantopithecus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 330,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 150,
+        "melee": 35.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Gigantoraptor",
+      "base": "Gigantoraptor",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 770,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 320,
+        "melee": 100.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Gigantoraptor Aberrant",
+      "base": "Gigantoraptor",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 770,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 320,
+        "melee": 100.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Gloon",
+      "base": "Gloon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 500,
+        "stamina": 250,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 200,
+        "melee": 40.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Glowbug",
+      "base": "Glowbug",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Glowtail",
+      "base": "Glowtail",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 120,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 25,
+        "melee": 10.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Grand Tortugar",
+      "base": "Grand Tortugar",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 3000,
+        "stamina": 600,
+        "oxygen": 150,
+        "food": 6000,
+        "weight": 2000,
+        "melee": 50.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Griffin",
+      "base": "Griffin",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 875,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2500,
+        "weight": 350,
+        "melee": 60.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Helicoprion",
+      "base": "Helicoprion",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1300,
+        "stamina": 500,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 400,
+        "melee": 70.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Helicoprion X",
+      "base": "Helicoprion",
+      "variant": "x",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Hesperornis",
+      "base": "Hesperornis",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 120,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 600,
+        "weight": 50,
+        "melee": 15.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Hyaenodon",
+      "base": "Hyaenodon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 350,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 125,
+        "melee": 40.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Ice Elemental",
+      "base": "Ice Elemental",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": {
+        "hp": 2200,
+        "stamina": 400,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 1200,
+        "melee": 80.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Ice Wyvern",
+      "base": "Ice Wyvern",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 78.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Ichthyornis",
+      "base": "Ichthyornis",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 75,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 15,
+        "melee": 15.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Ichthyosaurus",
+      "base": "Ichthyosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 600,
+        "weight": 50,
+        "melee": 10.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Ichthyosaurus X",
+      "base": "Ichthyosaurus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Iguanodon",
+      "base": "Iguanodon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 380,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 200,
+        "melee": 20.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Iguanodon Aberrant",
+      "base": "Iguanodon",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 380,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 200,
+        "melee": 20.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Jerboa",
+      "base": "Jerboa",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 75,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 300,
+        "weight": 15,
+        "melee": 5.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Kairuku",
+      "base": "Kairuku",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 90,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 25,
+        "melee": 10.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Kaprosuchus",
+      "base": "Kaprosuchus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 375,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 150,
+        "melee": 40.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Karkinos",
+      "base": "Karkinos",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 800,
+        "melee": 55.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Kentrosaurus",
+      "base": "Kentrosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 600,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 300,
+        "melee": 30.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Khoron",
+      "base": "Khoron",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": null,
+      "stats": null
+    },
+    {
+      "name": "Lamprey",
+      "base": "Lamprey",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": null
+    },
+    {
+      "name": "Lava Elemental",
+      "base": "Lava Elemental",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 80000,
+        "stamina": 600,
+        "oxygen": 150,
+        "food": 5000,
+        "weight": 2000,
+        "melee": 120.0,
+        "diet": "special",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Leech",
+      "base": "Leech",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": null
+    },
+    {
+      "name": "Leedsichthys",
+      "base": "Leedsichthys",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Lightning Wyvern",
+      "base": "Lightning Wyvern",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 80.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Liopleurodon",
+      "base": "Liopleurodon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 400,
+        "oxygen": 150,
+        "food": 4000,
+        "weight": 300,
+        "melee": 50.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Lumina",
+      "base": "Lumina",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Lymantria",
+      "base": "Lymantria",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 75,
+        "melee": 15.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Lystrosaurus",
+      "base": "Lystrosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 50,
+        "melee": 10.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Lystrosaurus Aberrant",
+      "base": "Lystrosaurus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 50,
+        "melee": 10.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Maeguana",
+      "base": "Maeguana",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 600,
+        "stamina": 300,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 250,
+        "melee": 50.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Maewing",
+      "base": "Maewing",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Magmasaur",
+      "base": "Magmasaur",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Malwyn",
+      "base": "Malwyn",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 300,
+        "melee": 60.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Mammoth",
+      "base": "Mammoth",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 350,
+        "melee": 35.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Managarmr",
+      "base": "Managarmr",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1100,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 2500,
+        "weight": 400,
+        "melee": 55.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Manta",
+      "base": "Manta",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 180,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 75,
+        "melee": 25.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Manta Aberrant",
+      "base": "Manta",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 180,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 75,
+        "melee": 25.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Mantis",
+      "base": "Mantis",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 400,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 200,
+        "melee": 45.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Megachelon",
+      "base": "Megachelon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Megalania",
+      "base": "Megalania",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 280,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Megalania Aberrant",
+      "base": "Megalania",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 280,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Megaloceros",
+      "base": "Megaloceros",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 350,
+        "stamina": 250,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 150,
+        "melee": 25.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Megalodon",
+      "base": "Megalodon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 300,
+        "melee": 60.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Megalodon X",
+      "base": "Megalodon",
+      "variant": "x",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Megalosaurus",
+      "base": "Megalosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 250,
+        "melee": 50.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Megalosaurus Aberrant",
+      "base": "Megalosaurus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 250,
+        "melee": 50.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Meganeura",
+      "base": "Meganeura",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 50,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 300,
+        "weight": 5,
+        "melee": 5.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Meganeura Aberrant",
+      "base": "Meganeura",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 50,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 300,
+        "weight": 5,
+        "melee": 5.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Megaraptor",
+      "base": "Megaraptor",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 500,
+        "stamina": 250,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 200,
+        "melee": 65.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Megatherium",
+      "base": "Megatherium",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 980,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 400,
+        "melee": 42.0,
+        "diet": "omnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Megatherium R",
+      "base": "Megatherium",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Mesopithecus",
+      "base": "Mesopithecus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Microraptor",
+      "base": "Microraptor",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Minotarchos",
+      "base": "Minotarchos",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1500,
+        "stamina": 400,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 600,
+        "melee": 80.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Morellatops",
+      "base": "Morellatops",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 350,
+        "stamina": 250,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 20.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Mosasaurus",
+      "base": "Mosasaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 2400,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 6000,
+        "weight": 750,
+        "melee": 80.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Mosasaurus X",
+      "base": "Mosasaurus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Moschops",
+      "base": "Moschops",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 280,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 150,
+        "melee": 20.0,
+        "diet": "omnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Moschops Aberrant",
+      "base": "Moschops",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 280,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 150,
+        "melee": 20.0,
+        "diet": "omnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Nameless",
+      "base": "Nameless",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Neophyte",
+      "base": "Neophyte",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
+      "stats": {
+        "hp": 300,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 30.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Noglin",
+      "base": "Noglin",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Oasisaur",
+      "base": "Oasisaur",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 5000,
+        "stamina": 600,
+        "oxygen": 150,
+        "food": 8000,
+        "weight": 2000,
+        "melee": 40.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Onyc",
+      "base": "Onyc",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 125,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 40,
+        "melee": 10.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Ossidon",
+      "base": "Ossidon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 400,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 80.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Otter",
+      "base": "Otter",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 600,
+        "weight": 25,
+        "melee": 15.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Otter Aberrant",
+      "base": "Otter",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 600,
+        "weight": 25,
+        "melee": 15.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Otter X",
+      "base": "Otter",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Oviraptor",
+      "base": "Oviraptor",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 175,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 75,
+        "melee": 20.0,
+        "diet": "omnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Oviraptor Aberrant",
+      "base": "Oviraptor",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 175,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 75,
+        "melee": 20.0,
+        "diet": "omnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Ovis",
+      "base": "Ovis",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 75,
+        "melee": 10.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Ovis Aberrant",
+      "base": "Ovis",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 75,
+        "melee": 10.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Pachy",
+      "base": "Pachy",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Pachyrhinosaurus",
+      "base": "Pachyrhinosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 600,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 300,
+        "melee": 30.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Palaeoctopus",
+      "base": "Palaeoctopus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Paraceratherium",
+      "base": "Paraceratherium",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 560,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 1000,
+        "melee": 18.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Paraceratherium Aberrant",
+      "base": "Paraceratherium",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 560,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 1000,
+        "melee": 18.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Paraceratherium X",
+      "base": "Paraceratherium",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Parasaur",
+      "base": "Parasaur",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 100,
+        "melee": 15.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Parasaur Aberrant",
+      "base": "Parasaur",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 100,
+        "melee": 15.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Parasaur R",
+      "base": "Parasaur",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Parasaur Tek",
+      "base": "Parasaur",
+      "variant": "tek",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 240,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 120,
+        "melee": 18.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Parasaur X",
+      "base": "Parasaur",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Parrot",
+      "base": "Parrot",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Pegomastax",
+      "base": "Pegomastax",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 90,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 25,
+        "melee": 15.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Pelagornis",
+      "base": "Pelagornis",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 50,
+        "melee": 25.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Phiomia",
+      "base": "Phiomia",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Phoenix",
+      "base": "Phoenix",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 2800,
+        "stamina": 600,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 75.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Piranha",
+      "base": "Piranha",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 25,
+        "melee": 20.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Piranha Aberrant",
+      "base": "Piranha",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 100,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 25,
+        "melee": 20.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Plesiosaur",
+      "base": "Plesiosaur",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 2400,
+        "stamina": 400,
+        "oxygen": 150,
+        "food": 6000,
+        "weight": 600,
+        "melee": 40.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Poison Wyvern",
+      "base": "Poison Wyvern",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 75.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Procoptodon",
+      "base": "Procoptodon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 430,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 28.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Procoptodon R",
+      "base": "Procoptodon",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Pteranodon",
+      "base": "Pteranodon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 270,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 150,
+        "melee": 25.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Pulmonoscorpius",
+      "base": "Pulmonoscorpius",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 270,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 100,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Pulmonoscorpius Aberrant",
+      "base": "Pulmonoscorpius",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 270,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 100,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Purlovia",
+      "base": "Purlovia",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 350,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 150,
+        "melee": 35.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Purlovia Aberrant",
+      "base": "Purlovia",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 350,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 150,
+        "melee": 35.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Pyromane",
+      "base": "Pyromane",
+      "variant": "none",
+      "stage": "basic",
+      "type": "fantastic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        false,
+        false,
+        true,
+        true,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 500,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 150,
+        "melee": 45.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Quetzal",
+      "base": "Quetzal",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 900,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 800,
+        "melee": 30.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Quetzal R",
+      "base": "Quetzal",
+      "variant": "r",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Quetzal Tek",
+      "base": "Quetzal",
+      "variant": "tek",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1080,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 3600,
+        "weight": 960,
+        "melee": 36.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Raptor",
+      "base": "Raptor",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 350,
+        "stamina": 210,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 52.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Raptor Aberrant",
+      "base": "Raptor",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 350,
+        "stamina": 210,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 52.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Raptor Tek",
+      "base": "Raptor",
+      "variant": "tek",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 420,
+        "stamina": 210,
+        "oxygen": 150,
+        "food": 1080,
+        "weight": 120,
+        "melee": 62.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Raptor X",
+      "base": "Raptor",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Ravager",
+      "base": "Ravager",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 420,
+        "stamina": 210,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 150,
+        "melee": 50.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Reaper King",
+      "base": "Reaper King",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 2000,
+        "stamina": 700,
+        "oxygen": 150,
+        "food": 5000,
+        "weight": 500,
+        "melee": 80.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Rex",
+      "base": "Rex",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 62.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Rex Tek",
+      "base": "Rex",
+      "variant": "tek",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1440,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3600,
+        "weight": 600,
+        "melee": 74.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Rex X",
+      "base": "Rex",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Rhyniognatha",
+      "base": "Rhyniognatha",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 450,
+        "stamina": 250,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 200,
+        "melee": 45.0,
+        "diet": "special",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Rhyniognatha Drone",
+      "base": "Rhyniognatha Drone",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 200,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 600,
+        "weight": 100,
+        "melee": 25.0,
+        "diet": "special",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Rock Drake",
+      "base": "Rock Drake",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 900,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 400,
+        "melee": 68.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Rock Elemental",
+      "base": "Rock Elemental",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": {
+        "hp": 2200,
+        "stamina": 400,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 1200,
+        "melee": 80.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Rock Elemental X",
+      "base": "Rock Elemental",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": null
+    },
+    {
+      "name": "Roll Rat",
+      "base": "Roll Rat",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 520,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 400,
+        "melee": 35.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Rubble Golem",
+      "base": "Rubble Golem",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": {
+        "hp": 1100,
+        "stamina": 300,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 800,
+        "melee": 60.0,
+        "diet": "special",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Sabertooth",
+      "base": "Sabertooth",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 400,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 125,
+        "melee": 52.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Sabertooth Salmon",
+      "base": "Sabertooth Salmon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 75,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 300,
+        "weight": 15,
+        "melee": 15.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Sabertooth Salmon X",
+      "base": "Sabertooth Salmon",
+      "variant": "x",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Sabertooth X",
+      "base": "Sabertooth",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Salmon Aberrant",
+      "base": "Salmon",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 75,
+        "stamina": 100,
+        "oxygen": 150,
+        "food": 300,
+        "weight": 15,
+        "melee": 15.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Sarco",
+      "base": "Sarco",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 540,
+        "stamina": 210,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 225,
+        "melee": 38.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Sarco Aberrant",
+      "base": "Sarco",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 540,
+        "stamina": 210,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 225,
+        "melee": 38.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Scout",
+      "base": "Scout",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": false,
+      "mask": false,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Seeker",
+      "base": "Seeker",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": false,
+      "mask": false,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Shadowmane",
+      "base": "Shadowmane",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Shastasaurus",
+      "base": "Shastasaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 4500,
+        "stamina": 300,
+        "oxygen": 150,
+        "food": 8000,
+        "weight": 1200,
+        "melee": 60.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Shinehorn",
+      "base": "Shinehorn",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 140,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 600,
+        "weight": 50,
+        "melee": 10.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+     {
+      "name": "Silvanor",
+      "base": "Silvanor",
+      "variant": "none",
+      "stage": "basic",
+      "type": "unknown",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1,
+        "stamina": 1,
+        "oxygen": 1,
+        "food": 1,
+        "weight": 1,
+        "melee": 1.0,
+        "diet": "unknown",
+        "taming": "unknown",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Sinomacrops",
+      "base": "Sinomacrops",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Snow Owl",
+      "base": "Snow Owl",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 725,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 200,
+        "melee": 45.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Snow Owl R",
+      "base": "Snow Owl",
+      "variant": "r",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Solwyn",
+      "base": "Solwyn",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 300,
+        "melee": 60.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Spino",
+      "base": "Spino",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1100,
+        "stamina": 385,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 70.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Spino Aberrant",
+      "base": "Spino",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1100,
+        "stamina": 385,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 70.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Spino X",
+      "base": "Spino",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Stegosaurus",
+      "base": "Stegosaurus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 840,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 350,
+        "melee": 36.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Stegosaurus Aberrant",
+      "base": "Stegosaurus",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 840,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 350,
+        "melee": 36.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Stegosaurus Tek",
+      "base": "Stegosaurus",
+      "variant": "tek",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1008,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3600,
+        "weight": 420,
+        "melee": 43.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Strider",
+      "base": "Strider",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Tapejara",
+      "base": "Tapejara",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 300,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 100,
+        "melee": 25.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Tapejara X",
+      "base": "Tapejara",
+      "variant": "x",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Terror Bird",
+      "base": "Terror Bird",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 350,
+        "stamina": 210,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 48.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Therizinosaur",
+      "base": "Therizinosaur",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 4000,
+        "weight": 450,
+        "melee": 52.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Thorny Dragon",
+      "base": "Thorny Dragon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 450,
+        "stamina": 250,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 200,
+        "melee": 35.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Thylacoleo",
+      "base": "Thylacoleo",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 550,
+        "stamina": 240,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 180,
+        "melee": 60.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Thylacoleo R",
+      "base": "Thylacoleo",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Tidepup",
+      "base": "Tidepup",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Tidepup (Evo)",
+      "base": "Tidepup",
+      "variant": "none",
+      "stage": "evolved",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Titanoboa",
+      "base": "Titanoboa",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 300,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 50,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Titanoboa Aberrant",
+      "base": "Titanoboa",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 300,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 1000,
+        "weight": 50,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Titanomyrma",
+      "base": "Titanomyrma",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": false,
+      "mask": false,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Titanosaur",
+      "base": "Titanosaur",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Triceratops",
+      "base": "Triceratops",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 250,
+        "melee": 40.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Triceratops Aberrant",
+      "base": "Triceratops",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 250,
+        "melee": 40.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Triceratops Tek",
+      "base": "Triceratops",
+      "variant": "tek",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 840,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1800,
+        "weight": 300,
+        "melee": 48.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Triceratops X",
+      "base": "Triceratops",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Trilobite",
+      "base": "Trilobite",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": null
+    },
+    {
+      "name": "Trilobite Aberrant",
+      "base": "Trilobite",
+      "variant": "aberrant",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": null
+    },
+    {
+      "name": "Troodon",
+      "base": "Troodon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 175,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 75,
+        "melee": 28.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Tropeognathus",
+      "base": "Tropeognathus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Tropical Crystal Wyvern",
+      "base": "Tropical Crystal Wyvern",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Tusoteuthis",
+      "base": "Tusoteuthis",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 2000,
+        "stamina": 500,
+        "oxygen": 150,
+        "food": 5000,
+        "weight": 500,
+        "melee": 60.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Umbra",
+      "base": "Umbra",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Unicorn",
+      "base": "Unicorn",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "stats": {
+        "hp": 340,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 25.0,
+        "diet": "herbivore",
+        "taming": "passive",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Veilwyn",
+      "base": "Veilwyn",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 700,
+        "stamina": 350,
+        "oxygen": 150,
+        "food": 2000,
+        "weight": 300,
+        "melee": 60.0,
+        "diet": "carnivore",
+        "taming": "special",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Velonasaur",
+      "base": "Velonasaur",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 465,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1200,
+        "weight": 200,
+        "melee": 50.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Velonasaur R",
+      "base": "Velonasaur",
+      "variant": "r",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Vitryon",
+      "base": "Vitryon",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": null,
+      "stats": null
+    },
+    {
+      "name": "Voidwyrm",
+      "base": "Voidwyrm",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Vulture",
+      "base": "Vulture",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 120,
+        "stamina": 150,
+        "oxygen": 150,
+        "food": 450,
+        "weight": 30,
+        "melee": 20.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Woolly Rhino",
+      "base": "Woolly Rhino",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 900,
+        "stamina": 280,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 320,
+        "melee": 35.0,
+        "diet": "herbivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Woolly Rhino X",
+      "base": "Woolly Rhino",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Xeranox",
+      "base": "Xeranox",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": null,
+      "stats": null
+    },
+    {
+      "name": "Xiphactinus",
+      "base": "Xiphactinus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 450,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 1500,
+        "weight": 200,
+        "melee": 50.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Xiphactinus X",
+      "base": "Xiphactinus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Yi Ling",
+      "base": "Yi Ling",
+      "variant": "none",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 300,
+        "stamina": 200,
+        "oxygen": 150,
+        "food": 900,
+        "weight": 100,
+        "melee": 30.0,
+        "diet": "carnivore",
+        "taming": "passive",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Yutyrannus",
+      "base": "Yutyrannus",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 350,
+        "melee": 55.0,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Yutyrannus X",
+      "base": "Yutyrannus",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "stats": null
+    },
+    {
+      "name": "Zombie Fire Wyvern",
+      "base": "Fire Wyvern",
+      "variant": "zombie",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 82.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Zombie Lightning Wyvern",
+      "base": "Lightning Wyvern",
+      "variant": "zombie",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 80.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Zombie Poison Wyvern",
+      "base": "Poison Wyvern",
+      "variant": "zombie",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [
+        true,
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 75.0,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Zuffin",
+      "base": "Zuffin",
+      "variant": "none",
+      "stage": "basic",
+      "type": "unknown",
+      "sexes": [],
+      "image": true,
+      "mask": false,
+      "regions": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "stats": {
+        "hp": 1,
+        "stamina": 1,
+        "oxygen": 1,
+        "food": 1,
+        "weight": 1,
+        "melee": 1.0,
+        "diet": "unknown",
+        "taming": "unknown",
+        "rideable": false
+      }
+    }
+  ]
+}

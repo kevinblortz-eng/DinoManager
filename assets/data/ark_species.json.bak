@@ -1,0 +1,85 @@
+{
+  "_modele": "Copie un bloc, colle-le avant le dernier ], remplis les valeurs.",
+  "especes": [
+    {
+      "name": "Rex",
+      "base": "Rex",
+      "variant": "none",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [true, true, false, false, true, true],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 62,
+        "diet": "carnivore",
+        "taming": "ko",
+        "rideable": true
+      }
+    },
+    {
+      "name": "Rex X",
+      "base": "Rex",
+      "variant": "x",
+      "stage": "basic",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [true, true, false, false, true, true],
+      "stats": null
+    },
+    {
+      "name": "Tidepup (Evo)",
+      "base": "Tidepup",
+      "variant": "none",
+      "stage": "evolved",
+      "type": "terrestre",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [true, true, true, true, true, true],
+      "stats": null
+    },
+    {
+      "name": "Zombie Fire Wyvern",
+      "base": "Fire Wyvern",
+      "variant": "zombie",
+      "stage": "basic",
+      "type": "volant",
+      "sexes": [],
+      "image": true,
+      "mask": true,
+      "regions": [true, true, false, true, false, true],
+      "stats": {
+        "hp": 1200,
+        "stamina": 420,
+        "oxygen": 150,
+        "food": 3000,
+        "weight": 500,
+        "melee": 82,
+        "diet": "carnivore",
+        "taming": "none",
+        "rideable": false
+      }
+    },
+    {
+      "name": "Deinosuchus R",
+      "base": "Deinosuchus",
+      "variant": "r",
+      "stage": "basic",
+      "type": "aquatic",
+      "sexes": [],
+      "image": false,
+      "mask": false,
+      "regions": [true, false, false, false, true, true],
+      "stats": null
+    }
+  ]
+}

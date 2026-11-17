@@ -16,9 +16,14 @@ import 'theme/app_theme.dart';
 import 'screens/main_navigation_screen.dart';
 import 'database/database_helper.dart';
 import 'l10n/app_localizations.dart';
+import 'models/ark_db.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ✅ Charger la base ARK (assets/data/ark_species.json) avant tout le reste
+  await ArkDb.load();
+
   await Hive.initFlutter();
   await DatabaseHelper().init();
   await SystemChrome.setPreferredOrientations([

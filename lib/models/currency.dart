@@ -52,10 +52,10 @@ class Currency {
   static List<Currency> getDefaults() {
     return [
       Currency(
-        id: 'tek',
-        name: 'TEK',
-        iconPath: 'assets/icons/currencies/tek.png',
-        symbol: '⚙️',
+        id: 'Hex',
+        name: 'Hexagon',
+        iconPath: 'assets/icons/currencies/hex.png',
+        symbol: '💠',
       ),
       Currency(
         id: 'poly',
