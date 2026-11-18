@@ -1,5 +1,6 @@
+// lib/services/backup_service.dart
 import 'dart:convert';
-import 'dart:io' ;
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -14,12 +15,18 @@ class BackupService {
   static const String _appName = 'ARK Dino Manager';
   static const String _backupType = 'full_backup';
 
+  // ═══════════════════════════ EXPORT ═══════════════════════════
+
   static Future<String?> exportData({
     required List<Dino> dinos,
     required List<String> customTags,
     required List<SpeciesTracker> trackers,
   }) async {
     try {
+      if (kIsWeb) {
+        return 'Export non disponible sur le web — utilisez l\'application mobile.';
+      }
+
       final backupData = {
         'version': _backupVersion,
         'type': _backupType,
@@ -34,10 +41,6 @@ class BackupService {
 
       final jsonString = const JsonEncoder.withIndent('  ').convert(backupData);
 
-      if (kIsWeb) {
-        return 'Export non disponible sur le web — utilisez l\'application mobile.';
-      }
-
       final tempDir = await getTemporaryDirectory();
       final timestamp = DateTime.now()
           .toIso8601String()
@@ -47,7 +50,7 @@ class BackupService {
 
       final fileName = 'ark_dino_full_backup_$timestamp.json';
       final file = File('${tempDir.path}/$fileName');
-      await file.writeAsString(jsonString, encoding: utf8);
+      await file.writeAsString(jsonString, encoding: utf8, flush: true);
 
       await SharePlus.instance.share(ShareParams(
         files: [XFile(file.path, mimeType: 'application/json')],
@@ -64,6 +67,8 @@ class BackupService {
     }
   }
 
+  // ═══════════════════════════ IMPORT ═══════════════════════════
+
   static Future<BackupImportResult> importData() async {
     try {
       if (kIsWeb) {
@@ -72,33 +77,17 @@ class BackupService {
         );
       }
 
-     // ✅ APRÈS
-final result = await FilePicker.pickFiles(
-  type: FileType.custom,
-  allowedExtensions: ['json'],
-);
+      final pickedFiles = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: const ['json'],
+      );
 
-      if (result == null || result.files.isEmpty) {
+      if (pickedFiles.isEmpty) {
         return BackupImportResult.cancelled();
       }
 
-      final pickedFile = result.files.first;
-
-      // Priorité au path (Android / iOS / Desktop)
-      final path = pickedFile.path;
-      if (path != null) {
-        final content = await File(path).readAsString(encoding: utf8);
-        return _parseBackupJson(content);
-      }
-
-      // Fallback sur les bytes en mémoire
-      final fileBytes = pickedFile.bytes;
-      if (fileBytes != null) {
-        final content = utf8.decode(fileBytes);
-        return _parseBackupJson(content);
-      }
-
-      return BackupImportResult.error('Impossible de lire le fichier.');
+      final fileBytes = await pickedFiles.first.readAsBytes();
+      return _parseBackupJson(utf8.decode(fileBytes));
     } catch (e) {
       return BackupImportResult.error('Erreur lors de l\'import : $e');
     }
@@ -106,7 +95,12 @@ final result = await FilePicker.pickFiles(
 
   static BackupImportResult _parseBackupJson(String jsonString) {
     try {
-      final Map<String, dynamic> data = jsonDecode(jsonString);
+      final decoded = jsonDecode(jsonString);
+      if (decoded is! Map<String, dynamic>) {
+        return BackupImportResult.error(
+            'Format invalide : objet JSON attendu.');
+      }
+      final data = decoded;
 
       if (!data.containsKey('dinos')) {
         return BackupImportResult.error(
@@ -124,6 +118,13 @@ final result = await FilePicker.pickFiles(
       final dinos = <Dino>[];
       final trackers = <SpeciesTracker>[];
       final warnings = <String>[];
+
+      if (version > _backupVersion) {
+        warnings.add(
+          'Backup version $version plus récente que la version supportée '
+          '($_backupVersion) : certaines données peuvent être ignorées.',
+        );
+      }
 
       for (int i = 0; i < dinosRaw.length; i++) {
         try {
@@ -147,8 +148,8 @@ final result = await FilePicker.pickFiles(
           .map((t) => t.toString().trim())
           .where((t) => t.isNotEmpty)
           .toSet()
-          .toList();
-      tags.sort();
+          .toList()
+        ..sort();
 
       return BackupImportResult.success(
         dinos: dinos,
@@ -165,6 +166,8 @@ final result = await FilePicker.pickFiles(
     }
   }
 }
+
+// ═══════════════════════════ RÉSULTAT ═══════════════════════════
 
 class BackupImportResult {
   final bool success;
@@ -218,7 +221,7 @@ class BackupImportResult {
   }
 
   factory BackupImportResult.cancelled() {
-    return BackupImportResult._(
+    return const BackupImportResult._(
       success: false,
       cancelled: true,
     );

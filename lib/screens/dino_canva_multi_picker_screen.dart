@@ -10,7 +10,7 @@
 //   3. Garde-fou immédiat : impossible de sélectionner au-delà de 16,
 //      toast affiché au moment de la tentative.
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';

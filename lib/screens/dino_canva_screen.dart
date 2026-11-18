@@ -11,7 +11,7 @@
 // ║   - toggles "Titre espèce" et "Stats commune/favori",                 ║
 // ║   - export PNG.                                                       ║
 // ╚════════════════════════════════════════════════════════════════════════╝
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';
 import '../theme/app_theme.dart';

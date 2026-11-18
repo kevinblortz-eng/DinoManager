@@ -1,7 +1,7 @@
 // lib/screens/dino_detail_screen.dart
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';
@@ -10,10 +10,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/dino_provider.dart';
 import '../providers/tag_theme_provider.dart';
 import '../widgets/dino_image_widget.dart';
-import '../widgets/common/dino_stat_grid.dart';
-import '../widgets/common/dino_color_strip.dart';
 import '../widgets/dino_multi_select_bottom_sheet.dart';
-import '../widgets/share_card/dino_share_card_exporter.dart';
 import '../utils/dino_helpers.dart';
 import 'add_edit_dino_screen.dart';
 import 'dino_variant_screen.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
@@ -64,6 +64,8 @@ class AppTheme {
 
   // ─── Thème Material principal ───
   static ThemeData get theme {
+    final baseTextTheme = ThemeData.dark().textTheme;
+
     return ThemeData(
       brightness: Brightness.dark,
       scaffoldBackgroundColor: bgPrimary,
@@ -75,8 +77,22 @@ class AppTheme {
         onSecondary: bgPrimary,
         onSurface: textPrimary,
       ),
-      textTheme: GoogleFonts.exoTextTheme(
-        ThemeData.dark().textTheme,
+      textTheme: TextTheme(
+        displayLarge: GoogleFonts.exo(textStyle: baseTextTheme.displayLarge),
+        displayMedium: GoogleFonts.exo(textStyle: baseTextTheme.displayMedium),
+        displaySmall: GoogleFonts.exo(textStyle: baseTextTheme.displaySmall),
+        headlineLarge: GoogleFonts.exo(textStyle: baseTextTheme.headlineLarge),
+        headlineMedium: GoogleFonts.exo(textStyle: baseTextTheme.headlineMedium),
+        headlineSmall: GoogleFonts.exo(textStyle: baseTextTheme.headlineSmall),
+        titleLarge: GoogleFonts.exo(textStyle: baseTextTheme.titleLarge),
+        titleMedium: GoogleFonts.exo(textStyle: baseTextTheme.titleMedium),
+        titleSmall: GoogleFonts.exo(textStyle: baseTextTheme.titleSmall),
+        bodyLarge: GoogleFonts.exo(textStyle: baseTextTheme.bodyLarge),
+        bodyMedium: GoogleFonts.exo(textStyle: baseTextTheme.bodyMedium),
+        bodySmall: GoogleFonts.exo(textStyle: baseTextTheme.bodySmall),
+        labelLarge: GoogleFonts.exo(textStyle: baseTextTheme.labelLarge),
+        labelMedium: GoogleFonts.exo(textStyle: baseTextTheme.labelMedium),
+        labelSmall: GoogleFonts.exo(textStyle: baseTextTheme.labelSmall),
       ).copyWith(
         displayLarge: GoogleFonts.cinzelDecorative(
           color: textPrimary,

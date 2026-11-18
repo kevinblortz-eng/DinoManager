@@ -2,7 +2,7 @@
 // Implémentation manuelle des localisations – FR / EN / IT / ES / PT
 // Pas de build_runner requis.
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Récupère l'instance depuis n'importe quel widget :
 ///   final l10n = AppLocalizations.of(context)!;

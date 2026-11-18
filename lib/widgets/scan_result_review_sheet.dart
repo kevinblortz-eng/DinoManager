@@ -1,5 +1,5 @@
 // lib/widgets/scan_result_review_sheet.dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/dino_ocr_service.dart';
 

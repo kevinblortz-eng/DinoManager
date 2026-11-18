@@ -1,6 +1,6 @@
 // lib/services/dino_scan_helper.dart
 import 'dart:io';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/ark_color_palette.dart';
 import '../screens/dino_scan_screen.dart';

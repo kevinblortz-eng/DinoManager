@@ -4,7 +4,7 @@
 
 import 'ark_db.dart';
 
-enum ArkSpeciesGroup { terrestre, aquatic, volant, fantastic, compagnon }
+enum ArkSpeciesGroup { terrestre, aquatic, volant, fantastic, compagnon, unknown }
 
 class ArkSpeciesGroupData {
   // ─── API publique ─────────────────────────────────────────────────────────
@@ -30,6 +30,8 @@ class ArkSpeciesGroupData {
         return '✨';
       case ArkSpeciesGroup.compagnon:
         return '🐾';
+        case ArkSpeciesGroup.unknown:
+        return '❓';
     }
   }
 
@@ -46,6 +48,8 @@ class ArkSpeciesGroupData {
         return 'Fantastique';
       case ArkSpeciesGroup.compagnon:
         return 'Compagnon';
+      case ArkSpeciesGroup.unknown:
+        return 'Inconnu';
     }
   }
 

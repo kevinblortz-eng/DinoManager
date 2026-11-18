@@ -1,7 +1,7 @@
 // lib/widgets/share_card/dino_share_card.dart
 
 import 'dart:io';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/dino.dart';
 import '../../models/ark_species_stat.dart';

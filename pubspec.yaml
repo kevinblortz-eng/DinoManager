@@ -1,7 +1,7 @@
 name: dino_manager
 description: ARK Dino Manager – Mobile Smart Breeding
 publish_to: 'none'
-version: 1.2.14+24
+version: 1.2.15+25
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -28,8 +28,8 @@ dependencies:
   cached_network_image: ^3.4.1
 
   # Export / partage
-  share_plus: ^12.0.2
-  file_picker: ^11.0.2
+  share_plus: ^13.3.1
+  file_picker: ^13.4.0
 
   # Icônes
   cupertino_icons: ^1.0.8
@@ -47,9 +47,10 @@ dependencies:
   permission_handler: ^12.0.1
   uuid: ^4.0.0
   saver_gallery: ^4.0.0
-  device_info_plus: ^11.0.0
+  device_info_plus: ^13.3.0
   http: ^1.5.0
 
+  material_ui: ^1.11.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -77,5 +78,4 @@ flutter:
     - assets/icons/food.png
     - assets/icons/weight.png
     - assets/data/ark_species.json
-
 

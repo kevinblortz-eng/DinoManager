@@ -54,26 +54,26 @@ class Currency {
       Currency(
         id: 'Hex',
         name: 'Hexagon',
-        iconPath: 'assets/icons/currencies/hex.png',
+        iconPath: 'assets/icons/currencies/Hex.png',
         symbol: '💠',
       ),
       Currency(
         id: 'poly',
         name: 'Poly',
         iconPath: 'assets/icons/currencies/poly.png',
-        symbol: '💎',
+        symbol: '🟦',
       ),
       Currency(
         id: 'ing',
         name: 'Ing',
         iconPath: 'assets/icons/currencies/ing.png',
-        symbol: '🔧',
+        symbol: '🔲',
       ),
       Currency(
         id: 'crystal',
         name: 'Crystal',
         iconPath: 'assets/icons/currencies/crystal.png',
-        symbol: '✨',
+        symbol: '💎',
       ),
       Currency(
         id: 'dino',

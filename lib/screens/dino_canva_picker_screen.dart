@@ -4,7 +4,7 @@
 // Mode mono-espèce : filterBySpecies=true (défaut) → filtre fixe par espèce.
 // Mode bibliothèque : filterBySpecies=false → toutes espèces + chips de filtre.
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';

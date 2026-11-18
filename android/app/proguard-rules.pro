@@ -29,3 +29,17 @@
 -dontwarn com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 -dontwarn com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions$Builder
 -dontwarn com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
+
+# ---------------------------------------------------------------------------
+# Fix Play Console : DEX obfuscation (R8 activé dans build.gradle.kts)
+# Aucun -keep superflu : chaque classe gardée fait baisser le score
+# d'obfuscation. N'ajouter des règles QUE si un crash Release l'exige.
+# ---------------------------------------------------------------------------
+
+# Ne pas renommer les classes pointées par le manifeste (déjà géré par R8/AAPT)
+# Garde-fou générique : annotations conservées pour les plugins AndroidX
+-keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
+
+# Les plugins de ce projet (hive, provider, shared_preferences, camera,
+# image_picker, permission_handler, device_info_plus...) n'utilisent pas
+# de réflexion sur les classes Dart : rien à garder côté applicatif.

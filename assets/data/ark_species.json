@@ -2879,7 +2879,7 @@
       "type": "terrestre",
       "sexes": [],
       "image": true,
-      "mask": false,
+      "mask": true,
       "regions": null,
       "stats": null
     },

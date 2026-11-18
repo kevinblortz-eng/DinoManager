@@ -1,5 +1,5 @@
 // lib/services/excel_backup_service.dart
-import 'dart:io' ;
+import 'dart:io';
 
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
@@ -7,8 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../models/dino.dart';
 import '../models/ark_color_palette.dart';
+import '../models/dino.dart';
 import '../models/species_tracker.dart';
 
 class FullExcelImportResult {
@@ -117,20 +117,54 @@ class ExcelBackupService {
 
     // ── Dinosaures ──
     _writeHeader(dinosSheet, [
-      'ID', 'Nom', 'Espèce', 'Sexe', 'Rôle', 'Niveau',
-      'HP', 'Endurance', 'Oxygène', 'Nourriture', 'Poids', 'Dégâts', 'Vitesse',
-      'Couleur 0 ID', 'Couleur 1 ID', 'Couleur 2 ID',
-      'Couleur 3 ID', 'Couleur 4 ID', 'Couleur 5 ID',
-      'Tags', 'Notes', 'Date Ajout',
+      'ID',
+      'Nom',
+      'Espèce',
+      'Sexe',
+      'Rôle',
+      'Niveau',
+      'HP',
+      'Endurance',
+      'Oxygène',
+      'Nourriture',
+      'Poids',
+      'Dégâts',
+      'Vitesse',
+      'Couleur 0 ID',
+      'Couleur 1 ID',
+      'Couleur 2 ID',
+      'Couleur 3 ID',
+      'Couleur 4 ID',
+      'Couleur 5 ID',
+      'Tags',
+      'Notes',
+      'Date Ajout',
     ]);
-
     for (int i = 0; i < dinos.length; i++) {
       final d = dinos[i];
       _writeRow(dinosSheet, i + 1, [
-        d.id, d.nom, d.espece, d.sexe, d.role, d.niveau,
-        d.hp, d.stamina, d.oxygene, d.nourriture, d.poids, d.degats, d.vitesse,
-        d.colorId0, d.colorId1, d.colorId2, d.colorId3, d.colorId4, d.colorId5,
-        d.tags.join(', '), d.notes, d.dateAjout.toIso8601String(),
+        d.id,
+        d.nom,
+        d.espece,
+        d.sexe,
+        d.role,
+        d.niveau,
+        d.hp,
+        d.stamina,
+        d.oxygene,
+        d.nourriture,
+        d.poids,
+        d.degats,
+        d.vitesse,
+        d.colorId0,
+        d.colorId1,
+        d.colorId2,
+        d.colorId3,
+        d.colorId4,
+        d.colorId5,
+        d.tags.join(', '),
+        d.notes,
+        d.dateAjout.toIso8601String(),
       ]);
     }
 
@@ -142,30 +176,52 @@ class ExcelBackupService {
 
     // ── Trackers ──
     _writeHeader(trackersSheet, [
-      'Tracker ID', 'Species', 'Project Name', 'Created At', 'Updated At',
+      'Tracker ID',
+      'Species',
+      'Project Name',
+      'Created At',
+      'Updated At',
     ]);
     for (int i = 0; i < trackers.length; i++) {
       final t = trackers[i];
       _writeRow(trackersSheet, i + 1, [
-        t.id, t.species, t.projectName ?? '',
-        t.createdAt.toIso8601String(), t.updatedAt.toIso8601String(),
+        t.id,
+        t.species,
+        t.projectName ?? '',
+        t.createdAt.toIso8601String(),
+        t.updatedAt.toIso8601String(),
       ]);
     }
 
     // ── Observations Couleurs ──
     _writeHeader(obsSheet, [
-      'Espèce', 'Sexe', 'Rôle', 'Niveau', 'Notes',
-      'Couleur 0 ID', 'Couleur 1 ID', 'Couleur 2 ID',
-      'Couleur 3 ID', 'Couleur 4 ID', 'Couleur 5 ID',
+      'Espèce',
+      'Sexe',
+      'Rôle',
+      'Niveau',
+      'Notes',
+      'Couleur 0 ID',
+      'Couleur 1 ID',
+      'Couleur 2 ID',
+      'Couleur 3 ID',
+      'Couleur 4 ID',
+      'Couleur 5 ID',
     ]);
     int obsRow = 1;
     for (final t in trackers) {
       for (final obs in t.colorObservations) {
         _writeRow(obsSheet, obsRow, [
-          t.species, '', '', '', '',
-          obs.regionColors[0] ?? 0, obs.regionColors[1] ?? 0,
-          obs.regionColors[2] ?? 0, obs.regionColors[3] ?? 0,
-          obs.regionColors[4] ?? 0, obs.regionColors[5] ?? 0,
+          t.species,
+          '',
+          '',
+          '',
+          '',
+          obs.regionColors[0] ?? 0,
+          obs.regionColors[1] ?? 0,
+          obs.regionColors[2] ?? 0,
+          obs.regionColors[3] ?? 0,
+          obs.regionColors[4] ?? 0,
+          obs.regionColors[5] ?? 0,
         ]);
         obsRow++;
       }
@@ -210,11 +266,16 @@ class ExcelBackupService {
       _writeRow(guideSheet, i + 1, [guideLines[i]]);
     }
 
-    // Supprimer la feuille par défaut
+    // Supprime la feuille par défaut (Sheet1) si elle existe encore
     if (defaultSheet != null &&
         defaultSheet != metaSheetName &&
         excel.tables.containsKey(defaultSheet)) {
       excel.delete(defaultSheet);
+    }
+
+    final bytes = excel.encode();
+    if (bytes == null) {
+      throw Exception('Impossible de générer le fichier Excel.');
     }
 
     final tempDir = await getTemporaryDirectory();
@@ -224,12 +285,6 @@ class ExcelBackupService {
         .replaceAll('.', '-');
 
     final file = File('${tempDir.path}/${filePrefix}_$timestamp.xlsx');
-    final bytes = excel.encode();
-
-    if (bytes == null) {
-      throw Exception('Impossible de générer le fichier Excel.');
-    }
-
     await file.writeAsBytes(bytes, flush: true);
     return file;
   }
@@ -240,71 +295,56 @@ class ExcelBackupService {
     List<Dino> existingDinos = const [],
   }) async {
     try {
-      // ✅ withData supprimé — obsolète en file_picker v11
-     // ✅ APRÈS
-final result = await FilePicker.pickFiles(
-  type: FileType.custom,
-  allowedExtensions: ['xlsx', 'xls'],
-);
+      final pickedFiles = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: const [
+          'xlsx'
+        ], // .xls non supporté par le package excel
+      );
 
-
-      if (result == null || result.files.isEmpty) {
+      if (pickedFiles.isEmpty) {
         return FullExcelImportResult.failure(
           errors: ['Aucun fichier sélectionné.'],
         );
       }
 
-      final picked = result.files.first;
-
-      // ✅ Priorité au path (Android / iOS / Desktop)
-      Uint8List? bytes;
-      final path = picked.path;
-      if (path != null) {
-        bytes = await File(path).readAsBytes();
-      }
-
-      // ✅ Fallback sur les bytes en mémoire
-      bytes ??= picked.bytes;
-
-      if (bytes == null) {
-        return FullExcelImportResult.failure(
-          errors: ['Impossible de lire le fichier sélectionné.'],
-        );
-      }
-
+      final bytes = await pickedFiles.first.readAsBytes();
       final excel = Excel.decodeBytes(bytes);
       final warnings = <String>[];
 
-      // ── 1. Lire les DinoCards (lignes avec ID et Nom valides) ──
+      // 1. DinoCards (lignes avec ID et Nom valides)
       final importedDinos = excel.tables.containsKey(dinosSheetName)
           ? _parseDinosSheet(excel[dinosSheetName], warnings)
           : <Dino>[];
 
-      // ── 2. Lire les Tags ──
+      // 2. Tags
       final customTags = excel.tables.containsKey(tagsSheetName)
           ? _parseTagsSheet(excel[tagsSheetName])
           : <String>[];
 
-      // ── 3. Lire les Trackers existants ──
+      // 3. Trackers
       final importedTrackers = excel.tables.containsKey(trackersSheetName)
           ? _parseTrackersSheet(excel[trackersSheetName], warnings)
           : <SpeciesTracker>[];
 
-      // ── 4. Lire la feuille "Observations Couleurs" ──
+      // 4. Observations Couleurs
       if (excel.tables.containsKey(observationsSheetName)) {
-        _parseObservationsSheet(
+        _importObservations(
           excel[observationsSheetName],
           importedTrackers,
           warnings,
+          label: 'Observation',
         );
       }
 
-      // ── 5. Convertir les lignes sans ID de "Dinosaures" en observations ──
+      // 5. Lignes sans ID dans Dinosaures → observations
       if (excel.tables.containsKey(dinosSheetName)) {
-        _parseOrphanDinoRowsAsObservations(
+        _importObservations(
           excel[dinosSheetName],
           importedTrackers,
           warnings,
+          label: 'Relevé (Dinosaures)',
+          onlyOrphans: true,
         );
       }
 
@@ -323,7 +363,7 @@ final result = await FilePicker.pickFiles(
     }
   }
 
-  // ─────────── Parse DinoCards (lignes AVEC ID et Nom) ───────────
+  // ─────────── DinoCards (lignes AVEC ID et Nom) ───────────
 
   List<Dino> _parseDinosSheet(Sheet sheet, List<String> warnings) {
     final rows = sheet.rows;
@@ -344,12 +384,8 @@ final result = await FilePicker.pickFiles(
         if (espece.isEmpty) continue;
         if (idVal == null || idVal == 0 || nom.isEmpty) continue;
 
-        final color0 = _buildImportedColor(_safeInt(_get(row, headers, 'Couleur 0 ID')) ?? 0);
-        final color1 = _buildImportedColor(_safeInt(_get(row, headers, 'Couleur 1 ID')) ?? 0);
-        final color2 = _buildImportedColor(_safeInt(_get(row, headers, 'Couleur 2 ID')) ?? 0);
-        final color3 = _buildImportedColor(_safeInt(_get(row, headers, 'Couleur 3 ID')) ?? 0);
-        final color4 = _buildImportedColor(_safeInt(_get(row, headers, 'Couleur 4 ID')) ?? 0);
-        final color5 = _buildImportedColor(_safeInt(_get(row, headers, 'Couleur 5 ID')) ?? 0);
+        final colors =
+            _readColorIds(row, headers).map(_buildImportedColor).toList();
 
         final tags = _get(row, headers, 'Tags')
             .split(',')
@@ -357,17 +393,16 @@ final result = await FilePicker.pickFiles(
             .where((e) => e.isNotEmpty)
             .toList();
 
+        final sexe = _get(row, headers, 'Sexe');
+        final role = _get(row, headers, 'Rôle');
+
         result.add(
           Dino(
             id: idVal,
             nom: nom,
             espece: espece,
-            sexe: _get(row, headers, 'Sexe').isEmpty
-                ? 'Inconnu'
-                : _get(row, headers, 'Sexe'),
-            role: _get(row, headers, 'Rôle').isEmpty
-                ? 'Breed'
-                : _get(row, headers, 'Rôle'),
+            sexe: sexe.isEmpty ? 'Inconnu' : sexe,
+            role: role.isEmpty ? 'Breed' : role,
             niveau: _safeInt(_get(row, headers, 'Niveau')) ?? 0,
             hp: _safeInt(_get(row, headers, 'HP')) ?? 0,
             stamina: _safeInt(_get(row, headers, 'Endurance')) ?? 0,
@@ -376,15 +411,16 @@ final result = await FilePicker.pickFiles(
             poids: _safeInt(_get(row, headers, 'Poids')) ?? 0,
             degats: _safeDouble(_get(row, headers, 'Dégâts')) ?? 0,
             vitesse: _safeDouble(_get(row, headers, 'Vitesse')) ?? 0,
-            couleur0: color0,
-            couleur1: color1,
-            couleur2: color2,
-            couleur3: color3,
-            couleur4: color4,
-            couleur5: color5,
+            couleur0: colors[0],
+            couleur1: colors[1],
+            couleur2: colors[2],
+            couleur3: colors[3],
+            couleur4: colors[4],
+            couleur5: colors[5],
             tags: tags,
             notes: _get(row, headers, 'Notes'),
-            dateAjout: DateTime.tryParse(_get(row, headers, 'Date Ajout')) ?? DateTime.now(),
+            dateAjout: DateTime.tryParse(_get(row, headers, 'Date Ajout')) ??
+                DateTime.now(),
           ),
         );
       } catch (e) {
@@ -395,65 +431,15 @@ final result = await FilePicker.pickFiles(
     return result;
   }
 
-  // ─────────── Parse lignes orphelines de "Dinosaures" → observations ───────────
+  // ─────────── Observations (feuille dédiée ou lignes orphelines) ───────────
 
-  void _parseOrphanDinoRowsAsObservations(
+  void _importObservations(
     Sheet sheet,
     List<SpeciesTracker> trackers,
-    List<String> warnings,
-  ) {
-    final rows = sheet.rows;
-    if (rows.isEmpty) return;
-
-    final headers = _headerMap(rows.first);
-
-    for (int i = 1; i < rows.length; i++) {
-      final row = rows[i];
-      if (_isRowEmpty(row)) continue;
-
-      try {
-        final idVal = _safeInt(_get(row, headers, 'ID'));
-        final nom = _get(row, headers, 'Nom');
-        final espece = _get(row, headers, 'Espèce');
-
-        if (espece.isEmpty) continue;
-        if (idVal != null && idVal > 0 && nom.isNotEmpty) continue;
-
-        final regionColors = <int, int>{};
-        final c0 = _safeInt(_get(row, headers, 'Couleur 0 ID')) ?? 0;
-        final c1 = _safeInt(_get(row, headers, 'Couleur 1 ID')) ?? 0;
-        final c2 = _safeInt(_get(row, headers, 'Couleur 2 ID')) ?? 0;
-        final c3 = _safeInt(_get(row, headers, 'Couleur 3 ID')) ?? 0;
-        final c4 = _safeInt(_get(row, headers, 'Couleur 4 ID')) ?? 0;
-        final c5 = _safeInt(_get(row, headers, 'Couleur 5 ID')) ?? 0;
-
-        if (c0 > 0) regionColors[0] = c0;
-        if (c1 > 0) regionColors[1] = c1;
-        if (c2 > 0) regionColors[2] = c2;
-        if (c3 > 0) regionColors[3] = c3;
-        if (c4 > 0) regionColors[4] = c4;
-        if (c5 > 0) regionColors[5] = c5;
-
-        if (regionColors.isEmpty) continue;
-
-        _addObservationToTracker(
-          trackers: trackers,
-          species: espece,
-          regionColors: regionColors,
-        );
-      } catch (e) {
-        warnings.add('Relevé ligne ${i + 1} (Dinosaures) ignoré : $e');
-      }
-    }
-  }
-
-  // ─────────── Parse feuille "Observations Couleurs" ───────────
-
-  void _parseObservationsSheet(
-    Sheet sheet,
-    List<SpeciesTracker> trackers,
-    List<String> warnings,
-  ) {
+    List<String> warnings, {
+    required String label,
+    bool onlyOrphans = false,
+  }) {
     final rows = sheet.rows;
     if (rows.isEmpty) return;
 
@@ -467,21 +453,13 @@ final result = await FilePicker.pickFiles(
         final espece = _get(row, headers, 'Espèce');
         if (espece.isEmpty) continue;
 
-        final regionColors = <int, int>{};
-        final c0 = _safeInt(_get(row, headers, 'Couleur 0 ID')) ?? 0;
-        final c1 = _safeInt(_get(row, headers, 'Couleur 1 ID')) ?? 0;
-        final c2 = _safeInt(_get(row, headers, 'Couleur 2 ID')) ?? 0;
-        final c3 = _safeInt(_get(row, headers, 'Couleur 3 ID')) ?? 0;
-        final c4 = _safeInt(_get(row, headers, 'Couleur 4 ID')) ?? 0;
-        final c5 = _safeInt(_get(row, headers, 'Couleur 5 ID')) ?? 0;
+        if (onlyOrphans) {
+          final idVal = _safeInt(_get(row, headers, 'ID'));
+          final nom = _get(row, headers, 'Nom');
+          if (idVal != null && idVal > 0 && nom.isNotEmpty) continue;
+        }
 
-        if (c0 > 0) regionColors[0] = c0;
-        if (c1 > 0) regionColors[1] = c1;
-        if (c2 > 0) regionColors[2] = c2;
-        if (c3 > 0) regionColors[3] = c3;
-        if (c4 > 0) regionColors[4] = c4;
-        if (c5 > 0) regionColors[5] = c5;
-
+        final regionColors = _toRegionColors(_readColorIds(row, headers));
         if (regionColors.isEmpty) continue;
 
         _addObservationToTracker(
@@ -490,7 +468,7 @@ final result = await FilePicker.pickFiles(
           regionColors: regionColors,
         );
       } catch (e) {
-        warnings.add('Observation ligne ${i + 1} ignorée : $e');
+        warnings.add('$label ligne ${i + 1} ignorée : $e');
       }
     }
   }
@@ -502,43 +480,45 @@ final result = await FilePicker.pickFiles(
     required String species,
     required Map<int, int> regionColors,
   }) {
-    var tracker = trackers.cast<SpeciesTracker?>().firstWhere(
-          (t) => t?.species.toLowerCase() == species.toLowerCase(),
-          orElse: () => null,
-        );
+    final key = species.toLowerCase();
 
-    if (tracker == null) {
-      tracker = SpeciesTracker(
-        id: '${DateTime.now().microsecondsSinceEpoch}${trackers.length}',
-        species: species,
-        projectName: null,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        bestStats: {},
-        colorBank: {0: [], 1: [], 2: [], 3: [], 4: [], 5: []},
-        anonymousStatEntries: [],
-        colorObservations: [],
-      );
-      trackers.add(tracker);
+    SpeciesTracker? existing;
+    for (final t in trackers) {
+      if (t.species.toLowerCase() == key) {
+        existing = t;
+        break;
+      }
     }
 
+    final now = DateTime.now();
+    final tracker = existing ??
+        SpeciesTracker(
+          id: '${now.microsecondsSinceEpoch}${trackers.length}',
+          species: species,
+          projectName: null,
+          createdAt: now,
+          updatedAt: now,
+          bestStats: {},
+          colorBank: {0: [], 1: [], 2: [], 3: [], 4: [], 5: []},
+          anonymousStatEntries: [],
+          colorObservations: [],
+        );
+
+    if (existing == null) trackers.add(tracker);
+
     tracker.colorObservations.add(ColorObservation(
-      id: '${DateTime.now().microsecondsSinceEpoch}',
+      id: now.microsecondsSinceEpoch.toString(),
       regionColors: regionColors,
-      recordedAt: DateTime.now(),
+      recordedAt: now,
     ));
 
     regionColors.forEach((region, colorId) {
-      if (colorId > 0) {
-        tracker!.colorBank.putIfAbsent(region, () => []);
-        if (!tracker.colorBank[region]!.contains(colorId)) {
-          tracker.colorBank[region]!.add(colorId);
-        }
-      }
+      final bank = tracker.colorBank.putIfAbsent(region, () => []);
+      if (!bank.contains(colorId)) bank.add(colorId);
     });
   }
 
-  // ─────────── Parse Tags ───────────
+  // ─────────── Tags ───────────
 
   List<String> _parseTagsSheet(Sheet sheet) {
     final rows = sheet.rows;
@@ -555,7 +535,7 @@ final result = await FilePicker.pickFiles(
     return result;
   }
 
-  // ─────────── Parse Trackers ───────────
+  // ─────────── Trackers ───────────
 
   List<SpeciesTracker> _parseTrackersSheet(Sheet sheet, List<String> warnings) {
     final rows = sheet.rows;
@@ -582,8 +562,10 @@ final result = await FilePicker.pickFiles(
             id: id,
             species: species,
             projectName: _emptyToNull(_get(row, headers, 'Project Name')),
-            createdAt: DateTime.tryParse(_get(row, headers, 'Created At')) ?? DateTime.now(),
-            updatedAt: DateTime.tryParse(_get(row, headers, 'Updated At')) ?? DateTime.now(),
+            createdAt: DateTime.tryParse(_get(row, headers, 'Created At')) ??
+                DateTime.now(),
+            updatedAt: DateTime.tryParse(_get(row, headers, 'Updated At')) ??
+                DateTime.now(),
             bestStats: {},
             colorBank: {0: [], 1: [], 2: [], 3: [], 4: [], 5: []},
             anonymousStatEntries: [],
@@ -599,6 +581,20 @@ final result = await FilePicker.pickFiles(
   }
 
   // ═══════════════════════════ HELPERS ═══════════════════════════
+
+  List<int> _readColorIds(List<Data?> row, Map<String, int> headers) =>
+      List.generate(
+        6,
+        (r) => _safeInt(_get(row, headers, 'Couleur $r ID')) ?? 0,
+      );
+
+  Map<int, int> _toRegionColors(List<int> ids) {
+    final map = <int, int>{};
+    for (int r = 0; r < ids.length; r++) {
+      if (ids[r] > 0) map[r] = ids[r];
+    }
+    return map;
+  }
 
   void _writeHeader(Sheet sheet, List<String> headers) {
     for (int i = 0; i < headers.length; i++) {
@@ -630,9 +626,7 @@ final result = await FilePicker.pickFiles(
     final map = <String, int>{};
     for (int i = 0; i < row.length; i++) {
       final key = _cellToString(row[i]).trim();
-      if (key.isNotEmpty) {
-        map[key] = i;
-      }
+      if (key.isNotEmpty) map[key] = i;
     }
     return map;
   }

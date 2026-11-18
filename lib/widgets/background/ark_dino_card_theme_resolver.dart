@@ -7,19 +7,19 @@
 // Ajoutez vos propres styles dans la table `_themes` et vos règles dans
 // `resolveStyle(...)`. La première règle qui matche gagne.
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../models/dino.dart';
 import '../../models/ark_species_group.dart';
 import 'ark_dino_card_background.dart';
 
 /// Identifiants symboliques des thèmes (ajoutez-en autant que voulu).
 enum ArkCardTheme {
-  goldDark,    // défaut — or sombre
-  silver,      // argent
-  oceanBlue,   // exemple : bleu océan (aquatiques)
-  emerald,     // exemple : vert émeraude (compagnons)
-  crimson,     // exemple : rouge sang (boss)
-  obsidian,    // exemple : noir+violet (collection)
+  goldDark, // défaut — or sombre
+  silver, // argent
+  oceanBlue, // exemple : bleu océan (aquatiques)
+  emerald, // exemple : vert émeraude (compagnons)
+  crimson, // exemple : rouge sang (boss)
+  obsidian, // exemple : noir+violet (collection)
 }
 
 /// Catalogue de tous les styles disponibles.
@@ -148,6 +148,7 @@ class ArkDinoCardThemeResolver {
         case ArkSpeciesGroup.volant:
         case ArkSpeciesGroup.fantastic:
         case ArkSpeciesGroup.terrestre:
+        case ArkSpeciesGroup.unknown:
           break; // tombera sur le défaut
       }
     } catch (_) {}

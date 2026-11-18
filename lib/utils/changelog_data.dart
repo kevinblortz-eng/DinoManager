@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; // ← AJOUT pour Color
+import 'package:material_ui/material_ui.dart'; // ← AJOUT pour Color
 
 class AppVersion {
   final String version;

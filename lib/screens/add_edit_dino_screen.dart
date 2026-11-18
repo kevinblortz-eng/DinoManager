@@ -1,13 +1,12 @@
 // lib/screens/add_edit_dino_screen.dart
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/ark_species_data.dart';
 import '../models/ark_species_color_regions.dart';
-import '../models/ark_species_group.dart';
 import '../models/dino.dart';
 import '../models/species_tracker.dart';
 import '../providers/dino_provider.dart';
@@ -20,7 +19,6 @@ import '../widgets/dino_image_widget.dart';
 import '../utils/dino_helpers.dart';
 import '../widgets/background/ark_dino_card_background.dart';
 import '../widgets/background/ark_dino_card_theme_resolver.dart';
-
 
 class AddEditDinoScreen extends StatefulWidget {
   final Dino? dino;
@@ -89,8 +87,10 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
   // ───────────────────────────────────────────────────────────────────────
 
   /// Tags normalisés (lowercase, sans vides).
-  List<String> get _normalizedTags =>
-      _tags.map((t) => t.toLowerCase().trim()).where((t) => t.isNotEmpty).toList();
+  List<String> get _normalizedTags => _tags
+      .map((t) => t.toLowerCase().trim())
+      .where((t) => t.isNotEmpty)
+      .toList();
 
   /// Tag "solid" → la couleur choisie est répétée sur les 6 cases.
   bool get _isSolidTag => _normalizedTags.contains('solid');
@@ -231,28 +231,6 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
 
   static const List<String> _regionNames = ['0', '1', '2', '3', '4', '5'];
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // FOND DYNAMIQUE — même logique que ArkDinoCard
-  // ═══════════════════════════════════════════════════════════════════════
-  String get _backgroundAssetPath {
-    final group = ArkSpeciesGroupData.groupFor(_espece);
-    switch (group) {
-      case ArkSpeciesGroup.terrestre:
-        return 'assets/images/ui/share_card_portrait_bg_terrestre.png';
-      case ArkSpeciesGroup.aquatic:
-        return 'assets/images/ui/share_card_portrait_bg_aqua.png';
-      case ArkSpeciesGroup.volant:
-        return 'assets/images/ui/share_card_portrait_bg_air.png';
-      case ArkSpeciesGroup.fantastic:
-        return 'assets/images/ui/share_card_portrait_bg_fantastic.png';
-      case ArkSpeciesGroup.compagnon:
-        return 'assets/images/ui/share_card_portrait_bg_compagnon.png';
-    }
-  }
-
-  static const String _fallbackAssetPath =
-      'assets/images/ui/share_card_portrait_bg.png';
-
   double _parseDouble(String text) {
     return double.tryParse(text.trim().replaceAll(',', '.')) ?? 0.0;
   }
@@ -312,10 +290,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     final pts = _parsePointsFromNotes(d?.notes);
 
     _nomCtrl = TextEditingController(
-      text: widget.isDuplicate && d != null
-    ? d.nom
-    : (d?.nom ?? ''),
-
+      text: widget.isDuplicate && d != null ? d.nom : (d?.nom ?? ''),
     );
     _niveauCtrl = TextEditingController(
       text: d != null ? d.niveau.toString() : '0',
@@ -362,12 +337,9 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
     _poidsMutaCtrl = TextEditingController(text: '${pts['poids']?[1] ?? 0}');
     _poidsPersoCtrl = TextEditingController(text: '${pts['poids']?[2] ?? 0}');
 
-    _degatsBaseCtrl =
-        TextEditingController(text: '${pts['degats']?[0] ?? 0}');
-    _degatsMutaCtrl =
-        TextEditingController(text: '${pts['degats']?[1] ?? 0}');
-    _degatsPersoCtrl =
-        TextEditingController(text: '${pts['degats']?[2] ?? 0}');
+    _degatsBaseCtrl = TextEditingController(text: '${pts['degats']?[0] ?? 0}');
+    _degatsMutaCtrl = TextEditingController(text: '${pts['degats']?[1] ?? 0}');
+    _degatsPersoCtrl = TextEditingController(text: '${pts['degats']?[2] ?? 0}');
 
     _espece = d?.espece ?? widget.initialSpecies ?? 'Rex';
     _sexe = d?.sexe ?? 'Inconnu';
@@ -693,12 +665,12 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                 _scanRow(
                     'HP',
                     '${result.hp!.maxValue!.round()}'
-                    '${result.hp!.wildPoints != null ? '  [${result.hp!.wildPoints}pts]' : ''}'),
+                        '${result.hp!.wildPoints != null ? '  [${result.hp!.wildPoints}pts]' : ''}'),
               if (result.stamina?.maxValue != null)
                 _scanRow(
                     'Stamina',
                     '${result.stamina!.maxValue!.round()}'
-                    '${result.stamina!.wildPoints != null ? '  [${result.stamina!.wildPoints}pts]' : ''}'),
+                        '${result.stamina!.wildPoints != null ? '  [${result.stamina!.wildPoints}pts]' : ''}'),
               if (result.oxygen?.maxValue != null)
                 _scanRow('Oxygène', '${result.oxygen!.maxValue!.round()}'),
               if (result.food?.maxValue != null)
@@ -729,8 +701,8 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                   decoration: BoxDecoration(
                     color: Colors.orange.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                        color: Colors.orange.withValues(alpha: 0.4)),
+                    border:
+                        Border.all(color: Colors.orange.withValues(alpha: 0.4)),
                   ),
                   child: Text(
                     '⚠️ Imprint détecté : HP, Stam, Poids et Attaque '
@@ -1015,82 +987,101 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
   // PREVIEW WYSIWYG ÉDITABLE
   // ═══════════════════════════════════════════════════════════════════════
 
-Widget _buildWysiwygPreview(int niveau) {
-  return MediaQuery(
-    data: MediaQuery.of(context).copyWith(
-      textScaler: TextScaler.noScaling,
-    ),
-    child: AspectRatio(
-      aspectRatio: _refW / _refH,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final w = constraints.maxWidth;
-          final scale = w / _refW;
-          final previewStyle = _resolvePreviewStyle();
-
-          return Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // ── 0. FOND ENTIÈREMENT GÉNÉRÉ PAR CODE ─────────────────
-              Positioned.fill(
-                child: ArkDinoCardBackground(style: previewStyle),
-              ),
-
-              // ── 1. IMAGE DINO ──────────────────────────────────────
-              _posCentered(
-                cx: 123, cy: 130, w: 165, h: 210, scale: scale,
-                child: GestureDetector(
-                  onTap: _showSpeciesPickerDialog,
-                  child: _buildEggImage(),
-                ),
-              ),
-
-              // ── 2. LVL ─────────────────────────────────────────────
-              _posCentered(
-                cx: 30, cy: 35, w: 32, h: 32, scale: scale,
-                child: GestureDetector(
-                  onTap: () => _inlineEdit(_niveauCtrl),
-                  child: _buildLvlBadge(niveau, scale),
-                ),
-              ),
-
-              // ── 3. SEXE ────────────────────────────────────────────
-              _posCentered(
-                cx: 215, cy: 36, w: 32, h: 32, scale: scale,
-                child: GestureDetector(
-                  onTap: _cycleSexe,
-                  child: _buildSexBadgePreview(scale),
-                ),
-              ),
-
-              // ── 4. ESPÈCE (sur bannière, y=230) ────────────────────
-              _posCentered(
-                cx: 123, cy: 230, w: 145, h: 28, scale: scale,
-                child: GestureDetector(
-                  onTap: _showSpeciesPickerDialog,
-                  child: _buildSpeciesText(scale),
-                ),
-              ),
-
-              // ── 5. NOM + TAG (y=258) ───────────────────────────────
-              _posCentered(
-                cx: 123, cy: 258, w: 130, h: 18, scale: scale,
-                child: _buildNameAndTag(scale),
-              ),
-
-              // ── 6. STATS (y=305 / 365) ─────────────────────────────
-              ..._buildAllStatCells(scale),
-
-              // ── 7. COULEURS (y=408) ────────────────────────────────
-              ..._buildAllColorSquares(scale),
-            ],
-          );
-        },
+  Widget _buildWysiwygPreview(int niveau) {
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        textScaler: TextScaler.noScaling,
       ),
-    ),  // ← fermeture AspectRatio (déjà présente mais à vérifier)
-  );    // ← ✅ FERMETURE MANQUANTE du MediaQuery
-}
+      child: AspectRatio(
+        aspectRatio: _refW / _refH,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final w = constraints.maxWidth;
+            final scale = w / _refW;
+            final previewStyle = _resolvePreviewStyle();
 
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // ── 0. FOND ENTIÈREMENT GÉNÉRÉ PAR CODE ─────────────────
+                Positioned.fill(
+                  child: ArkDinoCardBackground(style: previewStyle),
+                ),
+
+                // ── 1. IMAGE DINO ──────────────────────────────────────
+                _posCentered(
+                  cx: 123,
+                  cy: 130,
+                  w: 165,
+                  h: 210,
+                  scale: scale,
+                  child: GestureDetector(
+                    onTap: _showSpeciesPickerDialog,
+                    child: _buildEggImage(),
+                  ),
+                ),
+
+                // ── 2. LVL ─────────────────────────────────────────────
+                _posCentered(
+                  cx: 30,
+                  cy: 35,
+                  w: 32,
+                  h: 32,
+                  scale: scale,
+                  child: GestureDetector(
+                    onTap: () => _inlineEdit(_niveauCtrl),
+                    child: _buildLvlBadge(niveau, scale),
+                  ),
+                ),
+
+                // ── 3. SEXE ────────────────────────────────────────────
+                _posCentered(
+                  cx: 215,
+                  cy: 36,
+                  w: 32,
+                  h: 32,
+                  scale: scale,
+                  child: GestureDetector(
+                    onTap: _cycleSexe,
+                    child: _buildSexBadgePreview(scale),
+                  ),
+                ),
+
+                // ── 4. ESPÈCE (sur bannière, y=230) ────────────────────
+                _posCentered(
+                  cx: 123,
+                  cy: 230,
+                  w: 145,
+                  h: 28,
+                  scale: scale,
+                  child: GestureDetector(
+                    onTap: _showSpeciesPickerDialog,
+                    child: _buildSpeciesText(scale),
+                  ),
+                ),
+
+                // ── 5. NOM + TAG (y=258) ───────────────────────────────
+                _posCentered(
+                  cx: 123,
+                  cy: 258,
+                  w: 130,
+                  h: 18,
+                  scale: scale,
+                  child: _buildNameAndTag(scale),
+                ),
+
+                // ── 6. STATS (y=305 / 365) ─────────────────────────────
+                ..._buildAllStatCells(scale),
+
+                // ── 7. COULEURS (y=408) ────────────────────────────────
+                ..._buildAllColorSquares(scale),
+              ],
+            );
+          },
+        ),
+      ), // ← fermeture AspectRatio (déjà présente mais à vérifier)
+    ); // ← ✅ FERMETURE MANQUANTE du MediaQuery
+  }
 
   /// Résout le style à utiliser pour la preview, sans avoir besoin
   /// d'un Dino complet (juste l'espèce + les tags courants).
@@ -1103,12 +1094,26 @@ Widget _buildWysiwygPreview(int niveau) {
       sexe: _sexe,
       role: _role,
       niveau: int.tryParse(_niveauCtrl.text) ?? 0,
-      hp: 0, stamina: 0, oxygene: 0, nourriture: 0, poids: 0, degats: 0,
+      hp: 0,
+      stamina: 0,
+      oxygene: 0,
+      nourriture: 0,
+      poids: 0,
+      degats: 0,
       vitesse: 0,
-      hpPoints: 0, staminaPoints: 0, oxygenePoints: 0,
-      nourriturePoints: 0, poidsPoints: 0, degatsPoints: 0, vitessePoints: 0,
-      couleur0: '0|#808080', couleur1: '0|#808080', couleur2: '0|#808080',
-      couleur3: '0|#808080', couleur4: '0|#808080', couleur5: '0|#808080',
+      hpPoints: 0,
+      staminaPoints: 0,
+      oxygenePoints: 0,
+      nourriturePoints: 0,
+      poidsPoints: 0,
+      degatsPoints: 0,
+      vitessePoints: 0,
+      couleur0: '0|#808080',
+      couleur1: '0|#808080',
+      couleur2: '0|#808080',
+      couleur3: '0|#808080',
+      couleur4: '0|#808080',
+      couleur5: '0|#808080',
       tagVersion: _tagVersion,
       tags: _tags,
       notes: '',
@@ -1134,22 +1139,9 @@ Widget _buildWysiwygPreview(int niveau) {
     );
   }
 
-  Widget _fallbackBackground() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF2A1A4A), Color(0xFF1A1230)],
-        ),
-      ),
-    );
-  }
-
   Widget _buildEggImage() {
     final existingImage = widget.dino?.image;
-    final hasCustomImage =
-        existingImage != null && existingImage.isNotEmpty;
+    final hasCustomImage = existingImage != null && existingImage.isNotEmpty;
     final hexColors = _couleurs.map((c) => c.hex).toList();
 
     Widget speciesImg() => DinoImageWidget(
@@ -1322,7 +1314,6 @@ Widget _buildWysiwygPreview(int niveau) {
                 style: style.copyWith(fontSize: fontSize),
               ),
               maxLines: 1,
-              textDirection: TextDirection.ltr,
             )..layout();
             if (tp.width <= constraints.maxWidth &&
                 tp.height <= constraints.maxHeight) {
@@ -1365,80 +1356,84 @@ Widget _buildWysiwygPreview(int niveau) {
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 4 * scale),
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () => _editField('Nom du dinosaure', _nomCtrl),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 6, vertical: 1.5),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(3),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.30),
-                    width: 0.8,
-                  ),
-                ),
-                child: Text(
-                  displayName,
-                  style: GoogleFonts.exo2(
-                    color: hasName
-                        ? Colors.white
-                        : Colors.white.withValues(alpha: 0.55),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
-                    height: 1.0,
-                    letterSpacing: 0.3,
-                    fontStyle:
-                        hasName ? FontStyle.normal : FontStyle.italic,
-                    decoration: TextDecoration.none,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withValues(alpha: 0.7),
-                        blurRadius: 2,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: GestureDetector(
+                  onTap: () => _editField('Nom du dinosaure', _nomCtrl),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 1.5),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(3),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.30),
+                        width: 0.8,
                       ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-            const SizedBox(width: 5),
-            GestureDetector(
-              onTap: _editTags,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 5, vertical: 1.5),
-                decoration: BoxDecoration(
-                  color: tagCol.withValues(alpha: hasTag ? 0.25 : 0.10),
-                  borderRadius: BorderRadius.circular(3),
-                  border: Border.all(
-                    color: tagCol.withValues(alpha: 0.7),
-                    width: 0.8,
-                  ),
-                ),
-                child: Text(
-                  tagLbl.toUpperCase(),
-                  style: TextStyle(
-                    color: tagCol,
-                    fontSize: 8,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.3,
-                    height: 1.0,
-                    fontStyle:
-                        hasTag ? FontStyle.normal : FontStyle.italic,
-                    decoration: TextDecoration.none,
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        displayName,
+                        maxLines: 1,
+                        style: GoogleFonts.exo2(
+                          color: hasName
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.55),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                          height: 1.0,
+                          letterSpacing: 0.3,
+                          fontStyle:
+                              hasName ? FontStyle.normal : FontStyle.italic,
+                          decoration: TextDecoration.none,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.7),
+                              blurRadius: 2,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(width: 5),
+              GestureDetector(
+                onTap: _editTags,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                  decoration: BoxDecoration(
+                    color: tagCol.withValues(alpha: hasTag ? 0.25 : 0.10),
+                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(
+                        color: tagCol.withValues(alpha: 0.7), width: 0.8),
+                  ),
+                  child: Text(
+                    tagLbl.toUpperCase(),
+                    style: TextStyle(
+                      color: tagCol,
+                      fontSize: 8,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.3,
+                      height: 1.0,
+                      fontStyle: hasTag ? FontStyle.normal : FontStyle.italic,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -1471,10 +1466,10 @@ Widget _buildWysiwygPreview(int niveau) {
   // ═══════════════════════════════════════════════════════════════════════
   // STATS
   // ═══════════════════════════════════════════════════════════════════════
-    List<Widget> _buildAllStatCells(double scale) {
+  List<Widget> _buildAllStatCells(double scale) {
     final cells = <_EditableStatCellData>[
       _EditableStatCellData(
-        cx: 48, cy: 305,                    // ← 291 → 305
+        cx: 48, cy: 305, // ← 291 → 305
         emoji: '❤️', label: 'VIE',
         color: const Color(0xFF4CAF50),
         valCtrl: _hpCtrl,
@@ -1483,7 +1478,7 @@ Widget _buildWysiwygPreview(int niveau) {
         persoCtrl: _hpPersoCtrl,
       ),
       _EditableStatCellData(
-        cx: 123, cy: 305,                   // ← 291 → 305
+        cx: 123, cy: 305, // ← 291 → 305
         emoji: '⚡', label: 'STAM',
         color: const Color(0xFFFFD700),
         valCtrl: _staminaCtrl,
@@ -1492,7 +1487,7 @@ Widget _buildWysiwygPreview(int niveau) {
         persoCtrl: _staminaPersoCtrl,
       ),
       _EditableStatCellData(
-        cx: 200, cy: 305,                   // ← 291 → 305
+        cx: 200, cy: 305, // ← 291 → 305
         emoji: '⚔️', label: 'ATTACK',
         color: const Color(0xFFEF4444),
         valCtrl: _degatsCtrl,
@@ -1502,7 +1497,7 @@ Widget _buildWysiwygPreview(int niveau) {
         suffix: '%',
       ),
       _EditableStatCellData(
-        cx: 48, cy: 365,                    // ← 351 → 365
+        cx: 48, cy: 365, // ← 351 → 365
         emoji: '⚖️', label: 'POIDS',
         color: const Color(0xFF3B82F6),
         valCtrl: _poidsCtrl,
@@ -1511,7 +1506,7 @@ Widget _buildWysiwygPreview(int niveau) {
         persoCtrl: _poidsPersoCtrl,
       ),
       _EditableStatCellData(
-        cx: 125, cy: 365,                   // ← 351 → 365
+        cx: 125, cy: 365, // ← 351 → 365
         emoji: '🍖', label: 'FOOD',
         color: const Color(0xFF8B5CF6),
         valCtrl: _nourritureCtrl,
@@ -1520,7 +1515,7 @@ Widget _buildWysiwygPreview(int niveau) {
         persoCtrl: _nourriturePersoCtrl,
       ),
       _EditableStatCellData(
-        cx: 200, cy: 365,                   // ← 351 → 365
+        cx: 200, cy: 365, // ← 351 → 365
         emoji: '🫧', label: 'OXY',
         color: const Color(0xFF10B981),
         valCtrl: _oxygeneCtrl,
@@ -1532,7 +1527,11 @@ Widget _buildWysiwygPreview(int niveau) {
 
     return cells.map((c) {
       return _posCentered(
-        cx: c.cx, cy: c.cy, w: 50, h: 47, scale: scale,
+        cx: c.cx,
+        cy: c.cy,
+        w: 50,
+        h: 47,
+        scale: scale,
         child: _buildEditableStatCell(c, scale),
       );
     }).toList();
@@ -1647,14 +1646,12 @@ Widget _buildWysiwygPreview(int niveau) {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _miniPtsCell(c.baseCtrl, base, 'B',
-                      const Color(0xFF00E5FF)),
+                  _miniPtsCell(c.baseCtrl, base, 'B', const Color(0xFF00E5FF)),
                   const SizedBox(width: 2),
-                  _miniPtsCell(c.mutaCtrl, muta, 'M',
-                      const Color(0xFFFF6B00)),
+                  _miniPtsCell(c.mutaCtrl, muta, 'M', const Color(0xFFFF6B00)),
                   const SizedBox(width: 2),
-                  _miniPtsCell(c.persoCtrl, perso, 'P',
-                      const Color(0xFF4CAF50)),
+                  _miniPtsCell(
+                      c.persoCtrl, perso, 'P', const Color(0xFF4CAF50)),
                 ],
               ),
             ),
@@ -1715,8 +1712,7 @@ Widget _buildWysiwygPreview(int niveau) {
       barrierColor: Colors.black54,
       builder: (ctx) => Dialog(
         backgroundColor: const Color(0xFF1A1E28),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         insetPadding: const EdgeInsets.symmetric(horizontal: 80),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -1758,8 +1754,8 @@ Widget _buildWysiwygPreview(int niveau) {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color(0xFF0A0E1A),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
@@ -1815,13 +1811,15 @@ Widget _buildWysiwygPreview(int niveau) {
     return List.generate(6, (i) {
       final isZoneActive = i < visibility.length ? visibility[i] : true;
       final c = _couleurs[i];
-      final isNeutral =
-          c.id <= 0 || c.hex == '#808080' || c.hex == '#7F7F7F';
+      final isNeutral = c.id <= 0 || c.hex == '#808080' || c.hex == '#7F7F7F';
       final parsed = isNeutral ? null : _parseHex(c.hex);
 
-       return _posCentered(
-        cx: xs[i], cy: 408, w: 22, h: 22, scale: scale,
-
+      return _posCentered(
+        cx: xs[i],
+        cy: 408,
+        w: 22,
+        h: 22,
+        scale: scale,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => _showArkColorPicker(i),
@@ -1852,7 +1850,6 @@ Widget _buildWysiwygPreview(int niveau) {
   }) {
     const double radius = 6.0;
 
-   
     // ─── Indicateur "+" : case vide, peu importe que la région soit
     //     active ou non. Disparaît dès qu'une couleur réelle est posée.
     Widget plusIndicator() {
@@ -1984,7 +1981,6 @@ Widget _buildWysiwygPreview(int niveau) {
             ),
           ),
         ),
-        
       ],
     );
   }
@@ -1993,8 +1989,7 @@ Widget _buildWysiwygPreview(int niveau) {
     final previewColors = List<String?>.generate(6, (i) {
       if (i == regionIndex) {
         final c = _couleurs[i];
-        final hasColor =
-            c.id > 0 && c.hex != '#808080' && c.hex != '#7F7F7F';
+        final hasColor = c.id > 0 && c.hex != '#808080' && c.hex != '#7F7F7F';
         return hasColor ? c.hex : '#FF2222';
       }
       return '#808080';
@@ -2009,8 +2004,7 @@ Widget _buildWysiwygPreview(int niveau) {
         border:
             Border.all(color: Colors.red.withValues(alpha: 0.5), width: 1.5),
         boxShadow: [
-          BoxShadow(
-              color: Colors.red.withValues(alpha: 0.15), blurRadius: 12),
+          BoxShadow(color: Colors.red.withValues(alpha: 0.15), blurRadius: 12),
         ],
       ),
       child: Row(
@@ -2034,13 +2028,13 @@ Widget _buildWysiwygPreview(int niveau) {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.red.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                        color: Colors.red.withValues(alpha: 0.5)),
+                    border:
+                        Border.all(color: Colors.red.withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     'RÉGION $regionIndex',
@@ -2193,8 +2187,7 @@ Widget _buildWysiwygPreview(int niveau) {
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
-            border:
-                Border.all(color: color.withValues(alpha: 0.6), width: 2),
+            border: Border.all(color: color.withValues(alpha: 0.6), width: 2),
             boxShadow: [
               BoxShadow(
                   color: color.withValues(alpha: 0.3),
@@ -2211,9 +2204,7 @@ Widget _buildWysiwygPreview(int niveau) {
                 child: Text(
                   label,
                   style: GoogleFonts.exo2(
-                      color: color,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800),
+                      color: color, fontSize: 12, fontWeight: FontWeight.w800),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -2235,8 +2226,7 @@ Widget _buildWysiwygPreview(int niveau) {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.bgCard,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(title,
             style: GoogleFonts.exo2(color: Colors.white, fontSize: 16)),
         content: TextField(
@@ -2356,8 +2346,7 @@ Widget _buildWysiwygPreview(int niveau) {
                         shape: BoxShape.circle,
                         color: AppTheme.bgSecondary,
                         border: Border.all(
-                            color:
-                                AppTheme.accentGreen.withValues(alpha: 0.4)),
+                            color: AppTheme.accentGreen.withValues(alpha: 0.4)),
                       ),
                       child: const Icon(Icons.add,
                           size: 18, color: AppTheme.accentGreen),
@@ -2394,8 +2383,7 @@ Widget _buildWysiwygPreview(int niveau) {
                     Navigator.pop(ctx);
                   },
                   child: Text('Valider',
-                      style:
-                          GoogleFonts.exo2(color: AppTheme.accentPrimary)),
+                      style: GoogleFonts.exo2(color: AppTheme.accentPrimary)),
                 ),
               ],
             );
@@ -2414,8 +2402,8 @@ Widget _buildWysiwygPreview(int niveau) {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.bgCard,
-        title: Text('Nouveau tag',
-            style: GoogleFonts.exo2(color: Colors.white)),
+        title:
+            Text('Nouveau tag', style: GoogleFonts.exo2(color: Colors.white)),
         content: TextField(
           controller: ctrl,
           autofocus: true,
@@ -2548,14 +2536,13 @@ Widget _buildWysiwygPreview(int niveau) {
                           ? Center(
                               child: Text('Aucune espèce',
                                   style: TextStyle(
-                                      color: Colors.white
-                                          .withValues(alpha: 0.5))))
+                                      color:
+                                          Colors.white.withValues(alpha: 0.5))))
                           : ListView.builder(
                               itemCount: filtered.length,
                               itemBuilder: (context, index) {
                                 final species = filtered[index];
-                                final hasImg =
-                                    ArkSpeciesData.hasImage(species);
+                                final hasImg = ArkSpeciesData.hasImage(species);
                                 return ListTile(
                                   dense: true,
                                   leading: hasImg
@@ -2574,8 +2561,7 @@ Widget _buildWysiwygPreview(int niveau) {
                                   title: Text(species,
                                       style: const TextStyle(
                                           color: Colors.white, fontSize: 13)),
-                                  onTap: () =>
-                                      Navigator.pop(ctx, species),
+                                  onTap: () => Navigator.pop(ctx, species),
                                 );
                               },
                             ),
@@ -2587,8 +2573,7 @@ Widget _buildWysiwygPreview(int niveau) {
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
                   child: Text('Annuler',
-                      style: GoogleFonts.exo2(
-                          color: AppTheme.accentPrimary)),
+                      style: GoogleFonts.exo2(color: AppTheme.accentPrimary)),
                 ),
               ],
             );
@@ -2750,7 +2735,8 @@ class _OvalGlowPainter extends CustomPainter {
         radius: 0.7,
         colors: [
           glowColor,
-          glowColor.withValues(alpha: 0.18), // ← fix : valeur fixe au lieu de glowColor.a * 0.4
+          glowColor.withValues(
+              alpha: 0.18), // ← fix : valeur fixe au lieu de glowColor.a * 0.4
           edgeColor,
         ],
         stops: const [0.0, 0.65, 1.0],

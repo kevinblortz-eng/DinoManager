@@ -1,7 +1,8 @@
 // lib/widgets/ark_dino_card.dart
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart' as painting;
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';
 import '../models/role_theme.dart';
@@ -324,14 +325,15 @@ class ArkDinoCard extends StatelessWidget {
           );
           double fontSize = maxFont;
           while (fontSize > minFont) {
-            final tp = TextPainter(
-              text: TextSpan(
+            final tp = painting.TextPainter(
+              text: painting.TextSpan(
                 text: text,
                 style: style.copyWith(fontSize: fontSize),
               ),
               maxLines: 1,
-              textDirection: TextDirection.ltr,
-            )..layout();
+            )
+              ..textDirection = Directionality.of(context)
+              ..layout();
             if (tp.width <= constraints.maxWidth &&
                 tp.height <= constraints.maxHeight) {
               break;

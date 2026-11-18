@@ -1,7 +1,7 @@
 // lib/screens/dino_variant_screen.dart
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';

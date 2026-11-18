@@ -1,5 +1,5 @@
 // lib/widgets/scan_crop_overlay.dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../services/dino_ocr_service.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────

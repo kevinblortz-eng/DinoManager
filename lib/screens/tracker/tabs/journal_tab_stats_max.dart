@@ -1,5 +1,5 @@
 // lib/screens/tracker/tabs/journal_tab_stats_max.dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../models/dino.dart';
 import '../../../models/species_tracker.dart';

@@ -9,7 +9,7 @@
 //
 // Référentiel logique : 242 × 428 px.
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STYLE

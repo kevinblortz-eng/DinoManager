@@ -1,7 +1,6 @@
 // lib/main.dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'providers/dino_provider.dart';
@@ -99,11 +98,9 @@ class DinoManagerApp extends StatelessWidget {
         Locale('es'),
         Locale('pt'),
       ],
-      localizationsDelegates: const [
+      localizationsDelegates: [
         AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+        ...GlobalMaterialLocalizations.delegates,
       ],
       // ✅ localeResolutionCallback supprimé — c'est `locale: languageProvider.locale`
       // qui fait foi. Le callback écrasait le choix utilisateur avec la locale système.

@@ -2,7 +2,7 @@
 // Source: https://ark.wiki.gg/wiki/Color_IDs
 // IDs 1-254 (officiels) + quelques spéciaux
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ArkColor {
   final int id;

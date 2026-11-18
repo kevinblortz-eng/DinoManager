@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Badge de sexe réutilisable — utilise les couleurs ARK standards.
 /// Supporte : Mâle, Femelle, Mâle+Femelle, Inconnu.

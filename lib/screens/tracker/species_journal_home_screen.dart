@@ -1,6 +1,6 @@
 // lib/screens/tracker/species_journal_home_screen.dart
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../models/dino.dart';

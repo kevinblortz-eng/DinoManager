@@ -1,7 +1,7 @@
 // lib/widgets/share_card/dino_share_card_portrait_exporter.dart
 
 import 'dart:ui' as ui;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import '../../models/dino.dart';
 import '../../utils/save_image_helper.dart';

@@ -13,7 +13,7 @@
 // ║     (et _showStats est forcé à false dans ce cas).                    ║
 // ║   - Le picker ouvert est DinoCanvaMultiPickerScreen (toutes espèces). ║
 // ╚════════════════════════════════════════════════════════════════════════╝
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/dino.dart';
 import '../theme/app_theme.dart';

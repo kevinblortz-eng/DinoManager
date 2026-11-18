@@ -1,6 +1,6 @@
 // lib/widgets/capture_guide_overlay.dart
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Dialog affiché avant la prise de photo caméra

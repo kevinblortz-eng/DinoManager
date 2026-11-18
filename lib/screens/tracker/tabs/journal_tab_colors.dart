@@ -1,5 +1,5 @@
 // lib/screens/tracker/tabs/journal_tab_colors.dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../models/ark_color_palette.dart';
 import '../../../models/ark_species_color_regions.dart';

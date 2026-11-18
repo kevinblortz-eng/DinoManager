@@ -1,6 +1,6 @@
 // lib/widgets/share_card/ark_dino_card_exporter.dart
 import 'dart:ui' as ui;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import '../../models/dino.dart';
 import '../../models/role_theme.dart';
