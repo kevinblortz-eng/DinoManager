@@ -66,9 +66,36 @@ extension ChangelogSectionTypeExt on ChangelogSectionType {
 }
 
 class ChangelogData {
-  static const String currentVersion = '1.2.1';
+  static const String currentVersion = '1.2.25';
 
   static const List<AppVersion> history = [
+
+AppVersion(
+  version: '1.2.25',
+      date: '20-Nov-2026',
+      sections: [
+        ChangelogSection(
+          type: ChangelogSectionType.nouveaute,
+          items: [
+            'Le Market Evolue !'
+            'Suivez le contenu de vos market de la fonction Bob\'s Tall Tales directement depuis l\'onglet Commandes !'
+            '> Timer de Depop,'
+            '> Ajout de vos dinos personnels comme pour les commandes,'
+            '> Pop-up d\'alerte pour les articles bientot périmés,'
+            '> Swipe gauche ou droite pour actualiser le statut de vos articles,'
+            
+          ],
+        ),
+        ChangelogSection(
+          type: ChangelogSectionType.amelioration,
+          items: [
+            '> Mise à jour des visuels de vos dinos',
+            '> Intégration des prochains dinos connus de Décembre',
+            '> Mise à jour des nouvelles données des dinos'
+          ],
+        ),
+      ],
+    ),
 
 AppVersion(
   version: '1.2.2',

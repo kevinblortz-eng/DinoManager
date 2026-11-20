@@ -10,6 +10,7 @@ import 'add_edit_dino_screen.dart';
 import 'simulator_screen.dart';
 import 'tracker/species_journal_home_screen.dart';
 import 'orders_screen.dart';
+import 'market_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -33,7 +34,7 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
       const LibraryScreen(),                      // 1
       HomeScreen(onNavigateToTab: navigateToTab), // 2
       const SpeciesJournalHomeScreen(),           // 3
-      const OrdersScreen(),                       // 4
+      const MarketScreen(),                       // 4
     ]);
     _initialized = true;
   }

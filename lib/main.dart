@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'providers/dino_provider.dart';
 import 'providers/tracker_provider.dart';
 import 'providers/order_provider.dart';
+import 'providers/market_provider.dart';
 import 'providers/currency_provider.dart';
 import 'providers/language_provider.dart';
 import 'providers/tag_theme_provider.dart';
@@ -48,6 +49,9 @@ Future<void> main() async {
   final orderProvider = OrderProvider();
   await orderProvider.loadOrders();
 
+  final marketProvider = MarketProvider();
+  await marketProvider.loadMarket();
+
   final currencyProvider = CurrencyProvider();
   await currencyProvider.loadPreferences();
 
@@ -66,6 +70,7 @@ Future<void> main() async {
         ChangeNotifierProvider.value(value: dinoProvider),
         ChangeNotifierProvider.value(value: trackerProvider),
         ChangeNotifierProvider.value(value: orderProvider),
+        ChangeNotifierProvider.value(value: marketProvider),
         ChangeNotifierProvider.value(value: currencyProvider),
         ChangeNotifierProvider.value(value: languageProvider),
         ChangeNotifierProvider.value(value: geminiProvider),

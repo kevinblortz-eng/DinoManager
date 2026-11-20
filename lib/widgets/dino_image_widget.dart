@@ -44,9 +44,19 @@ class DinoImageWidget extends StatefulWidget {
 }
 
 class _DinoImageWidgetState extends State<DinoImageWidget> {
+  /// Cache mémoire : image déjà colorée, clé = espèce + couleurs de régions.
+  /// Évite de refaire décodage + grain merge à chaque reconstruction
+  /// (supprime le flash du carré noir à l'ouverture / actualisation).
+  /// LinkedHashMap = ordre d'insertion → éviction FIFO simple.
+  static final Map<String, ui.Image> _cache = <String, ui.Image>{};
+  static const int _cacheMaxEntries = 24;
+
   ui.Image? _coloredImage;
   bool _loading = true;
   List<String?> _lastColors = [];
+
+  String get _cacheKey =>
+      '${widget.species}|${widget.regionColors.join(",")}';
 
   @override
   void initState() {
@@ -59,7 +69,7 @@ class _DinoImageWidgetState extends State<DinoImageWidget> {
     super.didUpdateWidget(old);
     final colorsChanged = !_listEquals(widget.regionColors, _lastColors);
     if (old.species != widget.species || colorsChanged) {
-      _processImage();
+      _processImage(forceLoading: old.species != widget.species);
     }
   }
 
@@ -71,11 +81,27 @@ class _DinoImageWidgetState extends State<DinoImageWidget> {
     return true;
   }
 
-  Future<void> _processImage() async {
+  Future<void> _processImage({bool forceLoading = false}) async {
     if (!mounted) return;
-    setState(() => _loading = true);
 
     _lastColors = List.from(widget.regionColors);
+
+    // Cache hit → affichage immédiat, aucun placeholder.
+    final cached = _cache[_cacheKey];
+    if (cached != null) {
+      setState(() {
+        _coloredImage = cached;
+        _loading = false;
+      });
+      return;
+    }
+
+    // Gapless : si une image est déjà affichée (changement de couleurs
+    // uniquement), on la garde à l'écran pendant le recalcul au lieu du
+    // carré noir. forceLoading=true (changement d'espèce) → placeholder.
+    if (forceLoading || _coloredImage == null) {
+      setState(() => _loading = true);
+    }
 
     final basePath = ArkSpeciesData.getImageAssetPath(widget.species);
     if (basePath == null) {
@@ -123,6 +149,15 @@ class _DinoImageWidgetState extends State<DinoImageWidget> {
       }
 
       if (mounted) {
+        if (!_cache.containsKey(_cacheKey)) {
+          if (_cache.length >= _cacheMaxEntries) {
+            // Retrait FIFO sans dispose() : l'image peut encore être
+            // affichée par une autre instance du widget. Le finalizer
+            // natif de ui.Image libérera la mémoire.
+            _cache.remove(_cache.keys.first);
+          }
+          _cache[_cacheKey] = result;
+        }
         setState(() {
           _coloredImage = result;
           _loading = false;

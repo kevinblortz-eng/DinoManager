@@ -1,18 +1,19 @@
-// lib/screens/home_screen.dart
-import 'dart:math';
+// lib/screens/home_screen.dart — v2 "vitrine"
+// Home courte et adaptative : bannière + alerte shop conditionnelle + astuce
+// (affichée max 1×/jour, ancrée en bas). La navigation reste dans la barre
+// du bas ; les stats vivront dans un espace dédié à venir.
+
 import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../providers/dino_provider.dart';
-import '../providers/tracker_provider.dart';
-import '../models/dino.dart';
-import '../theme/app_theme.dart';
-import '../utils/dino_helpers.dart';
-import '../widgets/dino_image_widget.dart';
+import '../providers/market_provider.dart';
 import '../l10n/app_localizations.dart';
+import '../theme/app_theme.dart';
+import 'market_screen.dart';
 import 'setting_screen.dart';
-import 'add_edit_dino_screen.dart';
-import 'dino_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(int tabIndex)? onNavigateToTab;
@@ -27,757 +28,280 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Dino? _spotlightDino;
-  final _random = Random();
-
   // ── Fond fixe de la home ───────────────────────────────────────────────
-  // Déclarer dans pubspec.yaml : assets/images/ui/background_home.png
   static const String _bgAsset = 'assets/images/ui/background_home.png';
+  static const String _tipDayKey = 'home_tip_last_day';
 
-  late String _todayTip;
+  String _todayTip = '';
+  bool _showTipToday = false;
 
   @override
   void initState() {
     super.initState();
-    _todayTip = '';
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DinoProvider>().loadDinos();
-      _pickSpotlightDino();
+      if (mounted) context.read<DinoProvider>().loadDinos();
+      _loadTipVisibility();
     });
   }
 
-  void _pickSpotlightDino() {
-    // ⬇️ FIX BUG-LIB-01/02 : on tire le dino vedette dans la liste COMPLÈTE,
-    // jamais dans la liste filtrée par la Bibliothèque.
-    final dinos = context.read<DinoProvider>().allDinos;
-    if (dinos.isEmpty) {
-      setState(() => _spotlightDino = null);
-      return;
-    }
-    setState(() {
-      _spotlightDino = dinos[_random.nextInt(dinos.length)];
-    });
-  }
-
-  void _openSpotlightDino(Dino dino) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => DinoDetailScreen(dino: dino),
-      ),
-    ).then((_) {
-      if (!mounted) return;
-      context.read<DinoProvider>().loadDinos();
-      _pickSpotlightDino();
-    });
-  }
-
- @override
-Widget build(BuildContext context) {
-  final l10n = AppLocalizations.of(context)!;
-  // Initialise le tip avec les traductions dès le premier build
-  if (_todayTip.isEmpty) {
+  /// Astuce : max 1×/jour. On stocke le dernier jour d'affichage ;
+  /// un nouveau jour → nouvelle astuce (rotation), sinon rien.
+  Future<void> _loadTipVisibility() async {
+    final l10n = AppLocalizations.of(context);
+    // Sécurité : si les localisations ne sont pas encore prêtes,
+    // pas d'astuce ce cycle (retry au prochain build/postFrame).
+    if (l10n == null) return;
     final tips = l10n.homeTips;
-    _todayTip = tips[DateTime.now().millisecondsSinceEpoch % tips.length];
+    final today = DateTime.now();
+    final dayKey =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    final prefs = await SharedPreferences.getInstance();
+    final lastDay = prefs.getString(_tipDayKey);
+    final shouldShow = lastDay != dayKey;
+
+    setState(() {
+      _todayTip = tips[today.millisecondsSinceEpoch ~/ 86400000 % tips.length];
+      _showTipToday = shouldShow;
+    });
+
+    if (shouldShow) await prefs.setString(_tipDayKey, dayKey);
   }
-  return Consumer2<DinoProvider, TrackerProvider>(
-    builder: (context, dinoProvider, trackerProvider, _) {
-      // ⬇️ FIX BUG-LIB-01/02 : Home affiche TOUJOURS la bibliothèque complète,
-      // indépendamment du filtre actif dans l'écran Bibliothèque.
-      final dinos = dinoProvider.allDinos;
-      final speciesSet =
-          dinos.map((d) => d.espece.toLowerCase()).toSet();
 
-      final roleCounts = <String, int>{};
-      for (final d in dinos) {
-        final role = d.role.isNotEmpty ? d.role : 'Autre';
-        roleCounts[role] = (roleCounts[role] ?? 0) + 1;
-      }
-      final sortedRoles = roleCounts.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
+  void _dismissTipToday() {
+    setState(() => _showTipToday = false);
+    final today = DateTime.now();
+    final dayKey =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    SharedPreferences.getInstance()
+        .then((p) => p.setString(_tipDayKey, dayKey));
+  }
 
-      final speciesCounts = <String, int>{};
-      for (final d in dinos) {
-        speciesCounts[d.espece] =
-            (speciesCounts[d.espece] ?? 0) + 1;
-      }
-      final topSpecies = speciesCounts.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
+  @override
+  Widget build(BuildContext context) {
+    return Consumer2<DinoProvider, MarketProvider>(
+      builder: (context, dinoProvider, marketProvider, _) {
+        final expiring = marketProvider.expiringSoon();
+        final shortest = expiring.isNotEmpty ? expiring.first : null;
 
-      final trackedSpecies = trackerProvider.trackers
-          .map((t) => t.species.toLowerCase())
-          .toSet();
-      final untrackedSpecies = speciesSet
-          .where((s) => !trackedSpecies.contains(s))
-          .toList();
-
-      if (_spotlightDino != null &&
-          !dinos.any((d) => d.id == _spotlightDino!.id)) {
-        _spotlightDino = dinos.isNotEmpty
-            ? dinos[_random.nextInt(dinos.length)]
-            : null;
-      }
-
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            // ── FOND FIXE ───────────────────────────────────────────
-            Positioned.fill(
-              child: Image.asset(
-                _bgAsset,
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
-                errorBuilder: (_, __, ___) =>
-                    Container(color: AppTheme.bgPrimary),
-              ),
-            ),
-
-            // ── OVERLAY sombre ──────────────────────────────────────
-            Positioned.fill(
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xDD050810),
-                      Color(0xAA050810),
-                      Color(0xDD050810),
-                    ],
-                  ),
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Stack(
+            children: [
+              // ── FOND FIXE ──────────────────────────────────────────
+              Positioned.fill(
+                child: Image.asset(
+                  _bgAsset,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) =>
+                      Container(color: AppTheme.bgPrimary),
                 ),
               ),
-            ),
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.45),
+                ),
+              ),
 
-            // ── CONTENU : header fixe + liste scrollable ────────────
-            SafeArea(
-              child: Column(
-                children: [
+              // ── CONTENU ────────────────────────────────────────────
+              Positioned.fill(
+                child: SafeArea(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isWide = constraints.maxWidth > 600;
+                      final contentWidth =
+                          isWide ? 560.0 : constraints.maxWidth;
+                      // Hauteurs max logiques : l'écran ne s'allonge pas,
+                      // les blocs plafonnent (adaptatif mobile/tablette).
+                      final alertMax = isWide ? 96.0 : 88.0;
+                      final tipMax = isWide ? 150.0 : 130.0;
 
-                  // ══════════════════════════════════════════════════
-                  // HEADER FIXE — ne scroll jamais
-                  // ══════════════════════════════════════════════════
-                  Container(
-                    // Fond semi-transparent pour rester lisible
-                    // même quand le contenu défile dessous
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          const Color(0xFF050810).withValues(alpha: 0.95),
-                          const Color(0xFF050810).withValues(alpha: 0.0),
-                        ],
-                      ),
-                    ),
-                    padding: const EdgeInsets.fromLTRB(20, 12, 8, 16),
-                    child: Row(
-                      children: [
-                        // Titre + sous-titre
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'ARK MANAGER',
-                                style: GoogleFonts.cinzelDecorative(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  shadows: const [
-                                    Shadow(
-                                      color: Colors.black,
-                                      blurRadius: 8,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Gestionnaire de dinosaures',
-                                style: GoogleFonts.exo2(
-                                  fontSize: 14,
-                                  color: AppTheme.textMuted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Bouton paramètres
-                        IconButton(
-                          icon: const Icon(
-                            Icons.settings_rounded,
-                            color: AppTheme.textMuted,
-                            size: 22,
-                          ),
-                          tooltip: 'Paramètres',
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SettingScreen(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // ══════════════════════════════════════════════════
-                  // CONTENU SCROLLABLE
-                  // ══════════════════════════════════════════════════
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 0),
-                      children: [
-                        // Responsive centering: constrain content on wide screens
-                        Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 640),
+                      return Center(
+                        child: ConstrainedBox(
+                          constraints:
+                              BoxConstraints(maxWidth: contentWidth),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: isWide ? 24 : 16),
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                if (_spotlightDino != null) ...[
-                                  _buildSpotlightCardEnhanced(_spotlightDino!),
-                                  const SizedBox(height: 20),
-                                ] else ...[
-                                  _buildEmptySpotlight(),
-                                  const SizedBox(height: 20),
+                                // ── BANNIÈRE ────────────────────────
+                                _buildHeader(isWide: isWide),
+
+                                // ── ALERTE SHOP (conditionnelle) ────
+                                if (shortest != null) ...[
+                                  const SizedBox(height: 12),
+                                  ConstrainedBox(
+                                    constraints:
+                                        BoxConstraints(maxHeight: alertMax),
+                                    child: _buildMarketAlert(
+                                        shortest, isWide: isWide),
+                                  ),
                                 ],
 
-                                if (sortedRoles.isNotEmpty) ...[
-                                  _buildRoleDistributionEnhanced(
-                                      sortedRoles.take(4).toList(),
-                                      dinos.length),
-                                  const SizedBox(height: 20),
-                                ],
+                                const Spacer(),
 
-                                if (topSpecies.length > 1) ...[
-                                  _buildTopSpecies(
-                                      topSpecies.take(5).toList()),
-                                  const SizedBox(height: 20),
-                                ],
-
-                                if (untrackedSpecies.isNotEmpty) ...[
-                                  _buildUntrackedHint(untrackedSpecies),
-                                  const SizedBox(height: 20),
-                                ],
-
-                                _buildTipCard(),
-                                const SizedBox(height: 24),
+                                // ── ASTUCE (bas, max 1×/jour) ───────
+                                if (_showTipToday)
+                                  ConstrainedBox(
+                                    constraints:
+                                        BoxConstraints(maxHeight: tipMax),
+                                    child: _buildTipCard(isWide: isWide),
+                                  ),
+                                SizedBox(
+                                    height: MediaQuery.of(context)
+                                        .padding
+                                        .bottom),
                               ],
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // DINO SPOTLIGHT
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  Widget _buildSpotlightCardEnhanced(Dino dino) {
-    final previewColors = [
-      dino.colorHex0,
-      dino.colorHex1,
-      dino.colorHex2,
-      dino.colorHex3,
-      dino.colorHex4,
-      dino.colorHex5,
-    ];
-
-    return GestureDetector(
-      onTap: () => _openSpotlightDino(dino),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // ── Container principal ──────────────────────────────────────
-          Container(
-            margin: const EdgeInsets.only(top: 60),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xCC1C2333), Color(0xCC161B22)],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppTheme.accentPrimary.withValues(alpha: 0.3),
-                width: 1.5,
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // ── Header titre + bouton actualiser ────────────────
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-                  child: Row(
-                    children: [
-                      // Badge "DINO SPOTLIGHT"
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppTheme.accentPrimary
-                              .withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.auto_awesome,
-                                color: AppTheme.accentPrimary, size: 12),
-                            const SizedBox(width: 4),
-                            Text(
-                              'DINO SPOTLIGHT',
-                              style: GoogleFonts.exo2(
-                                fontSize: 13,
-                                color: const Color(0xFFBDCA08),
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const Spacer(),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                // ── Contenu : Texte gauche + espace image droite ────
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              dino.nom.isNotEmpty
-                                  ? dino.nom
-                                  : dino.espece,
-                              style: GoogleFonts.exo2(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                height: 1.1,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              '${dino.espece} • Lvl ${dino.niveau}',
-                              style: GoogleFonts.exo2(
-                                fontSize: 12,
-                                color: AppTheme.textSecondary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            if (dino.tags.isNotEmpty)
-                              Wrap(
-                                spacing: 4,
-                                runSpacing: 4,
-                                children: dino.tags.take(2).map((tag) {
-                                  return Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.cyanAccent
-                                          .withValues(alpha: 0.1),
-                                      borderRadius:
-                                          BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      tag,
-                                      style: GoogleFonts.exo2(
-                                        color: Colors.cyanAccent,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                          ],
-                        ),
-                      ),
-                      // Espace réservé pour l'image Positioned
-                      const SizedBox(width: 100, height: 100),
-                    ],
-                  ),
-                ),
-
-                // ── Barre couleurs ───────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-                  child: Row(
-                    children: List.generate(6, (i) {
-                      final color = _hexToColor(previewColors[i]);
-                      return Expanded(
-                        child: Container(
-                          height: 8,
-                          margin: EdgeInsets.only(right: i < 5 ? 3 : 0),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
                       );
-                    }),
+                    },
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          // ── Image dino Positioned (dépasse du haut) ─────────────────
-          Positioned(
-            top: 60,
-            right: 16,
-            width: 180,
-            height: 180,
-            child: Transform.scale(
-              scaleX: -1,
-              child: DinoImageWidget(
-                species: dino.espece,
-                regionColors: previewColors,
-                width: 180,
-                height: 180,
-                fit: BoxFit.contain,
-                showColorBand: false,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // EMPTY SPOTLIGHT
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  Widget _buildEmptySpotlight() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.pets_rounded,
-              size: 40,
-              color: AppTheme.textMuted.withValues(alpha: 0.4)),
-          const SizedBox(height: 10),
-          Text(
-            'Aucun dino enregistré',
-            style: GoogleFonts.exo2(
-                color: AppTheme.textMuted, fontSize: 14),
-          ),
-          const SizedBox(height: 6),
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => const AddEditDinoScreen()),
-            ).then((_) {
-              if (!mounted) return;
-              context.read<DinoProvider>().loadDinos();
-              _pickSpotlightDino();
-            }),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppTheme.accentGreen.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                    color: AppTheme.accentGreen.withValues(alpha: 0.4)),
-              ),
-              child: Text(
-                'Ajouter mon premier dino',
-                style: GoogleFonts.exo2(
-                  color: AppTheme.accentGreen,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // RÉPARTITION PAR RÔLE
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  Widget _buildRoleDistributionEnhanced(
-      List<MapEntry<String, int>> roles, int total) {
-    const roleColors = {
-      'Solid': Colors.purpleAccent,
-      'Breed': Colors.cyanAccent,
-      'Boss': Colors.redAccent,
-      'Farm': Colors.greenAccent,
-      'Collection': Colors.orangeAccent,
-      'Équilibré': Colors.amberAccent,
-      'Combat': Colors.blueAccent,
-    };
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.pie_chart_rounded,
-                  color: Colors.purpleAccent.withValues(alpha: 0.8),
-                  size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'RÉPARTITION PAR RÔLE',
-                style: GoogleFonts.exo2(
-                  color: Colors.purpleAccent,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          ...roles.map((entry) {
-            final color =
-                roleColors[entry.key] ?? AppTheme.textMuted;
-            final ratio = total > 0 ? entry.value / total : 0.0;
-            final percent = (ratio * 100).toStringAsFixed(0);
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        entry.key,
-                        style: GoogleFonts.exo2(
-                          color: color,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '$percent%',
-                        style: GoogleFonts.exo2(
-                          color: color,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${entry.value}',
-                        style: GoogleFonts.exo2(
-                          color: AppTheme.textMuted,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: ratio,
-                      minHeight: 10,
-                      backgroundColor:
-                          Colors.white.withValues(alpha: 0.06),
-                      valueColor: AlwaysStoppedAnimation<Color>(color),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // TOP ESPÈCES
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════
+  // BANNIÈRE
+  // ═══════════════════════════════════════════════════════════════════════
+  Widget _buildHeader({required bool isWide}) {
+    final titleSize = isWide ? 30.0 : 24.0;
+    final subSize = isWide ? 14.0 : 12.0;
 
-  Widget _buildTopSpecies(List<MapEntry<String, int>> species) {
-    const medals = ['🥇', '🥈', '🥉'];
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.emoji_events_rounded,
-                  color: Colors.amber.withValues(alpha: 0.8), size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'TOP ESPÈCES',
-                style: GoogleFonts.exo2(
-                  color: Colors.amber,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ...species.asMap().entries.map((entry) {
-            final index = entry.key;
-            final sp = entry.value;
-            final medal = index < medals.length
-                ? medals[index]
-                : '${index + 1}.';
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 24,
-                    child: Text(medal,
-                        style: const TextStyle(fontSize: 14)),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      sp.key,
-                      style: GoogleFonts.exo2(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      '${sp.value} dinos',
-                      style: GoogleFonts.exo2(
-                        color: Colors.amber,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ESPÈCES SANS TRACKER
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  Widget _buildUntrackedHint(List<String> untrackedSpecies) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.orange.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-        border:
-            Border.all(color: Colors.orange.withValues(alpha: 0.2)),
-      ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
       child: Row(
         children: [
-          Icon(Icons.lightbulb_outline,
-              color: Colors.orange.withValues(alpha: 0.7), size: 20),
-          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${untrackedSpecies.length} espèce${untrackedSpecies.length > 1 ? 's' : ''} sans tracker',
+                  'ARK MANAGER',
                   style: GoogleFonts.exo2(
-                    color: Colors.orange,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    fontSize: titleSize,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                    height: 1.1,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Crée un tracker pour ${untrackedSpecies.take(3).join(', ')}${untrackedSpecies.length > 3 ? '...' : ''} pour suivre leurs stats et couleurs.',
+                  'Gestionnaire de dinosaures',
                   style: GoogleFonts.exo2(
-                    color: Colors.orange.withValues(alpha: 0.7),
-                    fontSize: 10,
+                    color: Colors.white.withValues(alpha: 0.55),
+                    fontSize: subSize,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ],
             ),
+          ),
+          IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingScreen()),
+            ),
+            icon: const Icon(Icons.settings_outlined,
+                color: Colors.white70, size: 26),
+            tooltip: 'Paramètres',
           ),
         ],
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // TIP DU JOUR
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════
+  // ALERTE SHOP — cryo(s) proche(s) du dépop
+  // ═══════════════════════════════════════════════════════════════════════
+  Widget _buildMarketAlert(dynamic shortest, {required bool isWide}) {
+    final days = shortest.remainingDays(DateTime.now()) as int;
+    final urgent = days <= 0;
+    final color = urgent ? const Color(0xFFEF4444) : const Color(0xFFFF9800);
+    final count = context.read<MarketProvider>().expiringSoon().length;
 
-  Widget _buildTipCard() {
+    final label = urgent
+        ? 'Cryo expirée — à récupérer !'
+        : 'Dépop dans $days j — à récupérer';
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () {
+          // Le market est l'onglet 4 → bascule de tab, pas de push.
+          if (widget.onNavigateToTab != null) {
+            widget.onNavigateToTab!(4);
+          } else {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const MarketScreen()));
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: color.withValues(alpha: 0.55)),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: color, size: 26),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      count > 1
+                          ? '$count cryos bientôt dépopées'
+                          : label,
+                      style: GoogleFonts.exo2(
+                        color: color,
+                        fontSize: isWide ? 14 : 12.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${shortest.espece} · ${shortest.nom.isNotEmpty ? shortest.nom + ' · ' : ''}Market',
+                      style: GoogleFonts.exo2(
+                        color: Colors.white.withValues(alpha: 0.55),
+                        fontSize: isWide ? 12 : 11,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.white38),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // ASTUCE — bas d'écran, max 1×/jour, masquable
+  // ═══════════════════════════════════════════════════════════════════════
+  Widget _buildTipCard({required bool isWide}) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.fromLTRB(14, 10, 8, 12),
       decoration: BoxDecoration(
         color: Colors.cyanAccent.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(14),
@@ -788,14 +312,16 @@ Widget build(BuildContext context) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.tips_and_updates_rounded,
-              color: Colors.cyanAccent.withValues(alpha: 0.6), size: 18),
+              color: Colors.cyanAccent.withValues(alpha: 0.6),
+              size: isWide ? 20 : 18),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'ASTUCE DU JOUR',
+                  'ASTUCE',
                   style: GoogleFonts.exo2(
                     color: Colors.cyanAccent.withValues(alpha: 0.8),
                     fontSize: 9,
@@ -808,17 +334,24 @@ Widget build(BuildContext context) {
                   _todayTip,
                   style: GoogleFonts.exo2(
                     color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 11,
+                    fontSize: isWide ? 12.5 : 11,
                     height: 1.4,
                   ),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
+          ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            icon: const Icon(Icons.close_rounded,
+                color: Colors.white24, size: 16),
+            onPressed: _dismissTipToday,
+            tooltip: 'Masquer',
           ),
         ],
       ),
     );
   }
-
-  Color _hexToColor(String hex) => DinoHelpers.hexToColor(hex);
 }

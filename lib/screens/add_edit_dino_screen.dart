@@ -1314,6 +1314,7 @@ class _AddEditDinoScreenState extends State<AddEditDinoScreen> {
                 style: style.copyWith(fontSize: fontSize),
               ),
               maxLines: 1,
+              textDirection: TextDirection.ltr,
             )..layout();
             if (tp.width <= constraints.maxWidth &&
                 tp.height <= constraints.maxHeight) {

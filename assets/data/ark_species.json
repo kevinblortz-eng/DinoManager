@@ -3356,8 +3356,8 @@
       "regions": [
         true,
         false,
-        false,
-        false,
+        true,
+        true,
         true,
         true
       ],
@@ -3385,8 +3385,8 @@
       "regions": [
         true,
         false,
-        false,
-        false,
+        true,
+        true,
         true,
         true
       ],
@@ -7452,9 +7452,9 @@
       "mask": true,
       "regions": [
         true,
-        false,
         true,
-        false,
+        true,
+        true,
         true,
         true
       ],
