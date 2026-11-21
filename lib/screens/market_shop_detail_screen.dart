@@ -1,13 +1,21 @@
 // market_shop_detail_screen.dart — Détail d'un shop : listings cryo.
-// Gestes : swipe droite = supprimer · swipe gauche = vendu (puis re-swipe
-// gauche sur un vendu = remise en vente, nouveau cycle 30 j).
+// Style tuile proche des commandes : image dino + couleurs, espèce + nom,
+// prix (monnaie globale), timer dépop modifiable unitairement.
+// Gestes : double-tap = DUPLIQUER · appui long = MODIFIER
+//          swipe ← = supprimer (dialog) · swipe → = vendu (re-swipe → = remise en vente).
+// NOTE : aucun DropdownButtonFormField — Flutter 3.50 a cassé la sélection
+// interne des dropdowns (value: déprécié = sémantique initialValue:).
+// Tous les choix Type/Sexe passent par des chips à choix direct.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/market.dart';
 import '../providers/market_provider.dart';
+import '../providers/dino_provider.dart';
+import '../providers/currency_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/dino_picker_sheet.dart';
+import '../widgets/dino_image_widget.dart';
 import 'market_shop_edit_screen.dart';
 
 class MarketShopDetailScreen extends StatefulWidget {
@@ -19,15 +27,23 @@ class MarketShopDetailScreen extends StatefulWidget {
 }
 
 class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
+  // ═══════════════════════════════════════════════════════
+  // ACTIONS
+  // ═══════════════════════════════════════════════════════
+
   void _confirmDelete(MarketListing listing) {
+    // Capture du provider AVANT le dialog : aucune dépendance au context
+    // à l'intérieur du builder (immunisé aux async gaps).
+    final market = context.read<MarketProvider>();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1C2333),
+        backgroundColor: AppTheme.bgCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Supprimer le dino ?',
             style: TextStyle(color: Colors.white, fontSize: 17)),
         content: Text(
-          '${listing.espece} sera retiré du suivi définitivement.',
+          '${listing.espece} sera retiré du shop définitivement.',
           style: const TextStyle(color: Colors.white70, fontSize: 13.5),
         ),
         actions: [
@@ -38,7 +54,7 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              context.read<MarketProvider>().deleteListing(listing.id);
+              market.deleteListing(listing.id);
             },
             child: const Text('Supprimer',
                 style: TextStyle(color: Color(0xFFEF4444))),
@@ -48,160 +64,232 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
     );
   }
 
+  void _duplicate(MarketListing listing) {
+    final market = context.read<MarketProvider>();
+    market.duplicateListing(listing.id);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${listing.espece} dupliqué — nouveau timer démarré.'),
+        backgroundColor: AppTheme.bgCard,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // CHIPS — Type / Sexe (remplace les dropdowns cassés)
+  // ═══════════════════════════════════════════════════════
+
+  Widget _typeChips(ListingType current, void Function(ListingType) onSelect) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: ListingType.values.where((t) => t != ListingType.aucun).map((t) {
+        final active = t == current;
+        return GestureDetector(
+          onTap: () => onSelect(t),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: active
+                  ? AppTheme.accentPrimary.withValues(alpha: 0.18)
+                  : AppTheme.bgPrimary,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: active
+                    ? AppTheme.accentPrimary
+                    : Colors.white24,
+                width: active ? 1.5 : 1,
+              ),
+            ),
+            child: Text(
+              t.label,
+              style: TextStyle(
+                color: active ? AppTheme.accentPrimary : Colors.white70,
+                fontSize: 12.5,
+                fontWeight: active ? FontWeight.w800 : FontWeight.w500,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _sexeChips(ListingSexe current, void Function(ListingSexe) onSelect) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: ListingSexe.values.map((s) {
+        final active = s == current;
+        return GestureDetector(
+          onTap: () => onSelect(s),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: active
+                  ? Colors.cyanAccent.withValues(alpha: 0.15)
+                  : AppTheme.bgPrimary,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: active ? Colors.cyanAccent : Colors.white24,
+                width: active ? 1.5 : 1,
+              ),
+            ),
+            child: Text(
+              s.label,
+              style: TextStyle(
+                color: active ? Colors.cyanAccent : Colors.white70,
+                fontSize: 12.5,
+                fontWeight: active ? FontWeight.w800 : FontWeight.w500,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // SHEET — Modifier un listing (prix, type, sexe, timer)
+  // ═══════════════════════════════════════════════════════
   void _openEditSheet(MarketListing listing) {
+    final market = context.read<MarketProvider>();
+    final currency = context.read<CurrencyProvider>().defaultCurrency;
     final priceCtrl =
         TextEditingController(text: listing.price.toStringAsFixed(0));
     // Valeurs de travail locales : les modifications ne sont écrites que
-    // sur "Enregistrer" et le StatefulBuilder les rebuild correctement.
+    // sur "Enregistrer".
     DateTime deadline = listing.deadline;
     ListingType editType = listing.type;
     ListingSexe editSexe = listing.sexe;
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1C2333),
+      backgroundColor: AppTheme.bgCard,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Padding(
+      builder: (sheetCtx) => StatefulBuilder(
+        builder: (sheetCtx, setSheetState) => Padding(
           padding: EdgeInsets.fromLTRB(
-              20, 20, 20, 20 + MediaQuery.of(ctx).viewInsets.bottom),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Modifier le listing',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800)),
-              const SizedBox(height: 16),
-              TextField(
-                controller: priceCtrl,
-                keyboardType: TextInputType.number,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Prix (hexagones)',
-                  labelStyle: TextStyle(color: Colors.white54),
-                  enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white24)),
-                  prefixIcon: Icon(Icons.hexagon_outlined,
-                      color: AppTheme.accentPrimary),
-                ),
-              ),
-              const SizedBox(height: 12),
-              // ── Type + Sexe ──────────────────────────────────────
-              Row(children: [
-                Expanded(
-                  child: DropdownButtonFormField<ListingType>(
-                    initialValue: listing.type,
-                    dropdownColor: const Color(0xFF1C2333),
-                    decoration: const InputDecoration(
-                      labelText: 'Type',
-                      labelStyle: TextStyle(color: Colors.white54),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white24)),
+              20, 20, 20, 20 + MediaQuery.of(sheetCtx).viewInsets.bottom),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Modifier le listing',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800)),
+                const SizedBox(height: 16),
+                // ── Prix ──────────────────────────────────────────
+                TextField(
+                  controller: priceCtrl,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Prix (${currency.name})',
+                    labelStyle: const TextStyle(color: Colors.white54),
+                    enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white24)),
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: _CurrencyIcon(
+                          iconPath: currency.iconPath, size: 20),
                     ),
-                    items: ListingType.values
-                        .map((t) => DropdownMenuItem(
-                            value: t,
-                            child: Text(t.label,
-                                style:
-                                    const TextStyle(color: Colors.white))))
-                        .toList(),
-                    onChanged: (v) =>
-                        setSheetState(() => editType = v ?? editType),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: DropdownButtonFormField<ListingSexe>(
-                    initialValue: listing.sexe,
-                    dropdownColor: const Color(0xFF1C2333),
-                    decoration: const InputDecoration(
-                      labelText: 'Sexe',
-                      labelStyle: TextStyle(color: Colors.white54),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white24)),
-                    ),
-                    items: ListingSexe.values
-                        .map((s) => DropdownMenuItem(
-                            value: s,
-                            child: Text(s.label,
-                                style:
-                                    const TextStyle(color: Colors.white))))
-                        .toList(),
-                    onChanged: (v) =>
-                        setSheetState(() => editSexe = v ?? editSexe),
-                  ),
-                ),
-              ]),
-              const SizedBox(height: 12),
-              // ── Deadline ─────────────────────────────────────────
-              InkWell(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: ctx,
-                    initialDate: deadline,
-                    firstDate: DateTime.now().subtract(const Duration(days: 60)),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
-                  );
-                  if (picked != null) {
-                    setSheetState(() => deadline = picked);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white24),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Row(children: [
-                    const Icon(Icons.timer_outlined,
-                        color: AppTheme.accentPrimary, size: 20),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Dépop : ${deadline.day}/${deadline.month}/${deadline.year}'
-                      '  (${deadline.difference(DateTime.now()).inDays} j)',
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 13),
-                    ),
-                    const Spacer(),
-                    const Icon(Icons.edit_calendar_outlined,
-                        color: Colors.white38, size: 18),
-                  ]),
-                ),
-              ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.accentPrimary),
-                  onPressed: () {
-                    listing.price =
-                        double.tryParse(priceCtrl.text.replaceAll(',', '.')) ??
-                            listing.price;
-                    listing.deadline = deadline;
-                    listing.type = editType;
-                    listing.sexe = editSexe;
-                    context.read<MarketProvider>().updateListing(listing);
-                    Navigator.pop(ctx);
+                const SizedBox(height: 16),
+                // ── Type (chips — pas de dropdown) ─────────────────
+                const Text('Type',
+                    style: TextStyle(
+                        color: Colors.white54, fontSize: 12)),
+                const SizedBox(height: 8),
+                _typeChips(editType,
+                    (t) => setSheetState(() => editType = t)),
+                const SizedBox(height: 16),
+                // ── Sexe (chips — pas de dropdown) ─────────────────
+                const Text('Sexe',
+                    style: TextStyle(
+                        color: Colors.white54, fontSize: 12)),
+                const SizedBox(height: 8),
+                _sexeChips(editSexe,
+                    (s) => setSheetState(() => editSexe = s)),
+                const SizedBox(height: 16),
+                // ── Deadline (modifiable unitairement) ─────────────
+                InkWell(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: sheetCtx,
+                      initialDate: deadline,
+                      firstDate:
+                          DateTime.now().subtract(const Duration(days: 60)),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      setSheetState(() => deadline = picked);
+                    }
                   },
-                  child: const Text('Enregistrer',
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.w800)),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white24),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(children: [
+                      const Icon(Icons.timer_outlined,
+                          color: AppTheme.accentPrimary, size: 20),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Dépop : ${deadline.day}/${deadline.month}/${deadline.year}'
+                        '  (${deadline.difference(DateTime.now()).inDays} j)',
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 13),
+                      ),
+                      const Spacer(),
+                      const Icon(Icons.edit_calendar_outlined,
+                          color: Colors.white38, size: 18),
+                    ]),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.accentPrimary),
+                    onPressed: () {
+                      listing.price = double.tryParse(
+                              priceCtrl.text.replaceAll(',', '.')) ??
+                          listing.price;
+                      listing.deadline = deadline;
+                      listing.type = editType;
+                      listing.sexe = editSexe;
+                      market.updateListing(listing);
+                      Navigator.pop(sheetCtx);
+                    },
+                    child: const Text('Enregistrer',
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.w800)),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  // ═══════════════════════════════════════════════════════
+  // SHEET — Déposer (bibliothèque ou saisie manuelle)
+  // ═══════════════════════════════════════════════════════
   void _openAddSheet() {
     final market = context.read<MarketProvider>();
+    final currency = context.read<CurrencyProvider>().defaultCurrency;
     final shop = market.shopById(widget.shopId);
     if (shop == null) return;
 
@@ -217,14 +305,14 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF1C2333),
+      backgroundColor: AppTheme.bgCard,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Padding(
+      builder: (sheetCtx) => StatefulBuilder(
+        builder: (sheetCtx, setSheetState) => Padding(
           padding: EdgeInsets.fromLTRB(
-              20, 20, 20, 20 + MediaQuery.of(ctx).viewInsets.bottom),
+              20, 20, 20, 20 + MediaQuery.of(sheetCtx).viewInsets.bottom),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -244,7 +332,9 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap: () async {
-                      final result = await DinoPickerSheet.show(ctx);
+                      // Contexte de l'ÉCRAN (pas de la sheet) : le picker
+                      // s'ouvre par-dessus, retour via setSheetState.
+                      final result = await DinoPickerSheet.show(context);
                       if (result.isNotEmpty) {
                         setSheetState(() {
                           picked.clear();
@@ -323,14 +413,15 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
                       controller: priceCtrl,
                       keyboardType: TextInputType.number,
                       style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        labelText: 'Prix (hexagones)',
-                        labelStyle: TextStyle(color: Colors.white54),
-                        enabledBorder: OutlineInputBorder(
+                      decoration: InputDecoration(
+                        labelText: 'Prix (${currency.name})',
+                        labelStyle: const TextStyle(color: Colors.white54),
+                        enabledBorder: const OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.white24)),
                         prefixIcon: Padding(
                           padding: EdgeInsets.all(8),
-                          child: _HexIcon(size: 20),
+                          child: _CurrencyIcon(
+                              iconPath: currency.iconPath, size: 20),
                         ),
                       ),
                     ),
@@ -361,56 +452,24 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
                     ]),
                   ),
                 ]),
-                const SizedBox(height: 10),
-                Row(children: [
-                  Expanded(
-                    child: DropdownButtonFormField<ListingType>(
-                      value: type == ListingType.aucun ? null : type,
-                      hint: const Text('Aucun',
-                          style: TextStyle(color: Colors.white38)),
-                      dropdownColor: const Color(0xFF1C2333),
-                      decoration: const InputDecoration(
-                        labelText: 'Type',
-                        labelStyle: TextStyle(color: Colors.white54),
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white24)),
-                      ),
-                      items: ListingType.values
-                          .where((t) => t != ListingType.aucun)
-                          .map((t) => DropdownMenuItem(
-                              value: t,
-                              child: Text(t.label,
-                                  style:
-                                      const TextStyle(color: Colors.white))))
-                          .toList(),
-                      onChanged: (v) => setSheetState(() => type = v ?? type),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: DropdownButtonFormField<ListingSexe>(
-                      value: sexe,
-                      dropdownColor: const Color(0xFF1C2333),
-                      decoration: const InputDecoration(
-                        labelText: 'Sexe',
-                        labelStyle: TextStyle(color: Colors.white54),
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white24)),
-                      ),
-                      items: ListingSexe.values
-                          .map((s) => DropdownMenuItem(
-                              value: s,
-                              child: Text(s.label,
-                                  style: const TextStyle(color: Colors.white))))
-                          .toList(),
-                      onChanged: (v) => setSheetState(() => sexe = v ?? sexe),
-                    ),
-                  ),
-                ]),
+                const SizedBox(height: 14),
+                // ── Type (chips) ────────────────────────────────────
+                const Text('Type',
+                    style: TextStyle(
+                        color: Colors.white54, fontSize: 12)),
+                const SizedBox(height: 8),
+                _typeChips(type, (t) => setSheetState(() => type = t)),
+                const SizedBox(height: 14),
+                // ── Sexe (chips) ────────────────────────────────────
+                const Text('Sexe',
+                    style: TextStyle(
+                        color: Colors.white54, fontSize: 12)),
+                const SizedBox(height: 8),
+                _sexeChips(sexe, (s) => setSheetState(() => sexe = s)),
                 const SizedBox(height: 8),
                 Text(
                   'Timer cryo : ${ListingTypeExt.defaultDurationDaysFor(type)} jours'
-                  ' à partir du dépôt (modifiable plus tard).',
+                  ' à partir du dépôt (modifiable par tuile ensuite).',
                   style: const TextStyle(
                       color: Colors.white38, fontSize: 11.5),
                 ),
@@ -426,7 +485,7 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
                           shop.defaultPrice;
                       // 1) Dinos de la bibliothèque : 1 listing par dino
                       if (picked.isNotEmpty) {
-                        context.read<MarketProvider>().addListingsFromDinos(
+                        market.addListingsFromDinos(
                               shop.id,
                               picked,
                               price: price,
@@ -436,7 +495,7 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
                       // 2) Saisie manuelle (compatible avec les 2 en même temps)
                       final espece = especeCtrl.text.trim();
                       if (espece.isNotEmpty) {
-                        context.read<MarketProvider>().addListing(
+                        market.addListing(
                               MarketListing(
                                 shopId: shop.id,
                                 espece: espece,
@@ -449,7 +508,7 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
                             );
                       }
                       if (picked.isNotEmpty || espece.isNotEmpty) {
-                        Navigator.pop(ctx);
+                        Navigator.pop(sheetCtx);
                       }
                     },
                     child: const Text('Déposer',
@@ -465,6 +524,10 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
     );
   }
 
+  // ═══════════════════════════════════════════════════════
+  // BUILD
+  // ═══════════════════════════════════════════════════════
+
   Color _deadlineColor(int days) {
     if (days <= 0) return const Color(0xFFEF4444);
     if (days <= 4) return const Color(0xFFFF9800);
@@ -474,6 +537,14 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final market = context.watch<MarketProvider>();
+    final currency = context.watch<CurrencyProvider>().defaultCurrency;
+    final dinoProvider = context.watch<DinoProvider>();
+    // Index id → dino pour l'affichage image + couleurs sur les tuiles.
+    final dinoById = <int, dynamic>{
+      for (final d in dinoProvider.allDinos)
+        if (d.id != null) d.id!: d,
+    };
+
     final shop = market.shopById(widget.shopId);
 
     if (shop == null) {
@@ -517,22 +588,42 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFF161B22),
-              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color.withValues(alpha: 0.10),
+                  AppTheme.bgSecondary,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(color: color.withValues(alpha: 0.35)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _stat('${actives.length}', 'en vente'),
-                _stat(
-                    '${market.shopTotalValue(shop.id).toStringAsFixed(0)} ⬡',
-                    'valeur totale'),
+                _currencyStat(
+                  market.shopTotalValue(shop.id).toStringAsFixed(0),
+                  'valeur totale',
+                  currency.iconPath,
+                ),
                 _stat('${solds.length}', 'vendus'),
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
+
+          // ── Aide gestes ───────────────────────────────────────────
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            child: Text(
+              'Double-tap : dupliquer · Appui long : modifier · ← supprimer · → vendu',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white24, fontSize: 10.5),
+            ),
+          ),
+          const SizedBox(height: 6),
 
           // ── En vente ──────────────────────────────────────────────
           if (actives.isEmpty)
@@ -543,18 +634,20 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
                   style: TextStyle(color: Colors.white38, height: 1.5)),
             )
           else
-            ...actives.map((l) => _buildTile(context, market, l, color)),
+            ...actives.map((l) => _buildTile(
+                context, market, l, color, currency.iconPath, dinoById)),
 
           // ── Vendus (trace) ────────────────────────────────────────
           if (solds.isNotEmpty) ...[
             const SizedBox(height: 18),
-            Text('Vendus (${solds.length}) — swipe ← pour remettre en vente',
+            Text('Vendus (${solds.length}) — swipe → pour remettre en vente',
                 style: const TextStyle(
                     color: Colors.white38,
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
-            ...solds.map((l) => _buildTile(context, market, l, color)),
+            ...solds.map((l) => _buildTile(
+                context, market, l, color, currency.iconPath, dinoById)),
           ],
         ],
       ),
@@ -574,8 +667,34 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
         ],
       );
 
-  Widget _buildTile(BuildContext context, MarketProvider market,
-      MarketListing listing, Color shopColor) {
+  Widget _currencyStat(String value, String label, String iconPath) => Column(
+        children: [
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            _CurrencyIcon(iconPath: iconPath, size: 15),
+            const SizedBox(width: 5),
+            Text(value,
+                style: const TextStyle(
+                    color: AppTheme.accentPrimary,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800)),
+          ]),
+          const SizedBox(height: 2),
+          Text(label,
+              style: const TextStyle(color: Colors.white38, fontSize: 11)),
+        ],
+      );
+
+  // ═══════════════════════════════════════════════════════
+  // TUILE LISTING — style proche des commandes
+  // ═══════════════════════════════════════════════════════
+  Widget _buildTile(
+    BuildContext context,
+    MarketProvider market,
+    MarketListing listing,
+    Color shopColor,
+    String currencyIconPath,
+    Map<int, dynamic> dinoById,
+  ) {
     final now = DateTime.now();
     final days = listing.remainingDays(now);
     final isSold = listing.status == ListingStatus.vendu;
@@ -586,153 +705,176 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
       ListingType.clone => const Color(0xFFAB47BC),
       ListingType.adulte => const Color(0xFFFFB300),
     };
+    final accent = isSold ? AppTheme.success : typeColor;
+    final dino = listing.dinoId != null ? dinoById[listing.dinoId] : null;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 10),
       child: Dismissible(
         key: ValueKey(listing.id),
-        // ── Swipe droite → SUPPRIMER (confirmé) ──────────────────
+        // ── Swipe droite → VENDU (ou remise en vente si déjà vendu) ──
         background: Container(
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.only(left: 18),
           decoration: BoxDecoration(
-            color: const Color(0xFF7F1D1D),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(Icons.delete_outline, color: Colors.white),
-        ),
-        // ── Swipe gauche → VENDU / REMETTRE EN VENTE ─────────────
-        secondaryBackground: Container(
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 18),
-          decoration: BoxDecoration(
-            color: isSold ? const Color(0xFF1B5E20) : const Color(0xFF14532D),
-            borderRadius: BorderRadius.circular(10),
+            color: const Color(0xFF14532D),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
             isSold ? Icons.restart_alt : Icons.sell_outlined,
             color: Colors.white,
           ),
         ),
+        // ── Swipe gauche → SUPPRIMER (confirmé) ───────────────────
+        secondaryBackground: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 18),
+          decoration: BoxDecoration(
+            color: const Color(0xFF7F1D1D),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Icon(Icons.delete_outline, color: Colors.white),
+        ),
         confirmDismiss: (direction) async {
           if (direction == DismissDirection.startToEnd) {
-            _confirmDelete(listing);
-            return false; // suppression décidée dans le dialog
+            // Droite : vendu ↔ remise en vente (pas de confirmation)
+            if (isSold) {
+              market.relist(listing.id);
+            } else {
+              market.markSold(listing.id);
+            }
+            return false; // la tuile reste, l'état est géré par le provider
           }
-          // Gauche : vendu ↔ remise en vente (pas de confirmation)
-          if (isSold) {
-            market.relist(listing.id);
-          } else {
-            market.markSold(listing.id);
-          }
-          return false; // on garde la tuile (état géré par le provider)
+          // Gauche : suppression décidée dans le dialog
+          _confirmDelete(listing);
+          return false;
         },
         child: Opacity(
           opacity: isSold ? 0.55 : 1,
-          child: Material(
-            color: const Color(0xFF161B22),
-            borderRadius: BorderRadius.circular(10),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(10),
-              onTap: () => _openEditSheet(listing),
+          child: GestureDetector(
+            // Double-tap = DUPLIQUER · Appui long = MODIFIER
+            onDoubleTap: () => _duplicate(listing),
+            onLongPress: () => _openEditSheet(listing),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    accent.withValues(alpha: 0.10),
+                    AppTheme.bgSecondary,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: accent.withValues(alpha: 0.4),
+                  width: 1.2,
+                ),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(10),
-                child: Row(children: [
-                  // ── Prix hexagones ──────────────────────────────
-                  Container(
-                    width: 58,
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppTheme.accentPrimary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                          color:
-                              AppTheme.accentPrimary.withValues(alpha: 0.4)),
-                    ),
-                    child: Column(children: [
-                      const _HexIcon(size: 16),
-                      Text(
-                        listing.price.toStringAsFixed(0),
-                        style: const TextStyle(
-                            color: AppTheme.accentPrimary,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 13),
-                      ),
-                    ]),
-                  ),
-                  const SizedBox(width: 10),
-                  // ── Infos dino ──────────────────────────────────
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          listing.nom.isNotEmpty
-                              ? '${listing.espece} — ${listing.nom}'
-                              : listing.espece,
-                          style: TextStyle(
-                            color: isSold ? Colors.white38 : Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            decoration:
-                                isSold ? TextDecoration.lineThrough : null,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // ── Image dino + bandeau couleurs (ou fallback) ──
+                    dino != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: DinoCardImage(dino: dino, size: 52),
+                          )
+                        : Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: typeColor.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                  color: typeColor.withValues(alpha: 0.4)),
+                            ),
+                            child: Icon(Icons.hexagon_outlined,
+                                color: typeColor, size: 28),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Row(children: [
-                          _badge(listing.type.label, typeColor),
-                          const SizedBox(width: 5),
-                          if (listing.sexe != ListingSexe.indefini) ...[
-                            _badge(listing.sexe.label, Colors.white54),
-                            const SizedBox(width: 5),
-                          ],
-                          if (listing.timesSold > 0)
-                            Text('×${listing.timesSold} ventes',
-                                style: const TextStyle(
-                                    color: Colors.white38, fontSize: 10.5)),
-                        ]),
-                      ],
-                    ),
-                  ),
-                  // ── Deadline / statut ───────────────────────────
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      if (isSold)
-                        const Text('VENDU',
+                    const SizedBox(width: 12),
+                    // ── Bloc texte ──────────────────────────────────
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Ligne 1 : Espèce — Nom
+                          Text(
+                            listing.nom.isNotEmpty
+                                ? '${listing.espece} — ${listing.nom}'
+                                : listing.espece,
                             style: TextStyle(
-                                color: Color(0xFF4ADE80),
-                                fontWeight: FontWeight.w900,
-                                fontSize: 12,
-                                letterSpacing: 0.5))
-                      else ...[
-                        Text(
-                          days <= 0 ? 'EXPIRÉ' : '$days j',
-                          style: TextStyle(
-                            color: _deadlineColor(days),
-                            fontWeight: FontWeight.w900,
-                            fontSize: 14,
+                              color: isSold ? Colors.white38 : Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                              decoration: isSold
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${listing.deadline.day}/${listing.deadline.month}',
-                          style: const TextStyle(
-                              color: Colors.white38, fontSize: 10.5),
-                        ),
-                      ],
-                      if (isSold && listing.soldAt != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                            '${listing.soldAt!.day}/${listing.soldAt!.month}',
+                          const SizedBox(height: 6),
+                          // Ligne 2 : prix + badges
+                          Row(children: [
+                            _priceChip(listing.price, currencyIconPath),
+                            const SizedBox(width: 6),
+                            _badge(listing.type.label, typeColor),
+                            const SizedBox(width: 5),
+                            if (listing.sexe != ListingSexe.indefini)
+                              _badge(listing.sexe.label, Colors.white54),
+                            if (listing.timesSold > 0) ...[
+                              const Spacer(),
+                              Text('×${listing.timesSold} ventes',
+                                  style: const TextStyle(
+                                      color: Colors.white38, fontSize: 10.5)),
+                            ],
+                          ]),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // ── Timer / statut ──────────────────────────────
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        if (isSold)
+                          const Text('VENDU',
+                              style: TextStyle(
+                                  color: Color(0xFF4ADE80),
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 12,
+                                  letterSpacing: 0.5))
+                        else ...[
+                          Text(
+                            days <= 0 ? 'EXPIRÉ' : '$days j',
+                            style: TextStyle(
+                              color: _deadlineColor(days),
+                              fontWeight: FontWeight.w900,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${listing.deadline.day}/${listing.deadline.month}',
                             style: const TextStyle(
-                                color: Colors.white24, fontSize: 10)),
+                                color: Colors.white38, fontSize: 10.5),
+                          ),
+                        ],
+                        if (isSold && listing.soldAt != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                              '${listing.soldAt!.day}/${listing.soldAt!.month}',
+                              style: const TextStyle(
+                                  color: Colors.white24, fontSize: 10)),
+                        ],
                       ],
-                    ],
-                  ),
-                ]),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -740,6 +882,30 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
       ),
     );
   }
+
+  Widget _priceChip(double price, String currencyIconPath) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+              color: AppTheme.accentPrimary.withValues(alpha: 0.35)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CurrencyIcon(iconPath: currencyIconPath, size: 13),
+            const SizedBox(width: 4),
+            Text(
+              price.toStringAsFixed(0),
+              style: const TextStyle(
+                  color: AppTheme.accentPrimary,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12.5),
+            ),
+          ],
+        ),
+      );
 
   Widget _badge(String label, Color color) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -754,20 +920,21 @@ class _MarketShopDetailScreenState extends State<MarketShopDetailScreen> {
       );
 }
 
-/// Icône hexagone du jeu (assets/icons/currencies/Hex.png),
-/// avec fallback sur l'icône Material si l'asset est absent.
-class _HexIcon extends StatelessWidget {
+/// Icône de la monnaie globale de l'app (CurrencyProvider).
+/// Affiche l'asset configuré (ex. Hexagon) avec fallback Material.
+class _CurrencyIcon extends StatelessWidget {
+  final String iconPath;
   final double size;
-  const _HexIcon({required this.size});
+  const _CurrencyIcon({required this.iconPath, required this.size});
 
   @override
   Widget build(BuildContext context) {
     return Image.asset(
-      'assets/icons/currencies/Hex.png',
+      iconPath,
       width: size,
       height: size,
-      errorBuilder: (_, __, ___) =>
-          Icon(Icons.hexagon, color: AppTheme.accentPrimary, size: size),
+      errorBuilder: (_, __, ___) => Icon(Icons.hexagon,
+          color: AppTheme.accentPrimary, size: size),
     );
   }
 }

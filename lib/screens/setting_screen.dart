@@ -45,8 +45,6 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth >= 600;
 
     return Consumer4<DinoProvider, TrackerProvider, TagThemeProvider,
         RoleThemeProvider>(
@@ -69,55 +67,98 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
         usedTags.addAll(Dino.tagsParDefaut);
         final sortedTags = usedTags.toList()..sort();
 
-        final hPad = isTablet ? 32.0 : 20.0;
-
         return Scaffold(
           backgroundColor: AppTheme.bgPrimary,
           body: SafeArea(
             child: ListView(
-              padding:
-                  EdgeInsets.symmetric(horizontal: hPad, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               children: [
                 // ── Header ──
                 _buildHeader(l10n),
-                const SizedBox(height: 24),
-
-                // ── Langue ──
-                _buildLanguageSection(context, l10n, languageProvider),
                 const SizedBox(height: 20),
 
-                // ── Sauvegarde ──
-                _buildBackupSection(context, l10n),
-                const SizedBox(height: 20),
-
-                // ── Bestiaire ──
-                _buildBestiaryStats(
-                  context,
-                  l10n: l10n,
-                  totalDinos: totalDinos,
-                  totalSpecies: totalSpecies,
-                  totalTrackers: totalTrackers,
-                  totalAvailableSpecies: totalAvailableSpecies,
-                  speciesProgress: speciesProgress,
+                // ── Menu direct : Langue ──
+                _SettingsRow(
+                  icon: Icons.language_rounded,
+                  iconColor: Colors.greenAccent,
+                  title: l10n.settingsLanguage,
+                  subtitle:
+                      '${languageProvider.currentLanguageInfo['flag']}  ${languageProvider.currentLanguageInfo['label']}',
+                  onTap: () => _showLanguageSheet(context, l10n),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
 
-                // ── Tags ──
-                _buildTagsSection(
-                    context, l10n, sortedTags, tagThemeProvider, dinoProvider),
-                const SizedBox(height: 20),
+                // ── Menu direct : Sauvegardes ──
+                _SettingsRow(
+                  icon: Icons.settings_backup_restore_rounded,
+                  iconColor: Colors.blueAccent,
+                  title: l10n.settingsBackup,
+                  subtitle: l10n.backupManage,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BackupScreen()),
+                  ),
+                ),
+                const SizedBox(height: 12),
 
-                // ── Thèmes rôles ──
-                _buildRoleThemesSection(context, l10n, roleThemeProvider),
-                const SizedBox(height: 20),
+                // ── Sections encapsulées (fermées par défaut) ──
+                _CollapsibleSection(
+                  icon: Icons.bar_chart_rounded,
+                  iconColor: Colors.orangeAccent,
+                  title: l10n.settingsBestiary,
+                  initiallyExpanded: false,
+                  child: _buildBestiaryStats(
+                    context,
+                    l10n: l10n,
+                    totalDinos: totalDinos,
+                    totalSpecies: totalSpecies,
+                    totalTrackers: totalTrackers,
+                    totalAvailableSpecies: totalAvailableSpecies,
+                    speciesProgress: speciesProgress,
+                  ),
+                ),
+                const SizedBox(height: 12),
 
-                // ── OCR / Gemini ──
-                _buildGeminiSection(context, l10n),
-                const SizedBox(height: 20),
+                _CollapsibleSection(
+                  icon: Icons.label_rounded,
+                  iconColor: Colors.purpleAccent,
+                  title: l10n.settingsTags,
+                  subtitle: l10n.tagsTapToChange,
+                  initiallyExpanded: false,
+                  child: _buildTagsSection(
+                      context, l10n, sortedTags, tagThemeProvider, dinoProvider),
+                ),
+                const SizedBox(height: 12),
 
-                // ── Actualités ──
-                _buildNewsSection(l10n),
-                const SizedBox(height: 20),
+                _CollapsibleSection(
+                  icon: Icons.style_rounded,
+                  iconColor: Colors.amberAccent,
+                  title: l10n.settingsRoleThemes,
+                  subtitle: l10n.roleThemesTapHint,
+                  initiallyExpanded: false,
+                  child:
+                      _buildRoleThemesSection(context, l10n, roleThemeProvider),
+                ),
+                const SizedBox(height: 12),
+
+                _CollapsibleSection(
+                  icon: Icons.auto_awesome_rounded,
+                  iconColor: const Color(0xFF4285F4),
+                  title: l10n.settingsGemini,
+                  subtitle: _getGeminiSubtitle(l10n),
+                  initiallyExpanded: false,
+                  child: _buildGeminiSection(context, l10n),
+                ),
+                const SizedBox(height: 12),
+
+                _CollapsibleSection(
+                  icon: Icons.newspaper_rounded,
+                  iconColor: Colors.cyanAccent,
+                  title: l10n.settingsNews,
+                  initiallyExpanded: false,
+                  child: _buildNewsSection(l10n),
+                ),
+                const SizedBox(height: 12),
 
                 // ── Version ──
                 _buildVersionFooter(context, l10n),
@@ -189,203 +230,149 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC — Langue (en premier pour logique UX)
+  // BOTTOM SHEET — Choix unique de langue
   // ═══════════════════════════════════════════════════════
-  Widget _buildLanguageSection(
-    BuildContext context,
-    AppLocalizations l10n,
-    LanguageProvider languageProvider,
-  ) {
+  void _showLanguageSheet(BuildContext context, AppLocalizations l10n) {
     final langs = LanguageProvider.supportedLanguages;
-    final activeCode = languageProvider.currentCode;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth >= 600;
 
-    return _SectionCard(
-      icon: Icons.language_rounded,
-      iconColor: Colors.greenAccent,
-      title: l10n.settingsLanguage,
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: Colors.greenAccent.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.3)),
-        ),
-        child: Text(
-          '${langs.length} ${l10n.settingsLanguage.toLowerCase()}s',
-          style: GoogleFonts.exo2(
-            color: Colors.greenAccent,
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-      subtitle: l10n.languageSelectorSubtitle,
-      child: isTablet
-          ? _buildLanguageGrid(langs, activeCode, languageProvider, l10n)
-          : _buildLanguageList(langs, activeCode, languageProvider, l10n),
-    );
-  }
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Consumer<LanguageProvider>(
+          builder: (context, languageProvider, _) {
+            final activeCode = languageProvider.currentCode;
 
-  Widget _buildLanguageList(
-    List<Map<String, String>> langs,
-    String activeCode,
-    LanguageProvider languageProvider,
-    AppLocalizations l10n,
-  ) {
-    return Column(
-      children: langs.map((lang) {
-        final code = lang['code']!;
-        final label = lang['label']!;
-        final flag = lang['flag']!;
-        final isActive = code == activeCode;
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: _LanguageTile(
-            code: code,
-            label: label,
-            flag: flag,
-            isActive: isActive,
-            activeLabel: l10n.languageActive,
-            onTap: () => languageProvider.setLocale(code),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildLanguageGrid(
-    List<Map<String, String>> langs,
-    String activeCode,
-    LanguageProvider languageProvider,
-    AppLocalizations l10n,
-  ) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      childAspectRatio: 4,
-      children: langs.map((lang) {
-        final code = lang['code']!;
-        final label = lang['label']!;
-        final flag = lang['flag']!;
-        final isActive = code == activeCode;
-
-        return _LanguageTile(
-          code: code,
-          label: label,
-          flag: flag,
-          isActive: isActive,
-          activeLabel: l10n.languageActive,
-          onTap: () => languageProvider.setLocale(code),
-        );
-      }).toList(),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // BLOC — Sauvegarde
-  // ═══════════════════════════════════════════════════════
-  Widget _buildBackupSection(BuildContext context, AppLocalizations l10n) {
-    return _SectionCard(
-      icon: Icons.cloud_rounded,
-      iconColor: Colors.blueAccent,
-      title: l10n.settingsBackup,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blueAccent.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                  color: Colors.blueAccent.withValues(alpha: 0.2)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('☁️', style: TextStyle(fontSize: 20)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.backupAutoActive,
-                        style: GoogleFonts.exo2(
-                          color: Colors.blueAccent,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
+            return Container(
+              decoration: const BoxDecoration(
+                color: AppTheme.bgSecondary,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Handle
+                    Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(top: 12, bottom: 10),
+                      decoration: BoxDecoration(
+                        color: AppTheme.borderColor,
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                      const SizedBox(height: 3),
-                      Text(
-                        l10n.backupAutoDesc,
-                        style: GoogleFonts.exo2(
-                          color: AppTheme.textSecondary,
-                          fontSize: 10,
-                          height: 1.4,
-                        ),
+                    ),
+                    // Titre
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.language_rounded,
+                              color: Colors.greenAccent, size: 18),
+                          const SizedBox(width: 10),
+                          Text(
+                            l10n.languageSelectorTitle,
+                            style: GoogleFonts.exo2(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const BackupScreen()),
-            ),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.blueAccent.withValues(alpha: 0.15),
-                    Colors.blueAccent.withValues(alpha: 0.05),
+                    ),
+                    const SizedBox(height: 8),
+                    // Liste à choix unique
+                    Flexible(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                        itemCount: langs.length,
+                        itemBuilder: (context, index) {
+                          final lang = langs[index];
+                          final code = lang['code']!;
+                          final isActive = code == activeCode;
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pop(sheetContext);
+                                languageProvider.setLocale(code);
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: isActive
+                                      ? Colors.greenAccent
+                                          .withValues(alpha: 0.08)
+                                      : AppTheme.bgCard,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isActive
+                                        ? Colors.greenAccent
+                                            .withValues(alpha: 0.5)
+                                        : AppTheme.borderColor,
+                                    width: isActive ? 1.5 : 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(lang['flag']!,
+                                        style:
+                                            const TextStyle(fontSize: 22)),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Text(
+                                        lang['label']!,
+                                        style: GoogleFonts.exo2(
+                                          color: isActive
+                                              ? Colors.white
+                                              : AppTheme.textSecondary,
+                                          fontSize: 14,
+                                          fontWeight: isActive
+                                              ? FontWeight.w700
+                                              : FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    if (isActive)
+                                      Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.greenAccent
+                                              .withValues(alpha: 0.15),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                              color: Colors.greenAccent
+                                                  .withValues(alpha: 0.4)),
+                                        ),
+                                        child: const Icon(Icons.check_rounded,
+                                            color: Colors.greenAccent,
+                                            size: 12),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                    color: Colors.blueAccent.withValues(alpha: 0.3)),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.settings_backup_restore_rounded,
-                      color: Colors.blueAccent, size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n.backupManage,
-                    style: GoogleFonts.exo2(
-                      color: Colors.blueAccent,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Icon(Icons.arrow_forward_ios_rounded,
-                      color: Colors.blueAccent.withValues(alpha: 0.6),
-                      size: 11),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC — Bestiaire
+  // BLOC — Bestiaire (contenu, encapsulé)
   // ═══════════════════════════════════════════════════════
   Widget _buildBestiaryStats(
     BuildContext context, {
@@ -398,64 +385,58 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }) {
     final percent = (speciesProgress * 100).toStringAsFixed(0);
 
-    return _SectionCard(
-      icon: Icons.bar_chart_rounded,
-      iconColor: Colors.orangeAccent,
-      title: l10n.settingsBestiary,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              _buildStatLine(Icons.loyalty_rounded, l10n.bestiaryDinoCards,
-                  '$totalDinos', AppTheme.accentPrimary),
-              _buildStatDivider(),
-              _buildStatLine(Icons.pets_rounded, l10n.bestiaryTrackers,
-                  '$totalTrackers', Colors.cyanAccent),
-              _buildStatDivider(),
-              _buildStatLine(Icons.military_tech_rounded,
-                  l10n.bestiarySpecies, '$totalSpecies', Colors.orangeAccent),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Icon(Icons.explore_rounded,
-                  color: Colors.orangeAccent.withValues(alpha: 0.6), size: 13),
-              const SizedBox(width: 6),
-              Text(
-                l10n.bestiaryArkBestiary,
-                style: GoogleFonts.exo2(
-                  color: AppTheme.textMuted,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                ),
+    return Column(
+      children: [
+        Row(
+          children: [
+            _buildStatLine(Icons.loyalty_rounded, l10n.bestiaryDinoCards,
+                '$totalDinos', AppTheme.accentPrimary),
+            _buildStatDivider(),
+            _buildStatLine(Icons.pets_rounded, l10n.bestiaryTrackers,
+                '$totalTrackers', Colors.cyanAccent),
+            _buildStatDivider(),
+            _buildStatLine(Icons.military_tech_rounded,
+                l10n.bestiarySpecies, '$totalSpecies', Colors.orangeAccent),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Icon(Icons.explore_rounded,
+                color: Colors.orangeAccent.withValues(alpha: 0.6), size: 13),
+            const SizedBox(width: 6),
+            Text(
+              l10n.bestiaryArkBestiary,
+              style: GoogleFonts.exo2(
+                color: AppTheme.textMuted,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
               ),
-              const Spacer(),
-              Text(
-                l10n.bestiarySpeciesCount(totalSpecies, totalAvailableSpecies),
-                style:
-                    GoogleFonts.exo2(color: AppTheme.textMuted, fontSize: 10),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: speciesProgress,
-              minHeight: 10,
-              backgroundColor: Colors.white.withValues(alpha: 0.06),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
             ),
+            const Spacer(),
+            Text(
+              l10n.bestiarySpeciesCount(totalSpecies, totalAvailableSpecies),
+              style: GoogleFonts.exo2(color: AppTheme.textMuted, fontSize: 10),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(
+            value: speciesProgress,
+            minHeight: 10,
+            backgroundColor: Colors.white.withValues(alpha: 0.06),
+            valueColor:
+                const AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
           ),
-          const SizedBox(height: 6),
-          Text(
-            l10n.bestiaryDiscovered(percent),
-            style: GoogleFonts.exo2(color: AppTheme.textMuted, fontSize: 10),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          l10n.bestiaryDiscovered(percent),
+          style: GoogleFonts.exo2(color: AppTheme.textMuted, fontSize: 10),
+        ),
+      ],
     );
   }
 
@@ -493,7 +474,7 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC — Tags
+  // BLOC — Tags (contenu, encapsulé)
   // ═══════════════════════════════════════════════════════
   Widget _buildTagsSection(
     BuildContext context,
@@ -504,12 +485,13 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   ) {
     final customCount = tagThemeProvider.tagColors.length;
 
-    return _SectionCard(
-      icon: Icons.label_rounded,
-      iconColor: Colors.purpleAccent,
-      title: l10n.settingsTags,
-      trailing: customCount > 0
-          ? GestureDetector(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (customCount > 0)
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
               onTap: () =>
                   _confirmResetAllTags(context, l10n, tagThemeProvider),
               child: Container(
@@ -530,119 +512,115 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                   ),
                 ),
               ),
-            )
-          : null,
-      subtitle: l10n.tagsTapToChange,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 10,
-            children: sortedTags.map((tag) {
-              final customHex = tagThemeProvider.hexForTag(tag);
-              final color = customHex != null
-                  ? _hexToColor(customHex)
-                  : _defaultTagColor(tag);
-              final isCustom = customHex != null;
-              final count = dinoProvider.allDinos
-                  .where((d) => d.tags.contains(tag))
-                  .length;
+            ),
+          ),
+        if (customCount > 0) const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 10,
+          children: sortedTags.map((tag) {
+            final customHex = tagThemeProvider.hexForTag(tag);
+            final color = customHex != null
+                ? _hexToColor(customHex)
+                : _defaultTagColor(tag);
+            final isCustom = customHex != null;
+            final count = dinoProvider.allDinos
+                .where((d) => d.tags.contains(tag))
+                .length;
 
-              return GestureDetector(
-                onTap: () => _openTagColorPicker(
-                    context, tag, customHex, tagThemeProvider),
-                onLongPress:
-                    isCustom ? () => tagThemeProvider.removeTagColor(tag) : null,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color:
-                          color.withValues(alpha: isCustom ? 0.6 : 0.3),
-                      width: isCustom ? 1.5 : 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          boxShadow: isCustom
-                              ? [
-                                  BoxShadow(
-                                    color: color.withValues(alpha: 0.5),
-                                    blurRadius: 4,
-                                    spreadRadius: 1,
-                                  )
-                                ]
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        tag,
-                        style: GoogleFonts.exo2(
-                          color: color,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      if (count > 0) ...[
-                        const SizedBox(width: 5),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '$count',
-                            style: GoogleFonts.exo2(
-                              color: color.withValues(alpha: 0.9),
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ],
-                      if (isCustom) ...[
-                        const SizedBox(width: 4),
-                        Icon(Icons.colorize_rounded,
-                            color: color.withValues(alpha: 0.7), size: 10),
-                      ],
-                    ],
+            return GestureDetector(
+              onTap: () => _openTagColorPicker(
+                  context, tag, customHex, tagThemeProvider),
+              onLongPress:
+                  isCustom ? () => tagThemeProvider.removeTagColor(tag) : null,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color:
+                        color.withValues(alpha: isCustom ? 0.6 : 0.3),
+                    width: isCustom ? 1.5 : 1,
                   ),
                 ),
-              );
-            }).toList(),
-          ),
-          if (customCount > 0) ...[
-            const SizedBox(height: 10),
-            Text(
-              l10n.tagsLongPressReset,
-              style: GoogleFonts.exo2(
-                color: AppTheme.textMuted.withValues(alpha: 0.6),
-                fontSize: 9,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        boxShadow: isCustom
+                            ? [
+                                BoxShadow(
+                                  color: color.withValues(alpha: 0.5),
+                                  blurRadius: 4,
+                                  spreadRadius: 1,
+                                )
+                              ]
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      tag,
+                      style: GoogleFonts.exo2(
+                        color: color,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (count > 0) ...[
+                      const SizedBox(width: 5),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '$count',
+                          style: GoogleFonts.exo2(
+                            color: color.withValues(alpha: 0.9),
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (isCustom) ...[
+                      const SizedBox(width: 4),
+                      Icon(Icons.colorize_rounded,
+                          color: color.withValues(alpha: 0.7), size: 10),
+                    ],
+                  ],
+                ),
               ),
+            );
+          }).toList(),
+        ),
+        if (customCount > 0) ...[
+          const SizedBox(height: 10),
+          Text(
+            l10n.tagsLongPressReset,
+            style: GoogleFonts.exo2(
+              color: AppTheme.textMuted.withValues(alpha: 0.6),
+              fontSize: 9,
             ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC — Thèmes par rôle
+  // BLOC — Thèmes par rôle (contenu, encapsulé)
   // ═══════════════════════════════════════════════════════
   Widget _buildRoleThemesSection(
     BuildContext context,
@@ -652,12 +630,12 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
     final roles = RoleThemeDefaults.defaults.keys.toList();
     final hasAnyCustom = roles.any((r) => roleThemeProvider.hasCustomTheme(r));
 
-    return _SectionCard(
-      icon: Icons.style_rounded,
-      iconColor: Colors.amberAccent,
-      title: l10n.settingsRoleThemes,
-      trailing: hasAnyCustom
-          ? GestureDetector(
+    return Column(
+      children: [
+        if (hasAnyCustom)
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
               onTap: () =>
                   _confirmResetAllRoles(context, l10n, roleThemeProvider),
               child: Container(
@@ -678,298 +656,292 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
                   ),
                 ),
               ),
-            )
-          : null,
-      subtitle: l10n.roleThemesTapHint,
-      child: Column(
-        children: [
-          ...roles
-              .where((r) => !roleThemeProvider.isDefaultDeleted(r))
-              .map((role) {
-            final theme = roleThemeProvider.themeForRole(role);
-            final isCustom = roleThemeProvider.hasCustomTheme(role);
+            ),
+          ),
+        if (hasAnyCustom) const SizedBox(height: 8),
+        ...roles
+            .where((r) => !roleThemeProvider.isDefaultDeleted(r))
+            .map((role) {
+          final theme = roleThemeProvider.themeForRole(role);
+          final isCustom = roleThemeProvider.hasCustomTheme(role);
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.background.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: theme.border
-                        .withValues(alpha: isCustom ? 0.6 : 0.3),
-                    width: isCustom ? 1.5 : 1,
-                  ),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: theme.background.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: theme.border
+                      .withValues(alpha: isCustom ? 0.6 : 0.3),
+                  width: isCustom ? 1.5 : 1,
                 ),
-                child: Row(
-                  children: [
-                    _buildColorDot(theme.background,
-                        tooltip: l10n.roleThemesBackground),
-                    const SizedBox(width: 4),
-                    _buildColorDot(theme.border,
-                        tooltip: l10n.roleThemesBorder),
-                    const SizedBox(width: 4),
-                    _buildColorDot(theme.text,
-                        tooltip: l10n.roleThemesText),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Text(
+              ),
+              child: Row(
+                children: [
+                  _buildColorDot(theme.background,
+                      tooltip: l10n.roleThemesBackground),
+                  const SizedBox(width: 4),
+                  _buildColorDot(theme.border,
+                      tooltip: l10n.roleThemesBorder),
+                  const SizedBox(width: 4),
+                  _buildColorDot(theme.text,
+                      tooltip: l10n.roleThemesText),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
                             role,
+                            overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.exo2(
                               color: theme.text,
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          if (isCustom) ...[
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 1),
-                              decoration: BoxDecoration(
-                                color: theme.border.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                l10n.roleThemesPreview,
-                                style: GoogleFonts.exo2(
-                                  color: theme.border,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
+                        ),
+                        if (isCustom) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: theme.border.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(4),
                             ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (isCustom)
-                          GestureDetector(
-                            onTap: () =>
-                                roleThemeProvider.resetToDefault(role),
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              margin: const EdgeInsets.only(right: 6),
-                              decoration: BoxDecoration(
-                                color:
-                                    AppTheme.danger.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                    color: AppTheme.danger
-                                        .withValues(alpha: 0.3)),
+                            child: Text(
+                              l10n.roleThemesPreview,
+                              style: GoogleFonts.exo2(
+                                color: theme.border,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
                               ),
-                              child: const Icon(Icons.refresh_rounded,
-                                  color: AppTheme.danger, size: 12),
                             ),
                           ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isCustom)
                         GestureDetector(
-                          onTap: () => _openRoleThemeEditor(
-                              context, l10n, role, theme, roleThemeProvider),
+                          onTap: () =>
+                              roleThemeProvider.resetToDefault(role),
                           child: Container(
                             padding: const EdgeInsets.all(5),
+                            margin: const EdgeInsets.only(right: 6),
                             decoration: BoxDecoration(
-                              color: Colors.amberAccent.withValues(alpha: 0.1),
+                              color:
+                                  AppTheme.danger.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(
-                                  color: Colors.amberAccent
+                                  color: AppTheme.danger
                                       .withValues(alpha: 0.3)),
                             ),
-                            child: const Icon(Icons.edit_rounded,
-                                color: Colors.amberAccent, size: 12),
+                            child: const Icon(Icons.refresh_rounded,
+                                color: AppTheme.danger, size: 12),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
-          Text(
-            '${l10n.confirmReset} custom  •  ${l10n.confirmDelete} default',
-            style: GoogleFonts.exo2(
-              color: AppTheme.textMuted.withValues(alpha: 0.5),
-              fontSize: 9,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // BLOC — OCR / Gemini IA
-  // ═══════════════════════════════════════════════════════
-  Widget _buildGeminiSection(BuildContext context, AppLocalizations l10n) {
-    return Consumer<GeminiProvider>(
-      builder: (context, gemini, _) {
-        return _SectionCard(
-          icon: Icons.auto_awesome_rounded,
-          iconColor: const Color(0xFF4285F4),
-          title: l10n.settingsGemini,
-          subtitle: _getGeminiSubtitle(l10n),
-          child: Column(
-            children: [
-              // Info quota
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4285F4).withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                      color: const Color(0xFF4285F4).withValues(alpha: 0.2)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('🤖', style: TextStyle(fontSize: 18)),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Gemini 2.0 Flash — Free',
-                            style: GoogleFonts.exo2(
-                              color: const Color(0xFF4285F4),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
+                      GestureDetector(
+                        onTap: () => _openRoleThemeEditor(
+                            context, l10n, role, theme, roleThemeProvider),
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.amberAccent.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                                color: Colors.amberAccent
+                                    .withValues(alpha: 0.3)),
                           ),
-                          const SizedBox(height: 3),
-                          Text(
-                            '1 500 req/day • 15 req/min',
-                            style: GoogleFonts.exo2(
-                              color: AppTheme.textSecondary,
-                              fontSize: 10,
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Tutorial
-              _buildGeminiTutorial(l10n),
-              const SizedBox(height: 16),
-
-              // Champ clé API
-              _GeminiApiKeyField(gemini: gemini, l10n: l10n),
-              const SizedBox(height: 12),
-
-              // Toggle Gemini activé
-              if (gemini.hasKey) ...[
-                GestureDetector(
-                  onTap: () => gemini.setEnabled(!gemini.isEnabled),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: gemini.isEnabled
-                          ? const Color(0xFF4285F4).withValues(alpha: 0.08)
-                          : AppTheme.bgPrimary,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: gemini.isEnabled
-                            ? const Color(0xFF4285F4).withValues(alpha: 0.4)
-                            : AppTheme.borderColor,
-                        width: gemini.isEnabled ? 1.5 : 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          gemini.isEnabled
-                              ? Icons.psychology_rounded
-                              : Icons.psychology_alt_outlined,
-                          color: gemini.isEnabled
-                              ? const Color(0xFF4285F4)
-                              : AppTheme.textMuted,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                gemini.isEnabled
-                                    ? '${l10n.geminiTitle} ON'
-                                    : '${l10n.geminiTitle} OFF',
-                                style: GoogleFonts.exo2(
-                                  color: gemini.isEnabled
-                                      ? Colors.white
-                                      : AppTheme.textSecondary,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                gemini.isEnabled
-                                    ? 'AI Mode — Key: ${gemini.maskedKey}'
-                                    : 'Local OCR Mode (ML Kit)',
-                                style: GoogleFonts.exo2(
-                                  color: AppTheme.textMuted,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Switch(
-                          value: gemini.isEnabled,
-                          onChanged: (v) => gemini.setEnabled(v),
-                          activeThumbColor: const Color(0xFF4285F4),
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-
-              // Statut sans clé
-              if (!gemini.hasKey)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: Colors.orange.withValues(alpha: 0.2)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.info_outline,
-                          color: Colors.orange, size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Without API key, local ML Kit OCR is used',
-                          style: GoogleFonts.exo2(
-                            color: Colors.orange.withValues(alpha: 0.8),
-                            fontSize: 10,
-                          ),
+                          child: const Icon(Icons.edit_rounded,
+                              color: Colors.amberAccent, size: 12),
                         ),
                       ),
                     ],
                   ),
-                ),
-            ],
+                ],
+              ),
+            ),
+          );
+        }),
+        Text(
+          '${l10n.confirmReset} custom  •  ${l10n.confirmDelete} default',
+          style: GoogleFonts.exo2(
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
+            fontSize: 9,
           ),
+        ),
+      ],
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // BLOC — OCR / Gemini IA (contenu, encapsulé)
+  // ═══════════════════════════════════════════════════════
+  Widget _buildGeminiSection(BuildContext context, AppLocalizations l10n) {
+    return Consumer<GeminiProvider>(
+      builder: (context, gemini, _) {
+        return Column(
+          children: [
+            // Info quota
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4285F4).withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                    color: const Color(0xFF4285F4).withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('🤖', style: TextStyle(fontSize: 18)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Gemini 2.0 Flash — Free',
+                          style: GoogleFonts.exo2(
+                            color: const Color(0xFF4285F4),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          '1 500 req/day • 15 req/min',
+                          style: GoogleFonts.exo2(
+                            color: AppTheme.textSecondary,
+                            fontSize: 10,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Tutorial
+            _buildGeminiTutorial(l10n),
+            const SizedBox(height: 16),
+
+            // Champ clé API
+            _GeminiApiKeyField(gemini: gemini, l10n: l10n),
+            const SizedBox(height: 12),
+
+            // Toggle Gemini activé
+            if (gemini.hasKey) ...[
+              GestureDetector(
+                onTap: () => gemini.setEnabled(!gemini.isEnabled),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: gemini.isEnabled
+                        ? const Color(0xFF4285F4).withValues(alpha: 0.08)
+                        : AppTheme.bgPrimary,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: gemini.isEnabled
+                          ? const Color(0xFF4285F4).withValues(alpha: 0.4)
+                          : AppTheme.borderColor,
+                      width: gemini.isEnabled ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        gemini.isEnabled
+                            ? Icons.psychology_rounded
+                            : Icons.psychology_alt_outlined,
+                        color: gemini.isEnabled
+                            ? const Color(0xFF4285F4)
+                            : AppTheme.textMuted,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              gemini.isEnabled
+                                  ? '${l10n.geminiTitle} ON'
+                                  : '${l10n.geminiTitle} OFF',
+                              style: GoogleFonts.exo2(
+                                color: gemini.isEnabled
+                                    ? Colors.white
+                                    : AppTheme.textSecondary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Text(
+                              gemini.isEnabled
+                                  ? 'AI Mode — Key: ${gemini.maskedKey}'
+                                  : 'Local OCR Mode (ML Kit)',
+                              style: GoogleFonts.exo2(
+                                color: AppTheme.textMuted,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: gemini.isEnabled,
+                        onChanged: (v) => gemini.setEnabled(v),
+                        activeThumbColor: const Color(0xFF4285F4),
+                        materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+
+            // Statut sans clé
+            if (!gemini.hasKey)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                      color: Colors.orange.withValues(alpha: 0.2)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline,
+                        color: Colors.orange, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Without API key, local ML Kit OCR is used',
+                        style: GoogleFonts.exo2(
+                          color: Colors.orange.withValues(alpha: 0.8),
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
         );
       },
     );
@@ -1125,157 +1097,152 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
   }
 
   // ═══════════════════════════════════════════════════════
-  // BLOC — Actualités
+  // BLOC — Actualités (contenu, encapsulé)
   // ═══════════════════════════════════════════════════════
   Widget _buildNewsSection(AppLocalizations l10n) {
     final versions = ChangelogData.history;
 
-    return _SectionCard(
-      icon: Icons.newspaper_rounded,
-      iconColor: Colors.cyanAccent,
-      title: l10n.settingsNews,
-      child: Column(
-        children: [
-          ...versions.asMap().entries.map((entry) {
-            final index = entry.key;
-            final version = entry.value;
-            final isLast = index == versions.length - 1;
-            final totalItems = version.sections
-                .fold<int>(0, (sum, s) => sum + s.items.length);
-            final isLatest = index == 0;
-            final color = isLatest ? Colors.cyanAccent : AppTheme.textMuted;
-            final versionEmoji = isLatest ? '🚀' : '📦';
-            final latestLabel = l10n.locale.languageCode == 'fr'
-                ? 'Dernière'
-                : l10n.locale.languageCode == 'it'
-                    ? 'Ultima'
-                    : l10n.locale.languageCode == 'es'
-                        ? 'Última'
-                        : l10n.locale.languageCode == 'pt'
-                            ? 'Última'
-                            : 'Latest';
-            final changesLabel = l10n.locale.languageCode == 'fr'
-                ? '$totalItems changement${totalItems > 1 ? 's' : ''} au total'
-                : l10n.locale.languageCode == 'it'
-                    ? '$totalItems modifica${totalItems > 1 ? 'he' : ''} in totale'
-                    : l10n.locale.languageCode == 'es'
-                        ? '$totalItems cambio${totalItems > 1 ? 's' : ''} en total'
-                        : l10n.locale.languageCode == 'pt'
-                            ? '$totalItems alteraç${totalItems > 1 ? 'ões' : 'ão'} no total'
-                            : '$totalItems change${totalItems > 1 ? 's' : ''} in total';
+    return Column(
+      children: [
+        ...versions.asMap().entries.map((entry) {
+          final index = entry.key;
+          final version = entry.value;
+          final isLast = index == versions.length - 1;
+          final totalItems = version.sections
+              .fold<int>(0, (sum, s) => sum + s.items.length);
+          final isLatest = index == 0;
+          final color = isLatest ? Colors.cyanAccent : AppTheme.textMuted;
+          final versionEmoji = isLatest ? '🚀' : '📦';
+          final latestLabel = l10n.locale.languageCode == 'fr'
+              ? 'Dernière'
+              : l10n.locale.languageCode == 'it'
+                  ? 'Ultima'
+                  : l10n.locale.languageCode == 'es'
+                      ? 'Última'
+                      : l10n.locale.languageCode == 'pt'
+                          ? 'Última'
+                          : 'Latest';
+          final changesLabel = l10n.locale.languageCode == 'fr'
+              ? '$totalItems changement${totalItems > 1 ? 's' : ''} au total'
+              : l10n.locale.languageCode == 'it'
+                  ? '$totalItems modifica${totalItems > 1 ? 'he' : ''} in totale'
+                  : l10n.locale.languageCode == 'es'
+                      ? '$totalItems cambio${totalItems > 1 ? 's' : ''} en total'
+                      : l10n.locale.languageCode == 'pt'
+                          ? '$totalItems alteraç${totalItems > 1 ? 'ões' : 'ão'} no total'
+                          : '$totalItems change${totalItems > 1 ? 's' : ''} in total';
 
-            return Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
-                        border:
-                            Border.all(color: color.withValues(alpha: 0.3)),
-                      ),
-                      child: Center(
-                        child: Text(versionEmoji,
-                            style: const TextStyle(fontSize: 16)),
-                      ),
+          return Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                      border:
+                          Border.all(color: color.withValues(alpha: 0.3)),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                version.date,
-                                style: GoogleFonts.exo2(
-                                  color: AppTheme.textMuted,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
+                    child: Center(
+                      child: Text(versionEmoji,
+                          style: const TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              version.date,
+                              style: GoogleFonts.exo2(
+                                color: AppTheme.textMuted,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if (isLatest) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: Colors.cyanAccent
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  latestLabel,
+                                  style: GoogleFonts.exo2(
+                                    color: Colors.cyanAccent,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
-                              if (isLatest) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: Colors.cyanAccent
-                                        .withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.versionLabel(version.version),
+                          style: GoogleFonts.exo2(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        ...version.sections.map(
+                          (section) => Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Row(
+                              children: [
+                                Text(section.type.emoji,
+                                    style: const TextStyle(fontSize: 11)),
+                                const SizedBox(width: 4),
+                                Expanded(
                                   child: Text(
-                                    latestLabel,
+                                    '${section.type.label} — ${section.items.length}',
                                     style: GoogleFonts.exo2(
-                                      color: Colors.cyanAccent,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w700,
+                                      color: section.type.color
+                                          .withValues(alpha: 0.8),
+                                      fontSize: 11,
+                                      height: 1.4,
                                     ),
                                   ),
                                 ),
                               ],
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${l10n.versionLabel(version.version)}',
-                            style: GoogleFonts.exo2(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          ...version.sections.map(
-                            (section) => Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Row(
-                                children: [
-                                  Text(section.type.emoji,
-                                      style: const TextStyle(fontSize: 11)),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      '${section.type.label} — ${section.items.length}',
-                                      style: GoogleFonts.exo2(
-                                        color: section.type.color
-                                            .withValues(alpha: 0.8),
-                                        fontSize: 11,
-                                        height: 1.4,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          changesLabel,
+                          style: GoogleFonts.exo2(
+                            color: AppTheme.textMuted,
+                            fontSize: 10,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            changesLabel,
-                            style: GoogleFonts.exo2(
-                              color: AppTheme.textMuted,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                if (!isLast) ...[
-                  const SizedBox(height: 12),
-                  Divider(color: AppTheme.borderColor, height: 1),
-                  const SizedBox(height: 12),
+                  ),
                 ],
+              ),
+              if (!isLast) ...[
+                const SizedBox(height: 12),
+                Divider(color: AppTheme.borderColor, height: 1),
+                const SizedBox(height: 12),
               ],
-            );
-          }),
-        ],
-      ),
+            ],
+          );
+        }),
+      ],
     );
   }
 
@@ -1295,28 +1262,29 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
       ),
       child: Row(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'ARK Dino Manager',
-                style: GoogleFonts.exo2(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'ARK Dino Manager',
+                  style: GoogleFonts.exo2(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '${l10n.versionLabel(current.version)} — ${current.date}',
-                style: GoogleFonts.exo2(
-                  color: AppTheme.textMuted,
-                  fontSize: 11,
+                const SizedBox(height: 2),
+                Text(
+                  '${l10n.versionLabel(current.version)} — ${current.date}',
+                  style: GoogleFonts.exo2(
+                    color: AppTheme.textMuted,
+                    fontSize: 11,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const Spacer(),
           GestureDetector(
             onTap: () => showDialog(
               context: context,
@@ -1523,154 +1491,185 @@ class _SettingScreenContentState extends State<_SettingScreenContent> {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// SECTION CARD — Widget réutilisable
+// SETTINGS ROW — Ligne de menu directe (tap → action)
 // ════════════════════════════════════════════════════════════════════════════
-class _SectionCard extends StatelessWidget {
+class _SettingsRow extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String title;
-  final Widget? trailing;
   final String? subtitle;
-  final Widget child;
+  final VoidCallback onTap;
 
-  const _SectionCard({
+  const _SettingsRow({
     required this.icon,
     required this.iconColor,
     required this.title,
-    required this.child,
-    this.trailing,
-    this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: iconColor.withValues(alpha: 0.8), size: 16),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: GoogleFonts.exo2(
-                  color: iconColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
-              const Spacer(),
-              if (trailing != null) trailing!,
-            ],
-          ),
-          if (subtitle != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              subtitle!,
-              style:
-                  GoogleFonts.exo2(color: AppTheme.textMuted, fontSize: 10),
-            ),
-          ],
-          const SizedBox(height: 14),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// LANGUAGE TILE
-// ════════════════════════════════════════════════════════════════════════════
-class _LanguageTile extends StatelessWidget {
-  final String code;
-  final String label;
-  final String flag;
-  final bool isActive;
-  final String activeLabel;
-  final VoidCallback onTap;
-
-  const _LanguageTile({
-    required this.code,
-    required this.label,
-    required this.flag,
-    required this.isActive,
-    required this.activeLabel,
     required this.onTap,
+    this.subtitle,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isActive
-              ? Colors.greenAccent.withValues(alpha: 0.08)
-              : AppTheme.bgPrimary,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isActive
-                ? Colors.greenAccent.withValues(alpha: 0.5)
-                : AppTheme.borderColor,
-            width: isActive ? 1.5 : 1,
-          ),
+          color: AppTheme.bgCard,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.borderColor),
         ),
         child: Row(
           children: [
-            Text(flag, style: const TextStyle(fontSize: 24)),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+                border:
+                    Border.all(color: iconColor.withValues(alpha: 0.3)),
+              ),
+              child: Icon(icon, color: iconColor, size: 18),
+            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    label,
+                    title,
                     style: GoogleFonts.exo2(
-                      color: isActive ? Colors.white : AppTheme.textSecondary,
-                      fontSize: 13,
-                      fontWeight:
-                          isActive ? FontWeight.w700 : FontWeight.w500,
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  if (isActive)
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
                     Text(
-                      activeLabel,
+                      subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.exo2(
-                        color: Colors.greenAccent.withValues(alpha: 0.7),
-                        fontSize: 10,
+                        color: AppTheme.textMuted,
+                        fontSize: 11,
                       ),
                     ),
+                  ],
                 ],
               ),
             ),
-            AnimatedOpacity(
-              opacity: isActive ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 200),
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.greenAccent.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                      color: Colors.greenAccent.withValues(alpha: 0.4)),
-                ),
-                child: const Icon(Icons.check_rounded,
-                    color: Colors.greenAccent, size: 14),
-              ),
-            ),
+            Icon(Icons.chevron_right_rounded,
+                color: AppTheme.textMuted, size: 22),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// COLLAPSIBLE SECTION — Encapsulée par défaut, chevron rotatif
+// ════════════════════════════════════════════════════════════════════════════
+class _CollapsibleSection extends StatefulWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String? subtitle;
+  final bool initiallyExpanded;
+  final Widget child;
+
+  const _CollapsibleSection({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.child,
+    this.subtitle,
+    this.initiallyExpanded = false,
+  });
+
+  @override
+  State<_CollapsibleSection> createState() => _CollapsibleSectionState();
+}
+
+class _CollapsibleSectionState extends State<_CollapsibleSection> {
+  late bool _expanded = widget.initiallyExpanded;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _expanded
+              ? widget.iconColor.withValues(alpha: 0.3)
+              : AppTheme.borderColor,
+        ),
+      ),
+      child: Column(
+        children: [
+          // En-tête cliquable
+          GestureDetector(
+            onTap: () => setState(() => _expanded = !_expanded),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              child: Row(
+                children: [
+                  Icon(widget.icon,
+                      color: widget.iconColor.withValues(alpha: 0.8),
+                      size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      widget.title,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.exo2(
+                        color: widget.iconColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: _expanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(Icons.expand_more_rounded,
+                        color: AppTheme.textMuted, size: 20),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Sous-titre (visible même fermé, sur une ligne)
+          if (!_expanded && widget.subtitle != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 12),
+              child: Text(
+                widget.subtitle!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    GoogleFonts.exo2(color: AppTheme.textMuted, fontSize: 10),
+              ),
+            ),
+          // Contenu
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 200),
+            sizeCurve: Curves.easeInOut,
+            crossFadeState: _expanded
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            firstChild: Padding(
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
+              child: widget.child,
+            ),
+            secondChild: const SizedBox(width: double.infinity),
+          ),
+        ],
       ),
     );
   }
@@ -1967,15 +1966,18 @@ class _RoleThemeEditorSheetState extends State<_RoleThemeEditorSheet> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                Text(
-                  '${l10n.roleThemesPreview} — ${widget.role}',
-                  style: GoogleFonts.exo2(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                Expanded(
+                  child: Text(
+                    '${l10n.roleThemesPreview} — ${widget.role}',
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.exo2(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 8),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   padding:

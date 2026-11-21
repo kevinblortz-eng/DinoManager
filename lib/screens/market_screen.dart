@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/market_provider.dart';
+import '../providers/currency_provider.dart';
 import '../theme/app_theme.dart';
-import 'dart:io' show File;
 import 'market_shop_detail_screen.dart';
 import 'market_shop_edit_screen.dart';
 import 'orders_screen.dart';
@@ -78,29 +78,69 @@ class MarketScreen extends StatelessWidget {
     final count = expiring.length as int;
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF3D2B00),
-        border: Border.all(color: const Color(0xFFFF9800), width: 1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.warning_amber_rounded,
-              color: Color(0xFFFFB300), size: 26),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              '$count cryo${count > 1 ? 's' : ''} bientôt dépopé'
-              '${count > 1 ? 's' : ''} (≤ 4 j) — à récupérer au shop !',
-              style: const TextStyle(
-                color: Color(0xFFFFCC80),
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
+      child: Material(
+        color: const Color(0xFF161B22),
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFFFF9800).withValues(alpha: 0.14),
+                  const Color(0xFF161B22),
+                ],
               ),
+              border: Border.all(
+                  color: const Color(0xFFFF9800).withValues(alpha: 0.55),
+                  width: 1.2),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFB300).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: const Color(0xFFFFB300).withValues(alpha: 0.4)),
+                  ),
+                  child: const Icon(Icons.warning_amber_rounded,
+                      color: Color(0xFFFFB300), size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$count cryo${count > 1 ? 's' : ''} bientôt dépopé${count > 1 ? 's' : ''}',
+                        style: const TextStyle(
+                          color: Color(0xFFFFCC80),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      const Text(
+                        '≤ 4 j restants — à récupérer au shop !',
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -187,6 +227,9 @@ class MarketScreen extends StatelessWidget {
     final minDays = market.minRemainingDays(shop.id as String);
     final hasAlert = actives.any((l) => l.isExpiringSoon(DateTime.now()));
     final color = Color(shop.colorValue as int);
+    // Monnaie globale de l'app : icône Hexagon (ou autre) réelle partout.
+    final currency = context.watch<CurrencyProvider>().defaultCurrency;
+    final totalValue = actives.fold<double>(0, (s, l) => s + l.price);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -248,11 +291,34 @@ class MarketScreen extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 3),
-                      Text(
-                        '${actives.length} dino${actives.length > 1 ? 's' : ''} en vente'
-                        '  ·  ${actives.isEmpty ? '—' : '${actives.fold<double>(0, (s, l) => s + (l.price as double)).toStringAsFixed(0)} hexagones'}',
-                        style: const TextStyle(
-                            color: Colors.white60, fontSize: 12),
+                      Row(
+                        children: [
+                          Text(
+                            '${actives.length} dino${actives.length > 1 ? 's' : ''} en vente',
+                            style: const TextStyle(
+                                color: Colors.white60, fontSize: 12),
+                          ),
+                          if (actives.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            Image.asset(
+                              currency.iconPath,
+                              width: 13,
+                              height: 13,
+                              errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.hexagon,
+                                  size: 13,
+                                  color: AppTheme.accentPrimary),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              totalValue.toStringAsFixed(0),
+                              style: const TextStyle(
+                                  color: AppTheme.accentPrimary,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12),
+                            ),
+                          ],
+                        ],
                       ),
                       const SizedBox(height: 3),
                       Text(

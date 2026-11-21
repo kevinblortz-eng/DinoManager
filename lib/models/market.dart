@@ -45,7 +45,7 @@ extension ListingTypeExt on ListingType {
   }
 }
 
-enum ListingSexe { male, femelle, indefini }
+enum ListingSexe { male, femelle, couple, indefini }
 
 extension ListingSexeExt on ListingSexe {
   String get label {
@@ -54,6 +54,8 @@ extension ListingSexeExt on ListingSexe {
         return 'Mâle';
       case ListingSexe.femelle:
         return 'Femelle';
+      case ListingSexe.couple:
+        return 'Couple';
       case ListingSexe.indefini:
         return '—';
     }
@@ -144,6 +146,8 @@ class MarketListing {
   ListingSexe sexe;
   /// Prix unitaire en hexagones.
   double price;
+  /// Lien optionnel vers le dino de la bibliothèque (affichage image + couleurs).
+  int? dinoId;
   /// Date de dépôt dans le shop.
   DateTime listedAt;
   /// Date de péremption de la cryo (= listedAt + 30 j, modifiable).
@@ -164,6 +168,7 @@ class MarketListing {
     required this.type,
     this.sexe = ListingSexe.indefini,
     required this.price,
+    this.dinoId,
     DateTime? listedAt,
     DateTime? deadline,
     this.status = ListingStatus.active,
@@ -204,6 +209,7 @@ class MarketListing {
         'type': type.toString().split('.').last,
         'sexe': sexe.toString().split('.').last,
         'price': price,
+        'dinoId': dinoId,
         'listedAt': listedAt.toIso8601String(),
         'deadline': deadline.toIso8601String(),
         'status': status.toString().split('.').last,
@@ -219,6 +225,7 @@ class MarketListing {
         type: ListingTypeExt.fromString(map['type'] as String? ?? 'adulte'),
         sexe: ListingSexeExt.fromString(map['sexe'] as String? ?? 'indefini'),
         price: (map['price'] as num?)?.toDouble() ?? 0,
+        dinoId: map['dinoId'] as int?,
         listedAt: map['listedAt'] != null
             ? DateTime.tryParse(map['listedAt'] as String) ?? DateTime.now()
             : DateTime.now(),

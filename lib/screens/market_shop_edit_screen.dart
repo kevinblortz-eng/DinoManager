@@ -1,4 +1,7 @@
 // market_shop_edit_screen.dart — Création / paramètres d'un shop.
+// NOTE : aucun DropdownButtonFormField — Flutter 3.50 a cassé la sélection
+// interne des dropdowns (value: déprécié = sémantique initialValue:).
+// Tous les choix Type/Sexe passent par des chips à choix direct.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -81,10 +84,11 @@ class _MarketShopEditScreenState extends State<MarketShopEditScreen> {
   }
 
   Future<void> _deleteShop() async {
+    final market = context.read<MarketProvider>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1C2333),
+        backgroundColor: AppTheme.bgCard,
         title: const Text('Supprimer ce shop ?',
             style: TextStyle(color: Colors.white, fontSize: 17)),
         content: const Text(
@@ -104,9 +108,80 @@ class _MarketShopEditScreenState extends State<MarketShopEditScreen> {
       ),
     );
     if (confirmed == true && mounted) {
-      await context.read<MarketProvider>().deleteShop(widget.shop!.id);
+      await market.deleteShop(widget.shop!.id);
       if (mounted) Navigator.pop(context);
     }
+  }
+
+  // ── Chips Type / Sexe (remplacent les dropdowns) ──────────────────────
+
+  Widget _typeChips(ListingType current, void Function(ListingType) onSelect) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children:
+          ListingType.values.where((t) => t != ListingType.aucun).map((t) {
+        final active = t == current;
+        return GestureDetector(
+          onTap: () => onSelect(t),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: active
+                  ? AppTheme.accentPrimary.withValues(alpha: 0.18)
+                  : AppTheme.bgSecondary,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: active ? AppTheme.accentPrimary : Colors.white24,
+                width: active ? 1.5 : 1,
+              ),
+            ),
+            child: Text(
+              t.label,
+              style: TextStyle(
+                color: active ? AppTheme.accentPrimary : Colors.white70,
+                fontSize: 12.5,
+                fontWeight: active ? FontWeight.w800 : FontWeight.w500,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _sexeChips(ListingSexe current, void Function(ListingSexe) onSelect) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: ListingSexe.values.map((s) {
+        final active = s == current;
+        return GestureDetector(
+          onTap: () => onSelect(s),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: active
+                  ? Colors.cyanAccent.withValues(alpha: 0.15)
+                  : AppTheme.bgSecondary,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: active ? Colors.cyanAccent : Colors.white24,
+                width: active ? 1.5 : 1,
+              ),
+            ),
+            child: Text(
+              s.label,
+              style: TextStyle(
+                color: active ? Colors.cyanAccent : Colors.white70,
+                fontSize: 12.5,
+                fontWeight: active ? FontWeight.w800 : FontWeight.w500,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
   }
 
   @override
@@ -185,56 +260,21 @@ class _MarketShopEditScreenState extends State<MarketShopEditScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Row(children: [
-            Expanded(
-              child: DropdownButtonFormField<ListingType>(
-                initialValue: _defaultType == ListingType.aucun ? null : _defaultType,
-                hint: const Text('Aucun',
-                    style: TextStyle(color: Colors.white38)),
-                dropdownColor: const Color(0xFF1C2333),
-                decoration: const InputDecoration(
-                  labelText: 'Type par défaut',
-                  labelStyle: TextStyle(color: Colors.white54),
-                  enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white24)),
-                ),
-                items: ListingType.values
-                    .where((t) => t != ListingType.aucun)
-                    .map((t) => DropdownMenuItem(
-                        value: t,
-                        child: Text(t.label,
-                            style: const TextStyle(color: Colors.white))))
-                    .toList(),
-                onChanged: (v) =>
-                    setState(() => _defaultType = v ?? ListingType.aucun),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: DropdownButtonFormField<ListingSexe>(
-                initialValue: _defaultSexe,
-                dropdownColor: const Color(0xFF1C2333),
-                decoration: const InputDecoration(
-                  labelText: 'Sexe par défaut',
-                  labelStyle: TextStyle(color: Colors.white54),
-                  enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white24)),
-                ),
-                items: ListingSexe.values
-                    .map((s) => DropdownMenuItem(
-                        value: s,
-                        child: Text(s.label,
-                            style: const TextStyle(color: Colors.white))))
-                    .toList(),
-                onChanged: (v) =>
-                    setState(() => _defaultSexe = v ?? _defaultSexe),
-              ),
-            ),
-          ]),
+          const Text('Type par défaut',
+              style: TextStyle(color: Colors.white54, fontSize: 12)),
+          const SizedBox(height: 8),
+          _typeChips(_defaultType,
+              (t) => setState(() => _defaultType = t)),
+          const SizedBox(height: 16),
+          const Text('Sexe par défaut',
+              style: TextStyle(color: Colors.white54, fontSize: 12)),
+          const SizedBox(height: 8),
+          _sexeChips(_defaultSexe,
+              (s) => setState(() => _defaultSexe = s)),
           const SizedBox(height: 8),
           const Text(
             'Ex. : un shop "Œufs only" → Type par défaut = Œuf.\n'
-            'Chaque dépôt démarre un timer cryo de 30 jours (modifiable).',
+            'Chaque dépôt démarre un timer cryo (8 j œuf / 30 j autres, modifiable).',
             style: TextStyle(color: Colors.white38, fontSize: 11.5, height: 1.4),
           ),
           const SizedBox(height: 24),

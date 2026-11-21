@@ -15,7 +15,14 @@ class DinoLite {
   final String espece;
   final String nom;
   final ListingSexe sexe;
-  DinoLite({required this.espece, required this.nom, required this.sexe});
+  /// Id du dino dans la bibliothèque (pour afficher image + couleurs).
+  final int? dinoId;
+  DinoLite({
+    required this.espece,
+    required this.nom,
+    required this.sexe,
+    this.dinoId,
+  });
 
   factory DinoLite.fromDino(Dino d) => DinoLite(
         espece: d.espece,
@@ -25,6 +32,7 @@ class DinoLite {
             : d.sexe == 'Femelle'
                 ? ListingSexe.femelle
                 : ListingSexe.indefini,
+        dinoId: d.id,
       );
 }
 
@@ -128,9 +136,7 @@ class MarketProvider extends ChangeNotifier {
   /// Le timer dépend du type (œuf 8 j, autres 30 j).
   Future<void> addListing(MarketListing listing, {int quantity = 1}) async {
     for (int i = 0; i < quantity.clamp(1, 99); i++) {
-      final copy = listing.id == null || i == 0
-          ? listing
-          : _copyWithNewId(listing);
+      final copy = i == 0 ? listing : _copyWithNewId(listing);
       if (i > 0) copy.relist();
       _listings.add(copy);
     }
@@ -154,6 +160,7 @@ class MarketProvider extends ChangeNotifier {
         type: type,
         sexe: d.sexe,
         price: price,
+        dinoId: d.dinoId,
       ));
     }
     notifyListeners();
@@ -167,8 +174,21 @@ class MarketProvider extends ChangeNotifier {
         type: l.type,
         sexe: l.sexe,
         price: l.price,
+        dinoId: l.dinoId,
         status: l.status,
       );
+
+  /// Duplique un listing existant (nouvel id, nouveau timer complet).
+  Future<void> duplicateListing(String listingId) async {
+    final idx = _listings.indexWhere((l) => l.id == listingId);
+    if (idx == -1) return;
+    final src = _listings[idx];
+    final copy = _copyWithNewId(src);
+    copy.relist();
+    _listings.add(copy);
+    notifyListeners();
+    await _persist();
+  }
 
   Future<void> updateListing(MarketListing listing) async {
     final idx = _listings.indexWhere((l) => l.id == listing.id);
@@ -184,7 +204,7 @@ class MarketProvider extends ChangeNotifier {
     await _persist();
   }
 
-  /// Marque vendu (garde la trace, swipe gauche n°1).
+  /// Marque vendu (garde la trace, swipe droite).
   Future<void> markSold(String listingId) async {
     final idx = _listings.indexWhere((l) => l.id == listingId);
     if (idx == -1) return;
@@ -195,7 +215,7 @@ class MarketProvider extends ChangeNotifier {
     await _persist();
   }
 
-  /// Remet en vente : nouveau cycle 30 j (swipe gauche n°2 sur un vendu).
+  /// Remet en vente : nouveau cycle selon le type (re-swipe droite sur un vendu).
   Future<void> relist(String listingId) async {
     final idx = _listings.indexWhere((l) => l.id == listingId);
     if (idx == -1) return;
